@@ -7,6 +7,8 @@ from algorithms.features.impl.time_delta import TimeDelta
 from algorithms.features.impl.threadID import ThreadID
 from algorithms.features.impl.ngram import Ngram
 
+from algorithms.persistance import save_to_json, print_as_table
+
 from algorithms.decision_engines.lstm import LSTM
 
 from algorithms.ids import IDS
@@ -15,10 +17,8 @@ from dataloader.dataloader_factory import dataloader_factory
 from dataloader.direction import Direction
 
 from pprint import pprint
-
 import argparse
 import time
-import csv
 
 if __name__ == '__main__':
     """
@@ -129,47 +129,30 @@ if __name__ == '__main__':
               decision_engine=de,
               plot_switch=False)
 
-    ids.train_decision_engine()
-    ids.determine_threshold()
-    start = time.time()
-    ids.do_detection()
-    end = time.time()
-    detection_time = end - start
-    performance = ids.performance.get_performance()
-    pprint(performance)
-    stats = {}
-    stats['scenario'] = scenario
-    stats['ngram'] = ngram_length
-    stats['batch_size'] = batch_size
-    stats['embedding_size'] = embedding_size
-    stats['return_value'] = use_return_value
-    stats['thread_change_flag'] = use_thread_change_flag
-    stats['time_delta'] = use_time_delta
-    stats['alarm_count'] = performance['alarm_count']
-    stats['cfp_exp'] = performance['consecutive_false_positives_exploits']
-    stats['cfp_norm'] = performance['consecutive_false_positives_normal']
-    stats['detection_rate'] = performance['detection_rate']
-    stats['fp'] = performance['false_positives']
-    stats['detection_time'] = detection_time
-
-    csv_file = "stats.csv"
-    csv_columns = ['scenario',
-                   'ngram',
-                   'batch_size',
-                   'embedding_size',
-                   'return_value',
-                   'thread_change_flag',
-                   'time_delta',
-                   'alarm_count',
-                   'cfp_exp',
-                   'cfp_norm',
-                   'detection_rate',
-                   'fp',
-                   'detection_time']
     try:
-        with open(csv_file, 'a') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=csv_columns)
-            # writer.writeheader()
-            writer.writerow(stats)
-    except IOError:
-        print("I/O error")
+        # training
+        ids.train_decision_engine()
+        # threshold
+        # ids.determine_threshold()
+        start = time.time()
+        # ids.do_detection()
+        end = time.time()
+        detection_time = (end - start)/60  # in minuites
+        stats = ids.performance.get_performance()
+        pprint(stats)
+    except Exception:
+        print(f'Failed for model: {model_path}')
+    finally:
+        if stats is None:
+            stats = {}
+        stats['scenario'] = scenario
+        stats['ngram'] = ngram_length
+        stats['batch_size'] = batch_size
+        stats['embedding_size'] = embedding_size
+        stats['return_value'] = use_return_value
+        stats['thread_change_flag'] = use_thread_change_flag
+        stats['time_delta'] = use_time_delta
+        stats['detection_time'] = detection_time
+        result_path = 'persistent_data/lstm.json'
+        save_to_json(stats, result_path)
+        print_as_table(path=result_path)
