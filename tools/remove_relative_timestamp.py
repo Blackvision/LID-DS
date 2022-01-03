@@ -5,31 +5,17 @@ import json
 
 from tqdm import tqdm
 
-from dataloader.data_loader import DataLoader
+from dataloader.data_loader_2021 import DataLoader2021 as DataLoader
 
 SCENARIO_NAMES = [
-    "Bruteforce_CWE-307",
-    "CVE-2012-2122",
-    "CVE-2014-0160",
-    "CVE-2017-7529",
-    "CVE-2017-12635_6",
-    "CVE-2018-3760",
-    "CVE-2019-5418",
-    "CVE-2020-9484",
-    "CVE-2020-13942",
     "CVE-2020-23839",
-    "CWE-89-SQL-injection",
-    "EPS_CWE-434",
-    "Juice-Shop",
-    "PHP_CWE-434",
-    "ZipSlip"
 ]
 
 if __name__ == '__main__':
 
     # I/O
-    dataset_base_path = '/home/felix/repos/LID-DS/LID-DS-2021/'
-    target_dir = '/media/felix/PortableSSD/LID-DS-2021-no-relative-time'
+    dataset_base_path = '/media/felix/PortableSSD/rerecord/'
+    target_dir = '/media/felix/PortableSSD/rerecord-final/'
 
     # listings
     categories = ['training', 'test', 'validation']
@@ -72,10 +58,13 @@ if __name__ == '__main__':
                             if inzipinfo.filename == f'{recording_name}.json':
                                 # removing relative timestamp
                                 content = json.loads(infile.read().decode('utf-8'))
-                                for time in times:
-                                    del content['time'][time]['relative']
-                                for exploit in content['time']['exploit']:
-                                    del exploit['relative']
+                                try:
+                                    for time in times:
+                                        del content['time'][time]['relative']
+                                    for exploit in content['time']['exploit']:
+                                        del exploit['relative']
+                                except:
+                                    pass
                                 outzip.writestr(inzipinfo.filename, json.dumps(content, indent=4))
 
                             # special case for ZipSlip scenario that contains process names with spaces
