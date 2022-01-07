@@ -291,7 +291,7 @@ class DataLoader2021(BaseDataLoader):
 
 
 if __name__ == "__main__":
-    base_path = '../../Dataset/'
+    base_path = '/home/eschulze/LID-DS-2021-no-relative-time'
     scenario_names = os.listdir(base_path)
     for scenario in scenario_names:
         print(scenario)

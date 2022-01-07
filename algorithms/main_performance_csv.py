@@ -13,7 +13,7 @@ import argparse
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Saving Stide Performance to csv.')
+    """parser = argparse.ArgumentParser(description='Saving Stide Performance to csv.')
 
     parser.add_argument('-d', dest='base_path', action='store', type=str, required=True,
                         help='LID-DS base path')
@@ -21,28 +21,29 @@ if __name__ == '__main__':
                         help='output path for performance')
 
     args = parser.parse_args()
-
+"""
     # lists of config parameters to iterate through
-    THREAD_AWARE = [True, False]
-    N_GRAM_PARAMS = [3, 5, 8]
+    THREAD_AWARE = [False]
+    N_GRAM_PARAMS = [3]
     WINDOW_LENGTH_PARAMS = [100, 1000, 10000]
 
-    SCENARIO_NAMES = ["Bruteforce_CWE-307",
-                      "CVE-2012-2122",
-                      "CVE-2014-0160",
-                      "CVE-2017-7529",
-                      "CVE-2017-12635_6",
-                      "CVE-2018-3760",
-                      "CVE-2019-5418",
-                      "CVE-2020-9484",
-                      "CVE-2020-13942",
-                      "CVE-2020-23839",
-                      "CWE-89-SQL-Injection",
-                      "CWE-89-SQL-injection",
-                      "EPS_CWE-434",
-                      "Juice-Shop",
-                      "PHP_CWE-434",
-                      "ZipSlip"]
+    SCENARIO_NAMES = [#"Bruteforce_CWE-307",
+                      #"CVE-2012-2122",
+                      #"CVE-2014-0160",
+                      #"CVE-2017-7529",
+                      #"CVE-2017-12635_6",
+                      #"CVE-2018-3760",
+                      #"CVE-2019-5418",
+                      #"CVE-2020-9484",
+                      "CVE-2020-13942"] #---> ab ngram 3 neu starten
+                      #"CVE-2020-23839",
+                      #"CWE-89-SQL-injection",
+                      #"EPS_CWE-434",
+                      #"Juice-Shop",
+                      #"PHP_CWE-434",
+                      #"ZipSlip"]
+
+    #SCENARIO_NAMES = ["CVE-2018-3760"]
 
     syscall_feature_list = [SyscallToInt(),
                             ThreadIDExtractor()]
@@ -51,7 +52,7 @@ if __name__ == '__main__':
 
     # data loader for scenario
     for name in SCENARIO_NAMES:
-        dataloader = DataLoader(os.path.join(args.base_path, name))
+        dataloader = DataLoader(os.path.join("/home/eschulze/LID-DS-2021-no-relative-time", name))
 
         for flag in THREAD_AWARE:
             for ngram_config in N_GRAM_PARAMS:
@@ -87,9 +88,9 @@ if __name__ == '__main__':
                     performance_dict["thread_aware"] = f"{flag}"
                     performance_dict["n_gram"] = f"{ngram_config}"
                     performance_dict["window_length"] = f"{window_config}"
-                    # pprint(perf_dict)
+                    #pprint(performance_dict)
 
-                    with open(os.path.join(args.output_path, "performance.csv"), "a") as performance_csv:
+                    with open(os.path.join("/home/eschulze/LID-DS", "performance.csv"), "a") as performance_csv:
                         fieldnames = ["scenario",
                                       "thread_aware",
                                       "n_gram",
