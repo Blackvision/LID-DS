@@ -6,6 +6,7 @@ import zipfile
 from dataloader.base_recording import BaseRecording
 
 from dataloader.direction import Direction
+from dataloader.networkpacket_2021 import Networkpacket2021
 from dataloader.syscall import Syscall
 from dataloader.resource_statistic import ResourceStatistic
 from dataloader.syscall_2021 import Syscall2021
@@ -69,12 +70,13 @@ class Recording2021(BaseRecording):
     def packets(self):
         """
 
-            Unzip and extract pcap objects,
-
-            Returns:
-            pcap obj: return pypcap Extractor object
+            Unzip and extract pcap objects
+            pcap obj: pypcap Extractor object
             src:
                 https://pypcapkit.jarryshaw.me/en/latest/foundation/extraction.html#pcapkit.foundation.extraction.Extractor
+
+            Returns:
+                Networkpacket2021
 
         """
         try:
@@ -83,17 +85,20 @@ class Recording2021(BaseRecording):
                 for file in file_list:
                     if file.endswith('.pcap'):
                         zipped.extract(file, 'tmp')
-            obj = pcapkit.extract(fin=f'tmp/{self.name}.pcap',
-                                  engine='pyshark',
-                                  store=True,
-                                  nofile=True)
+                obj = pcapkit.extract(fin=f'tmp/{self.name}.pcap',
+                                      engine='pyshark',
+                                      store=True,
+                                      nofile=True)
+                for frame in obj.frame:
+                    networkpacket_object = Networkpacket2021(self.path, frame)
+                    yield networkpacket_object
+
         except Exception:
             print(f'Error extracting pcap file {self.name}')
             return None
         finally:
             os.remove(f'tmp/{self.name}.pcap')
-
-        return obj
+        # return obj
 
     def resource_stats(self) -> list:
         """
