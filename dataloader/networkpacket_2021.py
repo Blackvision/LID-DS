@@ -36,7 +36,7 @@ class Networkpacket2021(Networkpacket):
             elif hasattr(self.networkpacket_frame, 'arp'):
                 self._source_ip_address = self.networkpacket_frame.arp.src_proto_ipv4
             else:
-                self._source_ip_address = None
+                self._source_ip_address = 'None'
 
         return self._source_ip_address
 
@@ -53,7 +53,7 @@ class Networkpacket2021(Networkpacket):
             elif hasattr(self.networkpacket_frame, 'arp'):
                 self._destination_ip_address = self.networkpacket_frame.arp.dst_proto_ipv4
             else:
-                self._destination_ip_address = None
+                self._destination_ip_address = 'None'
 
         return self._destination_ip_address
 

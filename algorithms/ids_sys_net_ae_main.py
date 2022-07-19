@@ -16,7 +16,7 @@ from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
-# TODO delete this file
+# TODO rename features impl to impl_syscall
 
 if __name__ == '__main__':
     # feature config:

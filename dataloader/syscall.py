@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import Tuple
 
+from dataloader.datapacket import Datapacket
 from dataloader.direction import Direction
 
 
-class Syscall:
+class Syscall(Datapacket):
     """
     represents one system call
     """

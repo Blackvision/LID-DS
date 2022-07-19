@@ -6,6 +6,7 @@ import torch.nn as nn
 from tqdm import tqdm
 import math
 
+from dataloader.datapacket import Datapacket
 from dataloader.syscall import Syscall
 from algorithms.building_block import BuildingBlock
 
@@ -116,15 +117,15 @@ class AE(BuildingBlock):
     def depends_on(self):
         return self._dependency_list
 
-    def train_on(self, syscall: Syscall):
-        input_vector = self._input_vector.get_result(syscall)
+    def train_on(self, datapacket: Datapacket):
+        input_vector = self._input_vector.get_result(datapacket)
         if input_vector is not None:
             if self._input_size == 0:
                 self._input_size = len(input_vector)
             self._training_set.add(tuple(input_vector))
         
-    def val_on(self, syscall: Syscall):
-        input_vector = self._input_vector.get_result(syscall)
+    def val_on(self, datapacket: Datapacket):
+        input_vector = self._input_vector.get_result(datapacket)
         if input_vector is not None:
             self._validation_set.add(tuple(input_vector))
         
@@ -195,8 +196,8 @@ class AE(BuildingBlock):
         self._autoencoder.load_state_dict(best_weights)
         self._autoencoder.eval()        
 
-    def _calculate(self, syscall: Syscall):
-        input_vector = self._input_vector.get_result(syscall)
+    def _calculate(self, datapacket: Datapacket):
+        input_vector = self._input_vector.get_result(datapacket)
         if input_vector is not None:            
             if input_vector in self._result_dict:
                 return self._result_dict[input_vector]

@@ -1,4 +1,7 @@
-class Networkpacket:
+from dataloader.datapacket import Datapacket
+
+
+class Networkpacket(Datapacket):
     """
     represents one network packet
     """

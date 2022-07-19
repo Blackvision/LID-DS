@@ -2,6 +2,7 @@ from gensim.models import KeyedVectors, Word2Vec
 from algorithms.building_block import BuildingBlock
 from algorithms.features.impl.ngram import Ngram
 from algorithms.features.impl.syscall_name import SyscallName
+from dataloader.datapacket import Datapacket
 from dataloader.syscall import Syscall
 
 
@@ -45,14 +46,14 @@ class W2VEmbedding(BuildingBlock):
     def depends_on(self):
         return self._dependency_list
 
-    def train_on(self, syscall: Syscall):
+    def train_on(self, datapacket: Datapacket):
         """
             gets training systemcalls one after another
             builds sentences(ngrams) from them 
             saves them to training corpus
         """
         if self.w2vmodel is None:
-            ngram = self._ngram_bb.get_result(syscall)
+            ngram = self._ngram_bb.get_result(datapacket)
             if ngram is not None:
                 if self._distinct:
                     if ngram not in self._sentences:
@@ -73,7 +74,7 @@ class W2VEmbedding(BuildingBlock):
                              min_count=1)
             self.w2vmodel = model
 
-    def _calculate(self, syscall: Syscall):
+    def _calculate(self, datapacket: Datapacket):
         """
             returns the w2v embedding to a given input            
             if the input is not in the training corpus a pre-defined vector (see: unknown_input_value) is returned
@@ -82,7 +83,7 @@ class W2VEmbedding(BuildingBlock):
                 tuple representing the w2v embedding or None if no embedding can be calculated for the input
         """
         try:
-            input = self._input_bb.get_result(syscall)
+            input = self._input_bb.get_result(datapacket)
             if input is not None:
                 return tuple(self.w2vmodel.wv[input].tolist())
             else: 

@@ -7,7 +7,6 @@ from dataloader.base_recording import BaseRecording
 
 from dataloader.direction import Direction
 from dataloader.networkpacket_2021 import Networkpacket2021
-from dataloader.syscall import Syscall
 from dataloader.resource_statistic import ResourceStatistic
 from dataloader.syscall_2021 import Syscall2021
 

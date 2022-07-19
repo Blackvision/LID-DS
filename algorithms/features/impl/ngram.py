@@ -1,10 +1,8 @@
-import typing
 from collections import deque
 from collections.abc import Iterable
-from algorithms import features
 
 from algorithms.building_block import BuildingBlock
-from algorithms.features.impl.threadID import ThreadID
+from dataloader.datapacket import Datapacket
 from dataloader.syscall import Syscall
 
 
@@ -31,7 +29,7 @@ class Ngram(BuildingBlock):
     def depends_on(self):
         return self._dependency_list
 
-    def _calculate(self, syscall: Syscall):
+    def _calculate(self, datapacket: Datapacket):
         """
         writes the ngram into dependencies if its complete
         otherwise does not write into dependencies
@@ -41,7 +39,7 @@ class Ngram(BuildingBlock):
         # call get_result on each dependency
         # build the ngram if all dependencies are not None
         for feature in self._dependency_list:
-            result = feature.get_result(syscall)
+            result = feature.get_result(datapacket)
             if result is None:
                 all_dependencies_are_not_none = False
             else:
@@ -59,11 +57,14 @@ class Ngram(BuildingBlock):
             if self._deque_length is None:
                 self._deque_length = self._ngram_length * len(dependencies)
             
-            # group by thread id            
-            thread_id = syscall.thread_id() if self._thread_aware else 0
-            if thread_id not in self._ngram_buffer:                
+            # group by thread id
+            thread_id = 0
+            if isinstance(datapacket, Syscall) and self._thread_aware:
+                thread_id = datapacket.thread_id()
+
+            if thread_id not in self._ngram_buffer:
                 self._ngram_buffer[thread_id] = deque(maxlen=self._deque_length)
-            
+
             # append the current dependencies to the ngram
             self._ngram_buffer[thread_id].extend(dependencies)
 

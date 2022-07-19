@@ -4,7 +4,8 @@ from algorithms.building_block import BuildingBlock
 
 
 class BuildingBlockManager:
-    def __init__(self, final_bb: BuildingBlock):
+    # TODO: wieder so einfügen -> def __init__(self, final_bb: BuildingBlock):
+    def __init__(self, final_bb):
         self._dependency_graph = nx.DiGraph()
         self._final_bb = final_bb
 

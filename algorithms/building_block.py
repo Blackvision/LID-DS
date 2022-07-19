@@ -1,5 +1,5 @@
 from algorithms.building_block_id_manager import BuildingBlockIDManager
-from dataloader.syscall import Syscall
+from dataloader.datapacket import Datapacket
 from collections.abc import Iterable
 
 
@@ -12,16 +12,16 @@ class BuildingBlock:
         self.__config = BuildingBlock.__arguments()
         self.__instance_id = None        
         self.__last_result = None
-        self.__last_syscall_id = None
+        self.__last_datapacket_id = None
 
-    def train_on(self, syscall: Syscall):
+    def train_on(self, datapacket: Datapacket):
         """
-        takes one system call to train this bb
+        takes one datapacket to train this bb
         """        
 
-    def val_on(self, syscall: Syscall):
+    def val_on(self, datapacket: Datapacket):
         """
-        takes one system call to validate this bb on
+        takes one datapacket to validate this bb on
         """
 
     def fit(self):
@@ -29,20 +29,20 @@ class BuildingBlock:
         finalizes training
         """
 
-    def get_result(self, syscall: Syscall):
+    def get_result(self, datapacket: Datapacket):
         """        
-        This function calculates this building block on the given syscall.
-        It buffers its result until another system call is given.
+        This function calculates this building block on the given datapacket.
+        It buffers its result until another datapacket is given.
         Returns its value (whatever it is) or None if it cant be calculated at the moment.
         """
-        if self.__last_syscall_id != id(syscall):
-            self.__last_result = self._calculate(syscall)
-            self.__last_syscall_id = id(syscall)
+        if self.__last_datapacket_id != id(datapacket):
+            self.__last_result = self._calculate(datapacket)
+            self.__last_datapacket_id = id(datapacket)
         return self.__last_result
 
-    def _calculate(self, syscall: Syscall):
+    def _calculate(self, datapacket: Datapacket):
         """
-        calculates building block on the given syscall        
+        calculates building block on the given datapacket
         """
         raise NotImplementedError("each building block has to implement _calculate")
 

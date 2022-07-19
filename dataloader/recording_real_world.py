@@ -2,7 +2,6 @@ import os
 import json
 
 from zipfile import ZipFile, ZIP_DEFLATED
-from datetime import datetime
 
 from dataloader.direction import Direction
 from dataloader.syscall_2021 import Syscall2021

@@ -5,7 +5,6 @@ from typing import Tuple
 
 from dataloader.direction import Direction
 from dataloader.syscall import Syscall
-from dataloader.base_recording import BaseRecording
 
 
 class SyscallSplitPart(IntEnum):
