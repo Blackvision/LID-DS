@@ -51,13 +51,6 @@ class Networkpacket(Datapacket):
         """
         raise NotImplemented
 
-    def timestamp_unix_in_ns(self) -> int:
-        """
-        Returns:
-            int: unix timestamp
-        """
-        raise NotImplemented
-
     def data(self) -> str:
         """
         Returns:

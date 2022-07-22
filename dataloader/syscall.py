@@ -11,15 +11,7 @@ class Syscall(Datapacket):
     """
 
     def __init__(self):
-        self.recording_path = None
         self.line_id = None
-
-    def timestamp_unix_in_ns(self) -> int:
-        """
-        Returns:
-            int: unix timestamp of syscall
-        """
-        raise NotImplemented
 
     def timestamp_datetime(self) -> datetime:
         """

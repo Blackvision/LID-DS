@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataloader.syscall import Syscall
+from dataloader.datapacket import Datapacket
 from dataloader.base_recording import BaseRecording
 
 from algorithms.alarms import Alarms
@@ -27,15 +27,15 @@ class Performance:
         self._cfp_count_exploits = 0
         self._current_cfp_stream_exploits = 0
         self._exploit_anomaly_score_count = 0
-        self._first_syscall_of_cfp_list_exploits = []
-        self._last_syscall_of_cfp_list_exploits = []
+        self._first_datapacket_of_cfp_list_exploits = []
+        self._last_datapacket_of_cfp_list_exploits = []
         self._cfp_counter_wait_exploits = False
 
         self._cfp_count_normal = 0
         self._current_cfp_stream_normal = 0
         self._normal_score_count = 0
-        self._first_syscall_of_cfp_list_normal = []
-        self._last_syscall_of_cfp_list_normal = []
+        self._first_datapacket_of_cfp_list_normal = []
+        self._last_datapacket_of_cfp_list_normal = []
         self._cfp_counter_wait_normal = False
         if self.create_alarms:
             self.alarms = Alarms()
@@ -48,28 +48,28 @@ class Performance:
     def set_exploit_time(self, exploit_time):
         self._current_exploit_time = exploit_time
 
-    def analyze_syscall(self, syscall: Syscall, anomaly_score: float):
+    def analyze_datapacket(self, datapacket: Datapacket, anomaly_score: float):
         """
         counts performance values with syscall and anomaly score as input,
         differentiates between normal and exploit files
         """
 
-        syscall_time = syscall.timestamp_unix_in_ns() * (10 ** (-9))
+        datapacket_time = datapacket.timestamp_unix_in_ns() * (10 ** (-9))
 
         # files with exploit
         if self._current_exploit_time is not None:
             self._exploit_anomaly_score_count += 1
             if anomaly_score > self._threshold:
-                if self._current_exploit_time > syscall_time:
+                if self._current_exploit_time > datapacket_time:
                     self._fp += 1
                     self._current_cfp_stream_exploits += 1
                     self._cfp_start_exploits()
                     if self.create_alarms:
-                        self.alarms.add_or_update_alarm(syscall, False)
-                elif self._current_exploit_time <= syscall_time:
+                        self.alarms.add_or_update_alarm(datapacket, False)
+                elif self._current_exploit_time <= datapacket_time:
                     self._cfp_end_exploits()
                     if self.create_alarms:
-                        self.alarms.add_or_update_alarm(syscall, True)
+                        self.alarms.add_or_update_alarm(datapacket, True)
                     if self._alarm is False:
                         self._tp += 1
                         self._alarm_count += 1
@@ -81,9 +81,9 @@ class Performance:
                 if self.create_alarms:
                     self.alarms.end_alarm()
                 self._cfp_end_exploits()
-                if self._current_exploit_time > syscall_time:
+                if self._current_exploit_time > datapacket_time:
                     self._tn += 1
-                elif self._current_exploit_time <= syscall_time:
+                elif self._current_exploit_time <= datapacket_time:
                     self._fn += 1
 
         # files without exploit
@@ -94,7 +94,7 @@ class Performance:
                 self._current_cfp_stream_normal += 1
                 self._cfp_start_normal()
                 if self.create_alarms:
-                    self.alarms.add_or_update_alarm(syscall, False)
+                    self.alarms.add_or_update_alarm(datapacket, False)
             if anomaly_score <= self._threshold:
                 if self.create_alarms:
                     self.alarms.end_alarm()
@@ -123,7 +123,6 @@ class Performance:
     def new_recording(self, recording: BaseRecording):
         """
         at beginning of each recording: saves exploit time, resets flags and counts
-
         """
         # making sure there is only one true detected alarm in each exploit recording
         if self._alarm is not False:
@@ -152,54 +151,49 @@ class Performance:
         """
         appends respective lists with cfa indices (exploit cases),
         sets flags for correct index counting
-
         """
         if self._cfp_counter_wait_exploits is False:
-            self._first_syscall_of_cfp_list_exploits.append(self._exploit_anomaly_score_count)
+            self._first_datapacket_of_cfp_list_exploits.append(self._exploit_anomaly_score_count)
             self._cfp_counter_wait_exploits = True
 
     def _cfp_end_exploits(self):
         """
         appends respective lists with cfa indices (exploit cases),
         sets flags for correct index counting
-
         """
         if self._cfp_counter_wait_exploits is True:
             if self._current_cfp_stream_exploits > 0:
                 self._current_cfp_stream_exploits = 0
                 self._cfp_count_exploits += 1
-                self._last_syscall_of_cfp_list_exploits.append(self._exploit_anomaly_score_count)
+                self._last_datapacket_of_cfp_list_exploits.append(self._exploit_anomaly_score_count)
                 self._cfp_counter_wait_exploits = False
 
     def _cfp_start_normal(self):
         """
         appends respective lists with cfa indices (normal cases),
         sets flags for correct index counting
-
         """
         if self._cfp_counter_wait_normal is False:
-            self._first_syscall_of_cfp_list_normal.append(self._normal_score_count)
+            self._first_datapacket_of_cfp_list_normal.append(self._normal_score_count)
             self._cfp_counter_wait_normal = True
 
     def _cfp_end_normal(self):
         """
         appends respective lists with cfa indices (normal cases),
         sets flags for correct index counting
-
         """
         if self._cfp_counter_wait_normal is True:
             if self._current_cfp_stream_normal > 0:
                 self._current_cfp_stream_normal = 0
                 self._cfp_count_normal += 1
-                self._last_syscall_of_cfp_list_normal.append(self._normal_score_count)
+                self._last_datapacket_of_cfp_list_normal.append(self._normal_score_count)
                 self._cfp_counter_wait_normal = False
 
     def get_cfp_indices(self):
         """
         returns cfp syscall indices in lists for plotting
-
         """
-        return self._first_syscall_of_cfp_list_exploits, self._last_syscall_of_cfp_list_exploits, self._first_syscall_of_cfp_list_normal, self._last_syscall_of_cfp_list_normal
+        return self._first_datapacket_of_cfp_list_exploits, self._last_datapacket_of_cfp_list_exploits, self._first_datapacket_of_cfp_list_normal, self._last_datapacket_of_cfp_list_normal
 
     def get_results(self):
         try:

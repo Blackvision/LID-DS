@@ -17,6 +17,9 @@ from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
 # TODO rename features impl to impl_syscall
+# TODO alarm
+# TODO alarms
+# TODO score_plot
 
 if __name__ == '__main__':
     # feature config:
@@ -137,12 +140,13 @@ if __name__ == '__main__':
         print("at evaluation:")
         # threshold
         ids.determine_threshold()
-        ids.determine_threshold_networkpacket()
         # detection
         results = ids.detect()
         results_networkpacket = ids.detect_networkpacket()
 
+        print("Syscalls:")
         pprint(results)
+        print("Networkpackets:")
         pprint(results_networkpacket)
 
         # enrich results with configuration and save to disk
