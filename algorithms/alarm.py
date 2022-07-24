@@ -3,6 +3,7 @@ from dataloader.syscall import Syscall
 
 
 class Alarm:
+    # TODO alarm and alarms
     def __init__(self, syscall: Syscall, correct: bool):
         """
             represents one alarm as object

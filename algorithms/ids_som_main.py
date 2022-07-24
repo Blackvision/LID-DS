@@ -100,7 +100,7 @@ if __name__ == '__main__':
         results['ngram_length'] = ngram_length
         results['w2v_size'] = w2v_size
         results['thread_aware'] = thread_aware
-        results['config'] = ids.get_config()
+        results['config'] = ids.get_config_syscall()
         results['scenario'] = scenario_range[scenario_number]
         result_path = 'results/results_som.json'
 

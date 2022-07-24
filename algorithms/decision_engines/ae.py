@@ -101,8 +101,7 @@ class AE(BuildingBlock):
         self._mode = mode 
         self._hidden_size = hidden_size
         self._input_size = 0
-        self._autoencoder = None # AENetwork(input_size,hidden_size)               
-        #self._autoencoder.train()
+        self._autoencoder = None # AENetwork(input_size,hidden_size)
         self._loss_function = torch.nn.MSELoss()
         self._epochs = 100000
         self._batch_size = batch_size
@@ -145,8 +144,9 @@ class AE(BuildingBlock):
         ae_ds_val = AEDataset(self._validation_set)
         data_loader = torch.utils.data.DataLoader(ae_ds, batch_size=self._batch_size, shuffle=True)
         val_data_loader = torch.utils.data.DataLoader(ae_ds_val, batch_size=self._batch_size, shuffle=True)
-        bar = tqdm(range(0, self._epochs), 'training'.rjust(27), unit=" epochs")                
-        for epoch in bar:            
+        # bar = tqdm(range(0, self._epochs), 'training'.rjust(27), unit=" epochs")
+        stop_epoch = self._epochs
+        for epoch in range(0, self._epochs):
             count = 0            
             for (batch_index, batch) in enumerate(data_loader):
                 count += 1
@@ -184,12 +184,14 @@ class AE(BuildingBlock):
                 stop_early = True
 
             # print epoch results
-            bar.set_description(f"fit AE: {epochs_since_last_best}|{best_avg_val_loss:.5f}".rjust(27), refresh=True)            
+            # bar.set_description(f"fit AE: {epochs_since_last_best}|{best_avg_val_loss:.5f}".rjust(27), refresh=True)
 
             if stop_early:
+                stop_epoch = epoch
                 break
 
-        print(f"stop at {bar.n} epochs".rjust(27))
+        # print(f"stop at {bar.n} epochs".rjust(27))
+        print(f"stop at {stop_epoch} epochs".rjust(27))
         self._result_dict = {}
         self._autoencoder.load_state_dict(best_weights)
         self._autoencoder.eval()        

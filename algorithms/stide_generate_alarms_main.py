@@ -84,7 +84,7 @@ if __name__ == '__main__':
                 results['ngram_length'] = ngram_length
                 results['window_length'] = window_length
                 results['thread_aware'] = thread_aware
-                results['config'] = ids.get_config()
+                results['config'] = ids.get_config_syscall()
                 results['scenario'] =  lid_ds_version[select_lid_ds_version_number] + "/" + scenario_names[select_scenario_number]
                 result_path = 'results/results_stide_LID-DS-2021.json'
                 save_to_json(results, result_path)
