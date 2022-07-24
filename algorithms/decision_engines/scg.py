@@ -1,8 +1,5 @@
-from collections import deque
-
 from algorithms.building_block import BuildingBlock
 from dataloader.syscall import Syscall
-from algorithms.features.impl.ngram import Ngram
 import networkx as nx
 
 class SystemCallGraph(BuildingBlock):

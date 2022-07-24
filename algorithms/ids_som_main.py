@@ -9,8 +9,8 @@ from dataloader.direction import Direction
 
 from algorithms.decision_engines.som import Som
 
-from algorithms.features.impl.ngram import Ngram
-from algorithms.features.impl.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 
 from dataloader.dataloader_factory import dataloader_factory
 

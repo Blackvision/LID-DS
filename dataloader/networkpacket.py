@@ -37,10 +37,17 @@ class Networkpacket(Datapacket):
         """
         raise NotImplemented
 
-    def protocol(self) -> int:
+    def transport_layer_protocol(self) -> str:
         """
         Returns:
-            int: protocol
+            int: destination port
+        """
+        raise NotImplemented
+
+    def internet_layer_protocol(self) -> str:
+        """
+        Returns:
+            str: internet layer protocol
         """
         raise NotImplemented
 

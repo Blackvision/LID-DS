@@ -1,4 +1,3 @@
-import collections
 from enum import Enum
 import torch
 import torch.utils.data.dataset as td
@@ -7,7 +6,6 @@ from tqdm import tqdm
 import math
 
 from dataloader.datapacket import Datapacket
-from dataloader.syscall import Syscall
 from algorithms.building_block import BuildingBlock
 
 

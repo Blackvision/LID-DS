@@ -24,24 +24,32 @@ class IDS:
                  create_alarms: bool = False,
                  datapacket_mode: DatapacketMode = DatapacketMode.SYSCALL):
         self._data_loader = data_loader
-        self._final_bb = resulting_building_block
-        self._final_bb_networkpacket = resulting_building_block_networkpacket
         self._datapacket_mode = datapacket_mode
+        if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.BOTH:
+            self._final_bb = resulting_building_block
+            self.performance = Performance(create_alarms)
+            if plot_switch is True:
+                self.plot = ScorePlot(data_loader.scenario_path)
+            else:
+                self.plot = None
+
+        if self._datapacket_mode == DatapacketMode.NETWORKPACKET or self._datapacket_mode == DatapacketMode.BOTH:
+            self._final_bb_networkpacket = resulting_building_block_networkpacket
+            self.performance_networkpacket = Performance(create_alarms)
+            if plot_switch is True:
+                self.plot_networkpacket = ScorePlot(data_loader.scenario_path)
+            else:
+                self.plot_networkpacket = None
+
         self._data_preprocessor = DataPreprocessor(self._data_loader, resulting_building_block, resulting_building_block_networkpacket, self._datapacket_mode)
         self.threshold = 0.0
         self.threshold_networkpacket = 0.0
-        self._alarm = False
-        self._anomaly_scores_exploits = []
-        self._anomaly_scores_no_exploits = []
-        self._first_syscall_after_exploit_list = []
-        self._last_syscall_of_recording_list = []
         self._create_alarms = create_alarms
-        self.performance = Performance(create_alarms)
-        self.performance_networkpacket = Performance(create_alarms)
-        if plot_switch is True:
-            self.plot = ScorePlot(data_loader.scenario_path)
-        else:
-            self.plot = None
+        # self._alarm = False
+        # self._anomaly_scores_exploits = []
+        # self._anomaly_scores_no_exploits = []
+        # self._first_syscall_after_exploit_list = []
+        # self._last_syscall_of_recording_list = []
 
     def get_config(self) -> str:
         return self._data_preprocessor.get_graph_dot()
@@ -60,6 +68,10 @@ class IDS:
         if self._datapacket_mode == DatapacketMode.NETWORKPACKET or self._datapacket_mode == DatapacketMode.BOTH:
             self._determine_threshold_networkpacket()
 
+        if self._datapacket_mode == DatapacketMode.BOTH:
+            # TODO self._determine_threshold_both()
+            self._determine_threshold_networkpacket()
+
     def _determine_threshold_syscall(self):
         max_score = 0.0
         data = self._data_loader.validation_data()
@@ -75,7 +87,7 @@ class IDS:
         self.performance.set_threshold(max_score)
         if self.plot is not None:
             self.plot.threshold = max_score
-        print(f"threshold={max_score:.3f}".rjust(27))
+        print(f"threshold syscall={max_score:.3f}".rjust(27))
 
     def _determine_threshold_networkpacket(self):
         max_score = 0.0
@@ -90,10 +102,9 @@ class IDS:
             self._data_preprocessor.new_recording(DatapacketMode.NETWORKPACKET)
         self.threshold_networkpacket = max_score
         self.performance_networkpacket.set_threshold(max_score)
-        if self.plot is not None:
-            asdf = "asdf"
-            # TODO adapt self.plot.threshold = max_score
-        print(f"threshold={max_score:.3f}".rjust(27))
+        if self.plot_networkpacket is not None:
+            self.plot_networkpacket.threshold = max_score
+        print(f"threshold networkpacket={max_score:.3f}".rjust(27))
 
     def detect(self) -> Performance:
         """
@@ -129,16 +140,20 @@ class IDS:
         calling performance object for measurement and
         plot object if plot_switch is True
         """
-        # TODO self.plot
         data = self._data_loader.test_data()
         description = 'anomaly detection for networkpacket'.rjust(27)
 
         for recording in tqdm(data, description, unit=" recording"):
             self.performance_networkpacket.new_recording(recording)
+            if self.plot_networkpacket is not None:
+                self.plot_networkpacket.new_recording(recording)
+
             for networkpacket in recording.packets():
                 anomaly_score = self._final_bb_networkpacket.get_result(networkpacket)
                 if anomaly_score != None:
                     self.performance_networkpacket.analyze_datapacket(networkpacket, anomaly_score)
+                    if self.plot_networkpacket is not None:
+                        self.plot_networkpacket.add_to_plot_data(anomaly_score, networkpacket, self.performance.get_cfp_indices())
 
             self._data_preprocessor.new_recording(DatapacketMode.NETWORKPACKET)
 
@@ -152,6 +167,9 @@ class IDS:
         if self.plot is not None:
             self.plot.feed_figure()
             self.plot.show_plot(filename)
+        if self.plot_networkpacket is not None:
+            self.plot_networkpacket.feed_figure()
+            self.plot_networkpacket.show_plot(filename)
 
     # TODO
     def detect_on_single_recording(self, recording: Type[BaseRecording]) -> Performance:

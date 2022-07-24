@@ -2,9 +2,9 @@ from pprint import pprint
 import sys
 import os
 
-from algorithms.features.impl.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl.ngram import Ngram
+from algorithms.features.impl_both.ngram import Ngram
 from algorithms.ids import IDS
 
 from dataloader.dataloader_factory import dataloader_factory

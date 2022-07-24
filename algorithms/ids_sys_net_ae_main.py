@@ -4,22 +4,16 @@ import sys
 
 from pprint import pprint
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl.syscall_name import SyscallName
-from algorithms.features.impl.ngram import Ngram
-from algorithms.features.impl.w2v_embedding import W2VEmbedding
-from algorithms.features.impl_networkpacket.destination_ip_address import DestinationIpAddress
-from algorithms.features.impl_networkpacket.destination_port import DestinationPort
-from algorithms.features.impl_networkpacket.source_ip_address import SourceIpAddress
-from algorithms.features.impl_networkpacket.source_port import SourcePort
+from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
+from algorithms.features.impl_syscall.syscall_name import SyscallName
+from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
-# TODO rename features impl to impl_syscall
-# TODO alarm
-# TODO alarms
-# TODO score_plot
+# TODO alarm and alarms
 
 if __name__ == '__main__':
     # feature config:
@@ -27,12 +21,12 @@ if __name__ == '__main__':
     ngram_length_network = 1
     w2v_size = 5
     w2v_window_size = 10
-    thread_aware = True
-    thread_aware_false = False
+    thread_aware_syscall = True
+    thread_aware_network = False
     hidden_size = int(math.sqrt(ngram_length * w2v_size))
 
     # LID-DS dataset, choose from 0 - 1:
-    lid_ds_version_number = 2
+    lid_ds_version_number = 1
     lid_ds_version = [
         "LID-DS-2019_Datensatz",
         "LID-DS-2021_Datensatz",
@@ -84,7 +78,7 @@ if __name__ == '__main__':
                            epochs=500
                            )
         ngram = Ngram(feature_list=[w2v],
-                      thread_aware=thread_aware,
+                      thread_aware=thread_aware_syscall,
                       ngram_length=ngram_length
                       )
 
@@ -93,67 +87,42 @@ if __name__ == '__main__':
             hidden_size=hidden_size
         )
 
-        sourceipaddress = SourceIpAddress()
+        # features networkpackets
+        concatFeatures = ConcatFeatures()
 
-        destinationipaddress = DestinationIpAddress()
+        w2v_networkpacket = W2VEmbedding(word=concatFeatures,
+                                         vector_size=w2v_size,
+                                         window_size=ngram_length_network,
+                                         epochs=500,
+                                         thread_aware=False
+                                         )
 
-        sourceport = SourcePort()
-
-        destinationport = DestinationPort()
-
-        networkpacketngram = Ngram(feature_list=[sourceipaddress, destinationipaddress, sourceport, destinationport],
-                                    thread_aware=thread_aware_false,
+        ngram_networkpacket = Ngram(feature_list=[w2v_networkpacket],
+                                    thread_aware=thread_aware_network,
                                     ngram_length=ngram_length_network
                                     )
 
-        w2vX = W2VEmbedding(word=networkpacketngram,
-                           vector_size=w2v_size,
-                           window_size=ngram_length_network,
-                           epochs=500,
-                           thread_aware=False
-                           )
-
-        w2vXXXXX = W2VEmbedding(word=sourceipaddress,
-                            vector_size=w2v_size,
-                            window_size=ngram_length_network,
-                            epochs=500,
-                            thread_aware=False
-                            )
-
-        networkpacketngramX = Ngram(feature_list=[w2vXXXXX],
-                                   thread_aware=thread_aware_false,
-                                   ngram_length=ngram_length_network
-                                   )
-
-        aeX = AE(
-            input_vector=networkpacketngramX,
+        ae_networkpacket = AE(
+            input_vector=ngram_networkpacket,
             hidden_size=hidden_size
         )
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block=ae,
-                  resulting_building_block_networkpacket=aeX,
+                  resulting_building_block_networkpacket=ae_networkpacket,
                   create_alarms=False,
-                  plot_switch=False,
+                  plot_switch=True,
                   datapacket_mode=DatapacketMode.BOTH)
 
         print("at evaluation:")
         # threshold
         ids.determine_threshold()
         # detection
-        results = ids.detect()
-        results_networkpacket = ids.detect_networkpacket()
+        results_syscalls = ids.detect()
+        results_networkpackets = ids.detect_networkpacket()
 
         print("Syscalls:")
-        pprint(results)
+        pprint(results_syscalls)
         print("Networkpackets:")
-        pprint(results_networkpacket)
-
-        # enrich results with configuration and save to disk
-        # results['algorithm'] = "AE"
-        # results['ngram_length'] = ngram_length
-        # results['w2v_size'] = w2v_size
-        # results['thread_aware'] = thread_aware
-        # results['config'] = ids.get_config()
-        # results['scenario'] = scenario_range[scenario_number]
-        # result_path = 'results/results_ae.json'
+        pprint(results_networkpackets)
+        # ids.draw_plot()

@@ -8,11 +8,11 @@ from dataloader.direction import Direction
 
 from algorithms.decision_engines.mlp import MLP
 
-from algorithms.features.impl.ngram import Ngram
-from algorithms.features.impl.w2v_embedding import W2VEmbedding
-from algorithms.features.impl.int_embedding import IntEmbedding
-from algorithms.features.impl.ngram_minus_one import NgramMinusOne
-from algorithms.features.impl.one_hot_encoding import OneHotEncoding
+from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram_minus_one import NgramMinusOne
+from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 
 from dataloader.dataloader_factory import dataloader_factory
 

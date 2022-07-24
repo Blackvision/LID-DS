@@ -29,23 +29,32 @@ class DataPreprocessor:
                  resulting_building_block_networkpacket: BuildingBlock,
                  datapacket_mode: DatapacketMode = DatapacketMode.SYSCALL
                  ):
-        self._data_loader = data_loader
-        self._building_block_manager = BuildingBlockManager(resulting_building_block)
-        self._building_block_networkpacket_manager = BuildingBlockManager(resulting_building_block_networkpacket)
         self._datapacket_mode = datapacket_mode
-        self._baseBB = BuildingBlock()        
-        self._graph_dot = dot_to_str(self._building_block_manager.to_dot())
-        self._graph_dot_networkpacket = dot_to_str(self._building_block_networkpacket_manager.to_dot())
-        graph_url_encode = urllib.parse.quote(self._graph_dot)
-        graph_url_encode_networkpacket = urllib.parse.quote(self._graph_dot_networkpacket)
-        url = f"https://dreampuf.github.io/GraphvizOnline/#{graph_url_encode}"
-        url_networkpacket = f"https://dreampuf.github.io/GraphvizOnline/#{graph_url_encode_networkpacket}"
-        print("-------------------------------")
-        print("Dependency Graph Visualisation (Syscall):")
-        print(url)
-        print("Dependency Graph Visualisation (Networkpacket):")
-        print(url_networkpacket)
-        print("-------------------------------")
+        self._data_loader = data_loader
+        self._baseBB = BuildingBlock()
+        if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.BOTH:
+            self._building_block_manager = BuildingBlockManager(resulting_building_block)
+            self._graph_dot = dot_to_str(self._building_block_manager.to_dot())
+            graph_url_encode = urllib.parse.quote(self._graph_dot)
+            url = f"https://dreampuf.github.io/GraphvizOnline/#{graph_url_encode}"
+            print("-------------------------------")
+            print("Dependency Graph Visualisation (Syscall):")
+            print(url)
+            print("-------------------------------")
+        else:
+            self._graph_dot = None
+
+        if self._datapacket_mode == DatapacketMode.NETWORKPACKET or self._datapacket_mode == DatapacketMode.BOTH:
+            self._building_block_networkpacket_manager = BuildingBlockManager(resulting_building_block_networkpacket)
+            self._graph_dot_networkpacket = dot_to_str(self._building_block_networkpacket_manager.to_dot())
+            graph_url_encode_networkpacket = urllib.parse.quote(self._graph_dot_networkpacket)
+            url_networkpacket = f"https://dreampuf.github.io/GraphvizOnline/#{graph_url_encode_networkpacket}"
+            print("-------------------------------")
+            print("Dependency Graph Visualisation (Networkpacket):")
+            print(url_networkpacket)
+            print("-------------------------------")
+        else:
+            self._graph_dot_networkpacket = None
 
         if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.BOTH:
             self._prepare_and_fit_building_blocks()
