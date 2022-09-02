@@ -1,6 +1,6 @@
 from algorithms.building_block import BuildingBlock
-from algorithms.features.impl_syscall.stream_sum import StreamSum
-from algorithms.features.impl_syscall.threadID import ThreadID
+from algorithms.features.impl_both.stream_sum import StreamSum
+from dataloader.datapacket import Datapacket
 from dataloader.syscall import Syscall
 
 
@@ -26,11 +26,11 @@ class StreamAverage(BuildingBlock):
     def depends_on(self):
         return self._dependency_list
 
-    def _calculate(self, syscall: Syscall):
+    def _calculate(self, datapacket: Datapacket):
         """
         returns the average value over the bb in the window or None if the feature is None
         """
-        input = self._sum.get_result(syscall)
+        input = self._sum.get_result(datapacket)
         if input is not None:        
             return input / self._window_length            
         else:

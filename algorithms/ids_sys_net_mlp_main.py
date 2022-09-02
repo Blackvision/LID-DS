@@ -3,10 +3,14 @@ import os
 import sys
 
 from pprint import pprint
+from algorithms.decision_engines.mlp import MLP
 from algorithms.decision_engines.ae import AE
 from algorithms.features.impl_both.stream_sum import StreamSum
 from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
+from algorithms.features.impl_syscall.select import Select
 from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.ids import IDS
@@ -25,13 +29,19 @@ if __name__ == '__main__':
     ngram_length_sys = 7
     w2v_vector_size_sys = 8
     w2v_window_size_sys = 20            # 3, 5, 10
+    w2v_epochs_sys = 1000
     thread_aware_sys = True
-    hidden_size_sys = int(math.sqrt(ngram_length_sys * w2v_vector_size_sys))
+    hidden_size_sys_x = int(math.sqrt(ngram_length_sys * w2v_vector_size_sys))
+    hidden_size_sys = 64
+    hidden_layers_sys = 2
+    batch_size = 256
+    learning_rate = 0.003
+    window_length = 40
 
     # Networkpacket:
     ngram_length_net = 1
-    w2v_vector_size_net = 8             # 5 * 7 = 35     5
-    w2v_window_size_net = 20            # 3, 5, 10       10
+    w2v_vector_size_net = 8                    # 5 * 7 = 35
+    w2v_window_size_net = 20            # 3, 5, 10
     thread_aware_net = False
     hidden_size_net = int(math.sqrt(ngram_length_net * w2v_vector_size_net))
 
@@ -61,7 +71,7 @@ if __name__ == '__main__':
         "CVE-2020-13942",
         "CVE-2017-12635_6"
     ]
-    scenario_range = scenario_names[1:2]
+    scenario_range = scenario_names[0:1]
 
     # getting the LID-DS base path from argument or environment variable
     if len(sys.argv) > 1:
@@ -83,21 +93,25 @@ if __name__ == '__main__':
         # features syscalls
         if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
             syscallname = SyscallName()
+            inte = IntEmbedding()
+            ohe_sys = OneHotEncoding(syscallname)
             w2v_sys = W2VEmbedding(word=syscallname,
                                    vector_size=w2v_vector_size_sys,
                                    window_size=w2v_window_size_sys,
-                                   epochs=500
-                                   )
+                                   epochs=w2v_epochs_sys)
             ngram_sys = Ngram(feature_list=[w2v_sys],
                               thread_aware=thread_aware_sys,
-                              ngram_length=ngram_length_sys
-                              )
-            ae_sys = AE(input_vector=ngram_sys,
-                        hidden_size=hidden_size_sys
-                        )
-            stream_sum_sys = StreamSum(feature=ae_sys,
+                              ngram_length=ngram_length_sys + 1)
+            select = Select(ngram_sys, start=0, end=(w2v_vector_size_sys*ngram_length_sys))
+            mlp_sys = MLP(input_vector=select,
+                          output_label=ohe_sys,
+                          hidden_size=hidden_size_sys,
+                          hidden_layers=hidden_layers_sys,
+                          batch_size=batch_size,
+                          learning_rate=learning_rate)
+            stream_sum_sys = StreamSum(feature=mlp_sys,
                                        thread_aware=thread_aware_sys,
-                                       window_length=5)
+                                       window_length=window_length)
         else:
             ae_sys = None
 
@@ -122,6 +136,7 @@ if __name__ == '__main__':
                                        window_length=5)
         else:
             ae_net = None
+            stream_sum_net = None
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=stream_sum_sys,

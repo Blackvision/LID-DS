@@ -160,8 +160,9 @@ class MLP(BuildingBlock):
 
         max_epochs = 10000
         # iterate through max epochs
-        bar = tqdm(range(0, max_epochs), 'training'.rjust(27), unit=" epochs")  # fancy print for training        
-        for e in bar:
+        # bar = tqdm(range(0, max_epochs), 'training'.rjust(27), unit=" epochs")  # fancy print for training
+        epochs = 0
+        for e in range(0, max_epochs):
             # training
             for i, data in enumerate(train_data_loader):
                 inputs, labels = data
@@ -199,12 +200,13 @@ class MLP(BuildingBlock):
                 stop_early = True
 
             # refreshs the fancy printing
-            bar.set_description(f"fit MLP {epochs_since_last_best}|{best_avg_loss:.5f}".rjust(27), refresh=True)
-
+            #bar.set_description(f"fit MLP {epochs_since_last_best}|{best_avg_loss:.5f}".rjust(27), refresh=True)
+            epochs = e
             if stop_early:
                 break
         
-        print(f"stop at {bar.n} epochs".rjust(27))        
+        # print(f"stop at {bar.n} epochs".rjust(27))
+        print(f"stop at {epochs} epochs".rjust(27))
         self._result_dict = {}
         self._model.load_state_dict(best_weights)
         self._model.eval()
