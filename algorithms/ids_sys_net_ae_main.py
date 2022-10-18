@@ -1,24 +1,23 @@
 import math
 import os
 import sys
-
 from pprint import pprint
+
 from algorithms.decision_engines.ae import AE
+from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.stream_sum import StreamSum
+from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
 from algorithms.features.impl_syscall.syscall_name import SyscallName
-from algorithms.features.impl_both.ngram import Ngram
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
-
 if __name__ == '__main__':
     ### feature config:
     #general
-    datapacket_mode = DatapacketMode.SYSCALL
+    datapacket_mode = DatapacketMode.BOTH
     draw_plot = False
 
     # Syscall:
@@ -100,6 +99,7 @@ if __name__ == '__main__':
                                        window_length=5)
         else:
             ae_sys = None
+            stream_sum_sys = None
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
@@ -122,6 +122,7 @@ if __name__ == '__main__':
                                        window_length=5)
         else:
             ae_net = None
+            stream_sum_net = None
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=stream_sum_sys,

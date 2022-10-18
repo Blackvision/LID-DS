@@ -1,15 +1,13 @@
 import math
-import torch
-import collections
 
 import numpy as np
+import torch
 import torch.nn as nn
-
-from tqdm import tqdm
 from torch import optim
 from torch.utils.data import Dataset
-from dataloader.syscall import Syscall
+
 from algorithms.building_block import BuildingBlock
+from dataloader.datapacket import Datapacket
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') 
 
@@ -90,7 +88,7 @@ class MLP(BuildingBlock):
 
         self._result_dict = {}
 
-    def train_on(self, syscall: Syscall):
+    def train_on(self, datapacket: Datapacket):
         """
             building the training data set with input vector and labels
             estimating the input size
@@ -99,8 +97,8 @@ class MLP(BuildingBlock):
                 syscall: the current system call object
         """
 
-        input_vector = self.input_vector.get_result(syscall)
-        output_label = self.output_label.get_result(syscall)
+        input_vector = self.input_vector.get_result(datapacket)
+        output_label = self.output_label.get_result(datapacket)
 
         if input_vector is not None and output_label is not None:
             if self._input_size == 0:
@@ -111,15 +109,15 @@ class MLP(BuildingBlock):
 
             self._training_set.add((input_vector, output_label))
 
-    def val_on(self, syscall: Syscall):
+    def val_on(self, datapacket: Datapacket):
         """
             building the validation dataset
 
             Args:
                 syscall: the current system call object
         """
-        input_vector = self.input_vector.get_result(syscall)
-        output_label = self.output_label.get_result(syscall)
+        input_vector = self.input_vector.get_result(datapacket)
+        output_label = self.output_label.get_result(datapacket)
 
         if input_vector is not None and output_label is not None:
             self._validation_set.add((input_vector, output_label))
@@ -212,7 +210,7 @@ class MLP(BuildingBlock):
         self._model.eval()
 
 
-    def _calculate(self, syscall: Syscall):
+    def _calculate(self, datapacket: Datapacket):
         """
             calculates the anomaly score for one syscall
             idea: output of the neural network is a softmax layer containing the
@@ -224,8 +222,8 @@ class MLP(BuildingBlock):
 
             returns: anomaly score
         """
-        input_vector = self.input_vector.get_result(syscall)
-        label = self.output_label.get_result(syscall)
+        input_vector = self.input_vector.get_result(datapacket)
+        label = self.output_label.get_result(datapacket)
         if input_vector is not None:
             if input_vector in self._result_dict:
                 return self._result_dict[input_vector]

@@ -1,28 +1,25 @@
-import math
+import os
 import os
 import sys
-
 from pprint import pprint
+
 from algorithms.decision_engines.mlp import MLP
-from algorithms.decision_engines.ae import AE
+from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.stream_sum import StreamSum
+from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
-from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.features.impl_syscall.select import Select
-from algorithms.features.impl_both.ngram import Ngram
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
-
 if __name__ == '__main__':
     ### feature config:
     #general
-    datapacket_mode = DatapacketMode.SYSCALL
+    datapacket_mode = DatapacketMode.BOTH
     draw_plot = False
 
     # Syscall:
@@ -31,19 +28,23 @@ if __name__ == '__main__':
     w2v_window_size_sys = 20            # 3, 5, 10
     w2v_epochs_sys = 1000
     thread_aware_sys = True
-    hidden_size_sys_x = int(math.sqrt(ngram_length_sys * w2v_vector_size_sys))
-    hidden_size_sys = 64
+    hidden_size_sys = 64                #int(math.sqrt(ngram_length_sys * w2v_vector_size_sys))
     hidden_layers_sys = 2
-    batch_size = 256
-    learning_rate = 0.003
-    window_length = 40
+    batch_size_sys = 256
+    learning_rate_sys = 0.003
+    window_length_sys = 40               # 5, 40
 
     # Networkpacket:
     ngram_length_net = 1
-    w2v_vector_size_net = 8                    # 5 * 7 = 35
+    w2v_vector_size_net = 8             # 5 * 7 = 35
     w2v_window_size_net = 20            # 3, 5, 10
+    w2v_epochs_net = 1000
     thread_aware_net = False
-    hidden_size_net = int(math.sqrt(ngram_length_net * w2v_vector_size_net))
+    hidden_size_net = 64                # int(math.sqrt(ngram_length_net * w2v_vector_size_net))
+    hidden_layers_net = 2
+    batch_size_net = 256
+    learning_rate_net = 0.003
+    window_length_net = 40               # 5, 40
 
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [
@@ -51,7 +52,7 @@ if __name__ == '__main__':
         "LID-DS-2021_Datensatz",
         "LID-DS-2021_Datensatz_reduziert"
     ]
-    lid_ds_version_number = 1
+    lid_ds_version_number = 2
 
     # LID-DS scenario names, choose range from 0 - 14 (scenario_names[1:2]):
     scenario_names = [
@@ -71,7 +72,7 @@ if __name__ == '__main__':
         "CVE-2020-13942",
         "CVE-2017-12635_6"
     ]
-    scenario_range = scenario_names[0:1]
+    scenario_range = scenario_names[1:2]
 
     # getting the LID-DS base path from argument or environment variable
     if len(sys.argv) > 1:
@@ -92,58 +93,70 @@ if __name__ == '__main__':
 
         # features syscalls
         if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
-            syscallname = SyscallName()
+            # syscallname = SyscallName()
+            # ohe_sys = OneHotEncoding(syscallname)
             inte = IntEmbedding()
-            ohe_sys = OneHotEncoding(syscallname)
-            w2v_sys = W2VEmbedding(word=syscallname,
+            ohe_sys = OneHotEncoding(inte)
+            w2v_sys = W2VEmbedding(word=inte,
                                    vector_size=w2v_vector_size_sys,
                                    window_size=w2v_window_size_sys,
-                                   epochs=w2v_epochs_sys)
+                                   epochs=w2v_epochs_sys,
+                                   thread_aware=thread_aware_sys)
             ngram_sys = Ngram(feature_list=[w2v_sys],
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys + 1)
-            select = Select(ngram_sys, start=0, end=(w2v_vector_size_sys*ngram_length_sys))
-            mlp_sys = MLP(input_vector=select,
+            select_sys = Select(ngram_sys,
+                                start=0,
+                                end=(w2v_vector_size_sys*ngram_length_sys))
+            mlp_sys = MLP(input_vector=select_sys,
                           output_label=ohe_sys,
                           hidden_size=hidden_size_sys,
                           hidden_layers=hidden_layers_sys,
-                          batch_size=batch_size,
-                          learning_rate=learning_rate)
+                          batch_size=batch_size_sys,
+                          learning_rate=learning_rate_sys)
             stream_sum_sys = StreamSum(feature=mlp_sys,
                                        thread_aware=thread_aware_sys,
-                                       window_length=window_length)
+                                       window_length=window_length_sys)
         else:
-            ae_sys = None
+            stream_sum_sys = None
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
             concatFeatures = ConcatFeatures()
+            ohe_net = OneHotEncoding(concatFeatures)
             w2v_net = W2VEmbedding(word=concatFeatures,
                                    vector_size=w2v_vector_size_net,
                                    window_size=w2v_window_size_net,
-                                   epochs=500,
-                                   thread_aware=False
-                                   )
+                                   epochs=w2v_epochs_net,
+                                   thread_aware=thread_aware_net)
             ngram_net = Ngram(feature_list=[w2v_net],
                               thread_aware=thread_aware_net,
-                              ngram_length=ngram_length_net
-                              )
-            ae_net = AE(input_vector=ngram_net,
-                        hidden_size=hidden_size_net
-                        )
-            stream_sum_net = StreamSum(feature=ae_net,
+                              ngram_length=ngram_length_net+1)
+            select_net = Select(ngram_net,
+                                start=0,
+                                end=(w2v_vector_size_net * ngram_length_net))
+            mlp_net = MLP(input_vector=select_net,
+                          output_label=ohe_net,
+                          hidden_size=hidden_size_net,
+                          hidden_layers=hidden_layers_net,
+                          batch_size=batch_size_net,
+                          learning_rate=learning_rate_net)
+            stream_sum_net = StreamSum(feature=mlp_net,
                                        thread_aware=thread_aware_net,
-                                       window_length=5)
+                                       window_length=window_length_net)
         else:
-            ae_net = None
             stream_sum_net = None
+
+        #TODO min_max_scaling
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=stream_sum_sys,
                   resulting_building_block_net=stream_sum_net,
                   create_alarms=False,
                   plot_switch=True,
-                  datapacket_mode=datapacket_mode)
+                  datapacket_mode=datapacket_mode,
+                  time_window=5000000000,
+                  time_window_steps=1000000000)
 
         print("at evaluation:")
         # threshold
@@ -152,15 +165,9 @@ if __name__ == '__main__':
         # detection
         ids.detect()
 
-        if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
-            print("Syscalls:")
-            pprint(ids.performance_sys)
-            # pprint(ids.performance_sys.get_results())
-
-        if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            print("Networkpackets:")
-            pprint(ids.performance_net)
-            # pprint(ids.performance_net.get_results())
+        print("Results:")
+        pprint(ids.performance)
+        pprint(ids.performance.get_results())
 
         if draw_plot:
             ids.draw_plot()
