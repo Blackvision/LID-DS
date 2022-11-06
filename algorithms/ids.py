@@ -8,6 +8,7 @@ from tqdm.contrib.concurrent import process_map
 from algorithms.building_block import BuildingBlock
 from algorithms.data_preprocessor import DataPreprocessor
 from algorithms.performance_measurement import Performance
+from algorithms.performance_measurement_both import PerformanceBoth
 from algorithms.score_plot import ScorePlot
 from dataloader.base_data_loader import BaseDataLoader
 from dataloader.base_recording import BaseRecording
@@ -25,28 +26,23 @@ class IDS:
                  time_window: int = None,
                  time_window_steps: int = None):
         self._data_loader = data_loader
+        self._final_bb_sys = resulting_building_block_sys
+        self._final_bb_net = resulting_building_block_net
         self._create_alarms = create_alarms
-        self.performance = Performance(create_alarms)
         self._datapacket_mode = datapacket_mode
+        if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.NETWORKPACKET:
+            self.performance = Performance(create_alarms)
+        elif self._datapacket_mode == DatapacketMode.BOTH:
+            self.performance = PerformanceBoth(create_alarms)
+        else:
+            self.performance = None
         self.time_window = time_window
         self.time_window_steps = time_window_steps
         self.threshold = 0.0
-
-        if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.BOTH:
-            self._final_bb_sys = resulting_building_block_sys
-        else:
-            self._final_bb_sys = None
-
-        if self._datapacket_mode == DatapacketMode.NETWORKPACKET or self._datapacket_mode == DatapacketMode.BOTH:
-            self._final_bb_net = resulting_building_block_net
-        else:
-            self._final_bb_net = None
-
         if plot_switch is True:
             self.plot = ScorePlot(data_loader.scenario_path)
         else:
             self.plot = None
-
         self._data_preprocessor = DataPreprocessor(self._data_loader, self._final_bb_sys, self._final_bb_net, self._datapacket_mode)
 
     def get_config_syscall(self) -> str:
@@ -66,17 +62,16 @@ class IDS:
         decision engine calculates anomaly scores using validation data,
         saves biggest score as threshold for detection phase
         """
-        if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.NETWORKPACKET:
-            self._determine_threshold()
+        if self._datapacket_mode == DatapacketMode.SYSCALL:
+            self._determine_threshold(self._final_bb_sys)
+        elif self._datapacket_mode == DatapacketMode.NETWORKPACKET:
+            self._determine_threshold(self._final_bb_net)
         elif self._datapacket_mode == DatapacketMode.BOTH:
             self._determine_threshold_both()
 
-    def _determine_threshold(self):
-        if self._datapacket_mode == DatapacketMode.SYSCALL:
-            final_bb = self._final_bb_sys
-        elif self._datapacket_mode == DatapacketMode.NETWORKPACKET:
-            final_bb = self._final_bb_net
+    def _determine_threshold(self, final_bb: BuildingBlock):
         max_score = 0.0
+        datapackets = None
         data = self._data_loader.validation_data()
         description = "Threshold calculation for " + str(self._datapacket_mode.value)
         for recording in tqdm(data, description.rjust(27), unit=" recording"):
@@ -119,8 +114,8 @@ class IDS:
                 anomaly_scores_both = self._merge_anomaly_score_lists(list_sys_anomaly_scores, list_net_anomaly_scores)
                 list_anomaly_scores = self._calculate_anomaly_scores_both(anomaly_scores_both)
                 for anomaly_score in list_anomaly_scores:
-                    if anomaly_score[1] > max_score:
-                        max_score = anomaly_score[1]
+                    if anomaly_score[2] > max_score:
+                        max_score = anomaly_score[2]
         self.threshold_sys_and_net = max_score
         self.performance.set_threshold(max_score)
         print(f"threshold both (sys and net)={max_score:.3f}".rjust(27))
@@ -143,28 +138,28 @@ class IDS:
             if len(window) > 0:
                 sum_window = sum([anomaly_score[0] for anomaly_score in window])
                 anomaly_score = sum_window / len(window)
-                win = (window, anomaly_score)
+                win = (start_time_window, end_time_window, anomaly_score)
                 list_anomaly_scores.append(win)
             start_time_window = start_time_window + self.time_window_steps
             end_time_window = end_time_window + self.time_window_steps
+
         return list_anomaly_scores
 
     def detect(self):
-        if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.NETWORKPACKET:
-            self._detect()
+        if self._datapacket_mode == DatapacketMode.SYSCALL:
+            self._detect(self._final_bb_sys)
+        elif self._datapacket_mode == DatapacketMode.NETWORKPACKET:
+            self._detect(self._final_bb_net)
         elif self._datapacket_mode == DatapacketMode.BOTH:
             self._detect_both()
 
-    def _detect(self) -> Performance:
+    def _detect(self, final_bb: BuildingBlock) -> Performance:
         """
         detecting performance values using the test data,
         calling performance object for measurement and
         plot object if plot_switch is True
         """
-        if self._datapacket_mode == DatapacketMode.SYSCALL:
-            final_bb = self._final_bb_sys
-        elif self._datapacket_mode == DatapacketMode.NETWORKPACKET:
-            final_bb = self._final_bb_net
+        datapackets = None
         data = self._data_loader.test_data()
         description = "anomaly detection for " + str(self._datapacket_mode.value)
         for recording in tqdm(data, description.rjust(27), unit=" recording"):
@@ -212,13 +207,11 @@ class IDS:
                 anomaly_scores_both = self._merge_anomaly_score_lists(list_sys_anomaly_scores, list_net_anomaly_scores)
                 list_anomaly_scores = self._calculate_anomaly_scores_both(anomaly_scores_both)
                 for anomaly_score in list_anomaly_scores:
-                    #TODO
-                    print('TODO')
-                    #self.performance.analyze_datapacket(anomaly_score[0], anomaly_score[1])
-                    if self.plot is not None:
-                        # TODO
-                        print('TODO')
-                        #self.plot.add_to_plot_data(anomaly_score[1], anomaly_score[0], self.performance.get_cfp_indices())
+                    self.performance.analyze_datapacket(anomaly_score[0], anomaly_score[1], anomaly_score[2])
+                    # TODO
+                    # if self.plot is not None:
+                        # self.plot.add_to_plot_data(anomaly_score[1], anomaly_score[0], self.performance.get_cfp_indices())
+
             if self.performance.alarms is not None:
                 self.performance.alarms.end_alarm()
         return self.performance

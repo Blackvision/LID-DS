@@ -2,7 +2,7 @@ import math
 import typing
 
 from algorithms.building_block import BuildingBlock
-from dataloader.syscall import Syscall
+from dataloader.datapacket import Datapacket
 
 
 class MinMaxScaling(BuildingBlock):
@@ -22,16 +22,16 @@ class MinMaxScaling(BuildingBlock):
         """
         return [self._bb_to_scale]
 
-    def train_on(self, syscall: Syscall):
-        current_value = self._bb_to_scale.get_result(syscall)
+    def train_on(self, datapacket: Datapacket):
+        current_value = self._bb_to_scale.get_result(datapacket)
         if current_value is not None:
             if current_value < self._min:
                 self._min = current_value
             if current_value > self._max:
                 self._max = current_value                
 
-    def val_on(self, syscall: Syscall):
-        current_value = self._bb_to_scale.get_result(syscall)
+    def val_on(self, datapacket: Datapacket):
+        current_value = self._bb_to_scale.get_result(datapacket)
         if current_value is not None:
             if current_value < self._min:
                 self._min = current_value
@@ -43,10 +43,10 @@ class MinMaxScaling(BuildingBlock):
         if self._diff == 0:
             print(f"cant calculate MinMaxScaling for {self._bb_to_scale} - instead calculating identity function")
 
-    def _calculate(self, syscall: Syscall):
+    def _calculate(self, datapacket: Datapacket):
         """
         """
-        current_value = self._bb_to_scale.get_result(syscall)
+        current_value = self._bb_to_scale.get_result(datapacket)
         if current_value is not None:
             if self._diff != 0:
                 return (current_value - self._min) / self._diff

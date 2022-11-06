@@ -10,7 +10,6 @@ class Performance:
 
     def __init__(self, create_alarms: bool = False):
         self._threshold = 0.0
-        self._performance_values = {}
         self._current_exploit_time = None
         self._exploit_count = 0
         self._alarm = False
@@ -19,7 +18,6 @@ class Performance:
         self._tn = 0
         self._fn = 0
         self._alarm_count = 0
-        self._current_cfp_stream = 0
         self.result = None
         self.create_alarms = create_alarms
 
@@ -37,6 +35,7 @@ class Performance:
         self._first_datapacket_of_cfp_list_normal = []
         self._last_datapacket_of_cfp_list_normal = []
         self._cfp_counter_wait_normal = False
+
         if self.create_alarms:
             self.alarms = Alarms()
         else:
@@ -53,9 +52,7 @@ class Performance:
         counts performance values with syscall and anomaly score as input,
         differentiates between normal and exploit files
         """
-
-        datapacket_time = datapacket.timestamp_unix_in_ns() * (10 ** (-9))
-
+        datapacket_time = datapacket.timestamp_unix_in_ns()
         # files with exploit
         if self._current_exploit_time is not None:
             self._exploit_anomaly_score_count += 1
@@ -101,25 +98,6 @@ class Performance:
                 self._cfp_end_normal()
                 self._tn += 1
 
-    def add(left: Performance, right: Performance) -> Performance:
-        final_performance = Performance()
-        final_performance.set_threshold(left._threshold)
-        final_performance._alarm_count = left._alarm_count + right._alarm_count
-        final_performance._exploit_count = left._exploit_count + right._exploit_count
-        final_performance._fp = left._fp + right._fp
-        final_performance._tp = left._tp + right._tp
-        final_performance._fn = left._fn + right._fn
-        final_performance._tn = left._tn + right._tn
-        final_performance._cfp_count_exploits = left._cfp_count_exploits + right._cfp_count_exploits
-        final_performance._cfp_count_normal = left._cfp_count_normal + right._cfp_count_normal
-        return final_performance
-
-    def add_with_alarms(left: Performance, right: Performance) -> Performance:
-        final_performance = Performance.add(left, right)
-        final_performance.alarms = Alarms()
-        final_performance.alarms.alarm_list = left.alarms.alarm_list + right.alarms.alarm_list
-        return final_performance
-
     def new_recording(self, recording: BaseRecording):
         """
         at beginning of each recording: saves exploit time, resets flags and counts
@@ -129,9 +107,7 @@ class Performance:
             self._alarm = False
 
         if recording.metadata()["exploit"] is True:
-
-            # TODO: fix the timestamps
-            self._current_exploit_time = recording.metadata()["time"]["exploit"][0]["absolute"]
+            self._current_exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 6)) * (10 ** 3)
             self._exploit_count += 1
         else:
             self._current_exploit_time = None
@@ -143,9 +119,6 @@ class Performance:
         # ending alarm
         if self.create_alarms:
             self.alarms.end_alarm()
-
-    def __repr__(self) -> str:
-        return f"Performance-Instance: Alarm_Count: {self._alarm_count}, Exploit_count: {self._exploit_count}, FPs: {self._fp}, TPs: {self._tp}, FNs: {self._fn}, TNs: {self._tn}"
 
     def _cfp_start_exploits(self):
         """
@@ -231,3 +204,25 @@ class Performance:
         self.result = performance_values
 
         return performance_values
+
+    def __repr__(self) -> str:
+        return f"Performance-Instance: Alarm_Count: {self._alarm_count}, Exploit_count: {self._exploit_count}, FPs: {self._fp}, TPs: {self._tp}, FNs: {self._fn}, TNs: {self._tn}"
+
+    def add_with_alarms(left: Performance, right: Performance) -> Performance:
+        final_performance = Performance.add(left, right)
+        final_performance.alarms = Alarms()
+        final_performance.alarms.alarm_list = left.alarms.alarm_list + right.alarms.alarm_list
+        return final_performance
+
+    def add(left: Performance, right: Performance) -> Performance:
+        final_performance = Performance()
+        final_performance.set_threshold(left._threshold)
+        final_performance._alarm_count = left._alarm_count + right._alarm_count
+        final_performance._exploit_count = left._exploit_count + right._exploit_count
+        final_performance._fp = left._fp + right._fp
+        final_performance._tp = left._tp + right._tp
+        final_performance._fn = left._fn + right._fn
+        final_performance._tn = left._tn + right._tn
+        final_performance._cfp_count_exploits = left._cfp_count_exploits + right._cfp_count_exploits
+        final_performance._cfp_count_normal = left._cfp_count_normal + right._cfp_count_normal
+        return final_performance

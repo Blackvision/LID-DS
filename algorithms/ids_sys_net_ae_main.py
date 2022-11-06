@@ -4,6 +4,7 @@ import sys
 from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
+from algorithms.features.impl_both.min_max_scaling import MinMaxScaling
 from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.stream_sum import StreamSum
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
@@ -17,7 +18,7 @@ from dataloader.direction import Direction
 if __name__ == '__main__':
     ### feature config:
     #general
-    datapacket_mode = DatapacketMode.BOTH
+    datapacket_mode = DatapacketMode.SYSCALL
     draw_plot = False
 
     # Syscall:
@@ -28,11 +29,15 @@ if __name__ == '__main__':
     hidden_size_sys = int(math.sqrt(ngram_length_sys * w2v_vector_size_sys))
 
     # Networkpacket:
-    ngram_length_net = 1
+    ngram_length_net = 7
     w2v_vector_size_net = 8             # 5 * 7 = 35     5
     w2v_window_size_net = 20            # 3, 5, 10       10
     thread_aware_net = False
     hidden_size_net = int(math.sqrt(ngram_length_net * w2v_vector_size_net))
+
+    # Both:
+    time_window = 5000000000
+    time_window_steps = 1000000000
 
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [
@@ -85,7 +90,7 @@ if __name__ == '__main__':
             w2v_sys = W2VEmbedding(word=syscallname,
                                    vector_size=w2v_vector_size_sys,
                                    window_size=w2v_window_size_sys,
-                                   epochs=500
+                                   epochs=1000
                                    )
             ngram_sys = Ngram(feature_list=[w2v_sys],
                               thread_aware=thread_aware_sys,
@@ -94,12 +99,14 @@ if __name__ == '__main__':
             ae_sys = AE(input_vector=ngram_sys,
                         hidden_size=hidden_size_sys
                         )
-            stream_sum_sys = StreamSum(feature=ae_sys,
-                                       thread_aware=thread_aware_sys,
-                                       window_length=5)
+            # stream_sum_sys = StreamSum(feature=ae_sys,
+            #                            thread_aware=thread_aware_sys,
+            #                            window_length=40)
+            # min_max_scaling_sys = MinMaxScaling(stream_sum_sys)
         else:
             ae_sys = None
             stream_sum_sys = None
+            min_max_scaling_sys = None
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
@@ -119,17 +126,19 @@ if __name__ == '__main__':
                         )
             stream_sum_net = StreamSum(feature=ae_net,
                                        thread_aware=thread_aware_net,
-                                       window_length=5)
+                                       window_length=40)
+            min_max_scaling_net = MinMaxScaling(stream_sum_net)
         else:
-            ae_net = None
-            stream_sum_net = None
+            min_max_scaling_net = None
 
         ids = IDS(data_loader=dataloader,
-                  resulting_building_block_sys=stream_sum_sys,
-                  resulting_building_block_net=stream_sum_net,
+                  resulting_building_block_sys=ae_sys,
+                  resulting_building_block_net=min_max_scaling_net,
                   create_alarms=False,
                   plot_switch=True,
-                  datapacket_mode=datapacket_mode)
+                  datapacket_mode=datapacket_mode,
+                  time_window=time_window,
+                  time_window_steps=time_window_steps)
 
         print("at evaluation:")
         # threshold
@@ -138,15 +147,9 @@ if __name__ == '__main__':
         # detection
         ids.detect()
 
-        if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
-            print("Syscalls:")
-            pprint(ids.performance_sys)
-            # pprint(ids.performance_sys.get_results())
-
-        if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            print("Networkpackets:")
-            pprint(ids.performance_net)
-            # pprint(ids.performance_net.get_results())
+        print("Results:")
+        pprint(ids.performance)
+        pprint(ids.performance.get_results())
 
         if draw_plot:
             ids.draw_plot()

@@ -4,6 +4,7 @@ import sys
 from pprint import pprint
 
 from algorithms.decision_engines.mlp import MLP
+from algorithms.features.impl_both.min_max_scaling import MinMaxScaling
 from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.stream_sum import StreamSum
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
@@ -18,8 +19,8 @@ from dataloader.direction import Direction
 
 if __name__ == '__main__':
     ### feature config:
-    #general
-    datapacket_mode = DatapacketMode.BOTH
+    # general
+    datapacket_mode = DatapacketMode.SYSCALL
     draw_plot = False
 
     # Syscall:
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     window_length_sys = 40               # 5, 40
 
     # Networkpacket:
-    ngram_length_net = 1
+    ngram_length_net = 7
     w2v_vector_size_net = 8             # 5 * 7 = 35
     w2v_window_size_net = 20            # 3, 5, 10
     w2v_epochs_net = 1000
@@ -46,13 +47,17 @@ if __name__ == '__main__':
     learning_rate_net = 0.003
     window_length_net = 40               # 5, 40
 
+    # Both:
+    time_window = 5000000000
+    time_window_steps = 1000000000
+
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [
         "LID-DS-2019_Datensatz",
         "LID-DS-2021_Datensatz",
         "LID-DS-2021_Datensatz_reduziert"
     ]
-    lid_ds_version_number = 2
+    lid_ds_version_number = 1
 
     # LID-DS scenario names, choose range from 0 - 14 (scenario_names[1:2]):
     scenario_names = [
@@ -73,6 +78,7 @@ if __name__ == '__main__':
         "CVE-2017-12635_6"
     ]
     scenario_range = scenario_names[1:2]
+    # scenario_range = scenario_names[1:2]
 
     # getting the LID-DS base path from argument or environment variable
     if len(sys.argv) > 1:
@@ -114,11 +120,13 @@ if __name__ == '__main__':
                           hidden_layers=hidden_layers_sys,
                           batch_size=batch_size_sys,
                           learning_rate=learning_rate_sys)
-            stream_sum_sys = StreamSum(feature=mlp_sys,
-                                       thread_aware=thread_aware_sys,
-                                       window_length=window_length_sys)
+            # stream_sum_sys = StreamSum(feature=mlp_sys,
+            #                            thread_aware=thread_aware_sys,
+            #                            window_length=window_length_sys)
+            # min_max_scaling_sys = MinMaxScaling(mlp_sys)
         else:
-            stream_sum_sys = None
+            min_max_scaling_sys = None
+            mlp_sys = None
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
@@ -141,22 +149,21 @@ if __name__ == '__main__':
                           hidden_layers=hidden_layers_net,
                           batch_size=batch_size_net,
                           learning_rate=learning_rate_net)
-            stream_sum_net = StreamSum(feature=mlp_net,
-                                       thread_aware=thread_aware_net,
-                                       window_length=window_length_net)
+            # stream_sum_net = StreamSum(feature=mlp_net,
+            #                            thread_aware=thread_aware_net,
+            #                            window_length=window_length_net)
+            min_max_scaling_net = MinMaxScaling(mlp_net)
         else:
-            stream_sum_net = None
-
-        #TODO min_max_scaling
+            min_max_scaling_net = None
 
         ids = IDS(data_loader=dataloader,
-                  resulting_building_block_sys=stream_sum_sys,
-                  resulting_building_block_net=stream_sum_net,
+                  resulting_building_block_sys=mlp_sys,
+                  resulting_building_block_net=min_max_scaling_net,
                   create_alarms=False,
                   plot_switch=True,
                   datapacket_mode=datapacket_mode,
-                  time_window=5000000000,
-                  time_window_steps=1000000000)
+                  time_window=time_window,
+                  time_window_steps=time_window_steps)
 
         print("at evaluation:")
         # threshold

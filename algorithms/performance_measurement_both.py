@@ -7,10 +7,7 @@ from dataloader.base_recording import BaseRecording
 class PerformanceBoth:
 
     def __init__(self, create_alarms: bool = False):
-        self._threshold_sys = 0.0
-        self._threshold_net = 0.0
         self._threshold = 0.0
-        self._performance_values = {}
         self._current_exploit_time = None
         self._exploit_count = 0
         self._alarm = False
@@ -19,7 +16,6 @@ class PerformanceBoth:
         self._tn = 0
         self._fn = 0
         self._alarm_count = 0
-        self._current_cfp_stream = 0
         self.result = None
         self.create_alarms = create_alarms
 
@@ -37,6 +33,7 @@ class PerformanceBoth:
         self._first_datapacket_of_cfp_list_normal = []
         self._last_datapacket_of_cfp_list_normal = []
         self._cfp_counter_wait_normal = False
+
         if self.create_alarms:
             self.alarms = Alarms()
         else:
@@ -44,23 +41,12 @@ class PerformanceBoth:
 
     def set_threshold(self, threshold: float):
         self._threshold = threshold
-        #self._threshold_sys = threshold_sys
-        #self._threshold_net = threshold_net
-
-    def set_exploit_time(self, exploit_time):
-        self._current_exploit_time = exploit_time
 
     def analyze_datapacket(self, time_window_start, time_window_end, anomaly_score: float):
         """
         counts performance values with syscall and anomaly score as input,
         differentiates between normal and exploit files
         """
-
-        # datapacket_time = datapacket.timestamp_unix_in_ns() * (10 ** (-9))
-        # timestamp_unix_in_ns: 1631538948881460862
-        # datapacket_time:      1631538948.881461
-        #                                5000000000
-
         # files with exploit
         if self._current_exploit_time is not None:
             self._exploit_anomaly_score_count += 1
@@ -71,6 +57,7 @@ class PerformanceBoth:
                     self._cfp_start_exploits()
                     #if self.create_alarms:
                     #    self.alarms.add_or_update_alarm(datapacket, False)
+                # elif self._current_exploit_time < time_window_end:
                 elif self._current_exploit_time <= time_window_start:
                     self._cfp_end_exploits()
                     #if self.create_alarms:
@@ -101,29 +88,10 @@ class PerformanceBoth:
                 #if self.create_alarms:
                 #    self.alarms.add_or_update_alarm(datapacket, False)
             if anomaly_score <= self._threshold:
-                #if self.create_alarms:
-                #    self.alarms.end_alarm()
+                if self.create_alarms:
+                    self.alarms.end_alarm()
                 self._cfp_end_normal()
                 self._tn += 1
-
-    def add(left: PerformanceBoth, right: PerformanceBoth) -> PerformanceBoth:
-        final_performance = PerformanceBoth()
-        final_performance.set_threshold(left._threshold)
-        final_performance._alarm_count = left._alarm_count + right._alarm_count
-        final_performance._exploit_count = left._exploit_count + right._exploit_count
-        final_performance._fp = left._fp + right._fp
-        final_performance._tp = left._tp + right._tp
-        final_performance._fn = left._fn + right._fn
-        final_performance._tn = left._tn + right._tn
-        final_performance._cfp_count_exploits = left._cfp_count_exploits + right._cfp_count_exploits
-        final_performance._cfp_count_normal = left._cfp_count_normal + right._cfp_count_normal
-        return final_performance
-
-    def add_with_alarms(left: PerformanceBoth, right: PerformanceBoth) -> PerformanceBoth:
-        final_performance = PerformanceBoth.add(left, right)
-        final_performance.alarms = Alarms()
-        final_performance.alarms.alarm_list = left.alarms.alarm_list + right.alarms.alarm_list
-        return final_performance
 
     def new_recording(self, recording: BaseRecording):
         """
@@ -134,8 +102,7 @@ class PerformanceBoth:
             self._alarm = False
 
         if recording.metadata()["exploit"] is True:
-            # TODO: fix the timestamps
-            self._current_exploit_time = recording.metadata()["time"]["exploit"][0]["absolute"]
+            self._current_exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 6)) * (10 ** 3)
             self._exploit_count += 1
         else:
             self._current_exploit_time = None
@@ -147,9 +114,6 @@ class PerformanceBoth:
         # ending alarm
         if self.create_alarms:
             self.alarms.end_alarm()
-
-    def __repr__(self) -> str:
-        return f"Performance-Instance: Alarm_Count: {self._alarm_count}, Exploit_count: {self._exploit_count}, FPs: {self._fp}, TPs: {self._tp}, FNs: {self._fn}, TNs: {self._tn}"
 
     def _cfp_start_exploits(self):
         """
@@ -193,11 +157,8 @@ class PerformanceBoth:
                 self._last_datapacket_of_cfp_list_normal.append(self._normal_score_count)
                 self._cfp_counter_wait_normal = False
 
-    def get_cfp_indices(self):
-        """
-        returns cfp syscall indices in lists for plotting
-        """
-        return self._first_datapacket_of_cfp_list_exploits, self._last_datapacket_of_cfp_list_exploits, self._first_datapacket_of_cfp_list_normal, self._last_datapacket_of_cfp_list_normal
+    def __repr__(self) -> str:
+        return f"Performance-Instance: Alarm_Count: {self._alarm_count}, Exploit_count: {self._exploit_count}, FPs: {self._fp}, TPs: {self._tp}, FNs: {self._fn}, TNs: {self._tn}"
 
     def get_results(self):
         try:
