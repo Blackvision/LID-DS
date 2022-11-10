@@ -9,6 +9,7 @@ from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.stream_sum import StreamSum
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
+from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -23,17 +24,17 @@ if __name__ == '__main__':
 
     # Syscall:
     ngram_length_sys = 7
-    w2v_vector_size_sys = 8
-    w2v_window_size_sys = 20            # 3, 5, 10
+    w2v_vector_size_sys = 10
+    w2v_window_size_sys = 10            # 3, 5, 10
     thread_aware_sys = True
-    hidden_size_sys = int(math.sqrt(ngram_length_sys * w2v_vector_size_sys))
+    # hidden_size_sys = int(math.sqrt(ngram_length_sys * w2v_vector_size_sys))
 
     # Networkpacket:
     ngram_length_net = 7
-    w2v_vector_size_net = 8             # 5 * 7 = 35     5
-    w2v_window_size_net = 20            # 3, 5, 10       10
+    w2v_vector_size_net = 10             # 5 * 7 = 35     5
+    w2v_window_size_net = 10            # 3, 5, 10       10
     thread_aware_net = False
-    hidden_size_net = int(math.sqrt(ngram_length_net * w2v_vector_size_net))
+    # hidden_size_net = int(math.sqrt(ngram_length_net * w2v_vector_size_net))
 
     # Both:
     time_window = 5000000000
@@ -65,7 +66,7 @@ if __name__ == '__main__':
         "CVE-2020-13942",
         "CVE-2017-12635_6"
     ]
-    scenario_range = scenario_names[1:2]
+    scenario_range = scenario_names[5:6]
 
     # getting the LID-DS base path from argument or environment variable
     if len(sys.argv) > 1:
@@ -87,18 +88,17 @@ if __name__ == '__main__':
         # features syscalls
         if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
             syscallname = SyscallName()
-            w2v_sys = W2VEmbedding(word=syscallname,
-                                   vector_size=w2v_vector_size_sys,
-                                   window_size=w2v_window_size_sys,
-                                   epochs=1000
-                                   )
-            ngram_sys = Ngram(feature_list=[w2v_sys],
+            ohe_sys = OneHotEncoding(syscallname)
+            # w2v_sys = W2VEmbedding(word=syscallname,
+            #                        vector_size=w2v_vector_size_sys,
+            #                        window_size=w2v_window_size_sys,
+            #                        epochs=1000
+            #                        )
+            ngram_sys = Ngram(feature_list=[ohe_sys],
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys
                               )
-            ae_sys = AE(input_vector=ngram_sys,
-                        hidden_size=hidden_size_sys
-                        )
+            ae_sys = AE(input_vector=ngram_sys)
             # stream_sum_sys = StreamSum(feature=ae_sys,
             #                            thread_aware=thread_aware_sys,
             #                            window_length=40)
@@ -121,19 +121,18 @@ if __name__ == '__main__':
                               thread_aware=thread_aware_net,
                               ngram_length=ngram_length_net
                               )
-            ae_net = AE(input_vector=ngram_net,
-                        hidden_size=hidden_size_net
-                        )
-            stream_sum_net = StreamSum(feature=ae_net,
-                                       thread_aware=thread_aware_net,
-                                       window_length=40)
-            min_max_scaling_net = MinMaxScaling(stream_sum_net)
+            ae_net = AE(input_vector=ngram_net)
+            # stream_sum_net = StreamSum(feature=ae_net,
+            #                            thread_aware=thread_aware_net,
+            #                            window_length=40)
+            # min_max_scaling_net = MinMaxScaling(stream_sum_net)
         else:
             min_max_scaling_net = None
+            ae_net = None
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=ae_sys,
-                  resulting_building_block_net=min_max_scaling_net,
+                  resulting_building_block_net=ae_net,
                   create_alarms=False,
                   plot_switch=True,
                   datapacket_mode=datapacket_mode,
