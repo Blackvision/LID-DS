@@ -11,8 +11,7 @@ import math
 from dataloader.datapacket import Datapacket
 from algorithms.building_block import BuildingBlock
 
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class AEMode(Enum):
@@ -25,6 +24,7 @@ class AEDataset(td.Dataset):
     """
     helper class used to present the data to torch
     """
+
     def __init__(self, data: set) -> None:
         super().__init__()
         data_array = []
@@ -39,10 +39,12 @@ class AEDataset(td.Dataset):
         xy = self.xy_data[idx]
         return xy
 
+
 class AENetwork(nn.Module):
     """
     the actual autoencoder as torch module
     """
+
     def __init__(self, input_size):
         super().__init__()
         self._input_size = input_size
@@ -68,7 +70,7 @@ class AENetwork(nn.Module):
             torch.nn.Dropout(p=0.5),
             torch.nn.SELU()
         )
-          
+
         # Building an decoder
         self.decoder = torch.nn.Sequential(
             torch.nn.Linear(int(first_hidden_layer_size * pow(self._factor, 4)),
@@ -116,16 +118,18 @@ class AE(BuildingBlock):
     """
     the decision engine
     """
-    def __init__(self, input_vector: BuildingBlock, mode: AEMode = AEMode.LOSS, batch_size=256, max_training_time=600, early_stopping_epochs=50):
-        super().__init__()                
+
+    def __init__(self, input_vector: BuildingBlock, mode: AEMode = AEMode.LOSS, batch_size=256, max_training_time=600,
+                 early_stopping_epochs=50):
+        super().__init__()
         self._input_vector = input_vector
         self._dependency_list = [input_vector]
         self._mode = mode
         self._input_size = 0
-        self._autoencoder = None # AENetwork(input_size,hidden_size)
+        self._autoencoder = None  # AENetwork(input_size,hidden_size)
         self._loss_function = torch.nn.MSELoss()
         self._batch_size = batch_size
-        self._training_set = set() # we use distinct training data
+        self._training_set = set()  # we use distinct training data
         self._validation_set = set()
         self._max_training_time = max_training_time  # time in seconds
         self._early_stopping_num_epochs = early_stopping_epochs
@@ -141,12 +145,12 @@ class AE(BuildingBlock):
             if self._input_size == 0:
                 self._input_size = len(input_vector)
             self._training_set.add(tuple(input_vector))
-        
+
     def val_on(self, datapacket: Datapacket):
         input_vector = self._input_vector.get_result(datapacket)
         if input_vector is not None:
             self._validation_set.add(tuple(input_vector))
-        
+
     def fit(self):
         print(f"AE.train_set: {len(self._training_set)}".rjust(27))
         self._autoencoder = AENetwork(self._input_size).to(device)

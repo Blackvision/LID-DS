@@ -132,16 +132,23 @@ class IDS:
         timestamp_last_package = anomaly_scores_both[-1][1]
         list_anomaly_scores = []
         while end_time_window <= timestamp_last_package:
-            #TODO Deque in Python
-            window = [elem for i, elem in enumerate(anomaly_scores_both) if
-                      (elem[1] >= start_time_window and elem[1] < end_time_window)]
+            window = []
+            i = 0
+            while anomaly_scores_both[i][1] <= end_time_window:
+                window.append(anomaly_scores_both[i])
+                i = i+1
+
             if len(window) > 0:
                 sum_window = sum([anomaly_score[0] for anomaly_score in window])
                 anomaly_score = sum_window / len(window)
                 win = (start_time_window, end_time_window, anomaly_score)
                 list_anomaly_scores.append(win)
+
             start_time_window = start_time_window + self.time_window_steps
             end_time_window = end_time_window + self.time_window_steps
+
+            while anomaly_scores_both[0][1] < start_time_window:
+                anomaly_scores_both.remove(anomaly_scores_both[0])
 
         return list_anomaly_scores
 

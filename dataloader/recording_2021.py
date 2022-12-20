@@ -1,6 +1,9 @@
 import os
 import csv
 import json
+import sys
+import traceback
+
 import pcapkit
 import zipfile
 from dataloader.base_recording import BaseRecording
@@ -84,6 +87,9 @@ class Recording2021(BaseRecording):
                 for file in file_list:
                     if file.endswith('.pcap'):
                         zipped.extract(file, 'tmp')
+                        # zipped.extract(file, '/work/user/ak059mreo/tmp')
+
+                # obj = pcapkit.extract(fin=f'/work/user/ak059mreo/tmp/{self.name}.pcap',
                 obj = pcapkit.extract(fin=f'tmp/{self.name}.pcap',
                                       engine='pyshark',
                                       store=True,
@@ -92,10 +98,12 @@ class Recording2021(BaseRecording):
                     networkpacket_object = Networkpacket2021(self.path, frame)
                     yield networkpacket_object
 
-        except Exception:
-            print(f'Error extracting pcap file {self.name}')
+        except Exception as  e:
+            print(f'Error extracting pcap file {self.name}. Exception stack trace:')
+            print(traceback.format_exc())
             return None
         finally:
+            # os.remove(f'/work/user/ak059mreo/tmp/{self.name}.pcap')
             os.remove(f'tmp/{self.name}.pcap')
         # return obj
 
