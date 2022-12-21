@@ -1,3 +1,4 @@
+import os
 import time
 import logging
 import argparse
@@ -102,8 +103,11 @@ def main(args_scenario, args_base_path, args_result_path):
         print("Detection time: " + str(detection_time))
 
         # write results
-        filename = scenario + "_" + str(datetime.date.today()) + ".txt"
-        f = open(result_path + filename, "a")
+        date_today = str(datetime.date.today())
+        if not os.path.exists(result_path + date_today):
+            os.makedirs(result_path + date_today)
+        filename = scenario + "_" + date_today + ".txt"
+        f = open(result_path + date_today + "/" + filename, "a")
         f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
         results = ids.performance.get_results()
         for k in sorted(results.keys()):
