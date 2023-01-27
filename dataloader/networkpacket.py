@@ -58,7 +58,35 @@ class Networkpacket(Datapacket):
         """
         raise NotImplemented
 
+    def length(self) -> int:
+        """
+        Returns:
+            int: timestamp
+        """
+        raise NotImplemented
+
     def data(self) -> str:
+        """
+        Returns:
+            string: data
+        """
+        raise NotImplemented
+
+    def transport_layer_checksum(self) -> str:
+        """
+        Returns:
+            string: data
+        """
+        raise NotImplemented
+
+    def transport_layer_checksum_status(self) -> str:
+        """
+        Returns:
+            string: data
+        """
+        raise NotImplemented
+
+    def transport_layer_flags(self) -> str:
         """
         Returns:
             string: data

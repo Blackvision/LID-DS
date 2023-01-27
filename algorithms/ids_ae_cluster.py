@@ -10,6 +10,8 @@ from algorithms.decision_engines.ae import AE
 from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
+from algorithms.features.impl_networkpacket.concat_features_binary import ConcatFeaturesBinary
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
@@ -24,16 +26,16 @@ def main(args_scenario, args_base_path, args_result_path):
     scenario = args_scenario
     lid_ds_base_path = args_base_path
     result_path = args_result_path
-    datapacket_mode = DatapacketMode.SYSCALL
+    datapacket_mode = DatapacketMode.NETWORKPACKET
     direction = Direction.OPEN
     draw_plot = False
 
     # Syscall:
-    ngram_length_sys = 7
+    ngram_length_sys = 5
     thread_aware_sys = True
 
     # Networkpacket:
-    ngram_length_net = 7
+    ngram_length_net = 1
     thread_aware_net = False
 
     # Both:
@@ -52,7 +54,8 @@ def main(args_scenario, args_base_path, args_result_path):
         # features syscalls
         if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
             syscallname = SyscallName()
-            ohe_sys = OneHotEncoding(syscallname)
+            int_encoding_sys = IntEmbedding(syscallname)
+            ohe_sys = OneHotEncoding(int_encoding_sys)
             ngram_sys = Ngram(feature_list=[ohe_sys],
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys
@@ -64,15 +67,15 @@ def main(args_scenario, args_base_path, args_result_path):
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            concatFeatures = ConcatFeatures()
-            w2v_net = W2VEmbedding(word=concatFeatures,
-                                   vector_size=10,
-                                   window_size=10,
-                                   epochs=500,
-                                   thread_aware=False
-                                   )
+            concatFeatures = ConcatFeaturesBinary()
+            # w2v_net = W2VEmbedding(word=concatFeatures,
+            #                        vector_size=10,
+            #                        window_size=10,
+            #                        epochs=500,
+            #                        thread_aware=False
+            #                       )
             # ohe_net = OneHotEncoding(concatFeatures)
-            ngram_net = Ngram(feature_list=[w2v_net],
+            ngram_net = Ngram(feature_list=[concatFeatures],
                               thread_aware=thread_aware_net,
                               ngram_length=ngram_length_net
                               )

@@ -11,7 +11,11 @@ class SourcePort(BuildingBlock):
         """
         calculate source port of networkpacket
         """
-        return networkpacket.source_port()
+        if networkpacket.source_port() is not None:
+            source_port = str(networkpacket.source_port())
+        else:
+            source_port = str(0).zfill(4)
+        return source_port
 
     def depends_on(self):
         return []

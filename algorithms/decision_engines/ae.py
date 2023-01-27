@@ -118,8 +118,8 @@ class AE(BuildingBlock):
     """
     the decision engine
     """
-
-    def __init__(self, input_vector: BuildingBlock, mode: AEMode = AEMode.LOSS, batch_size=256, max_training_time=600,
+    # 600; 28800; 172800
+    def __init__(self, input_vector: BuildingBlock, mode: AEMode = AEMode.LOSS, batch_size=256, max_training_time=172800,
                  early_stopping_epochs=50):
         super().__init__()
         self._input_vector = input_vector

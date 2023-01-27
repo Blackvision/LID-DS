@@ -22,6 +22,25 @@ class Networkpacket2021(Networkpacket):
         self._timestamp_datetime = None
         self._length = None
         self._data = None
+        self._transport_layer_checksum = None
+        self._transport_layer_checksum_status = None
+        self._transport_layer_flags = None
+
+    def internet_layer_protocol(self) -> str:
+        """
+        Returns:
+            str: internet layer protocol
+        """
+        if self._internet_layer_protocol is None:
+            if hasattr(self.networkpacket_frame, 'ipv6'):
+                self._internet_layer_protocol = "ipv6"
+            elif hasattr(self.networkpacket_frame, 'ip'):
+                self._internet_layer_protocol = "ipv4"
+            elif hasattr(self.networkpacket_frame, 'arp'):
+                self._internet_layer_protocol = "ipv4 (arp)"
+            else:
+                self._internet_layer_protocol = None
+        return self._internet_layer_protocol
 
     def source_ip_address(self) -> str:
         """
@@ -36,8 +55,7 @@ class Networkpacket2021(Networkpacket):
             elif hasattr(self.networkpacket_frame, 'arp'):
                 self._source_ip_address = self.networkpacket_frame.arp.src_proto_ipv4
             else:
-                self._source_ip_address = 'None'
-
+                self._source_ip_address = None
         return self._source_ip_address
 
     def destination_ip_address(self) -> str:
@@ -53,9 +71,24 @@ class Networkpacket2021(Networkpacket):
             elif hasattr(self.networkpacket_frame, 'arp'):
                 self._destination_ip_address = self.networkpacket_frame.arp.dst_proto_ipv4
             else:
-                self._destination_ip_address = 'None'
-
+                self._destination_ip_address = None
         return self._destination_ip_address
+
+    def transport_layer_protocol(self) -> str:
+        """
+        Returns:
+            str: transport layer protocol
+        """
+        # if self._transport_layer_protocol is None:
+        #     self._transport_layer_protocol = self.networkpacket_frame.transport_layer
+        if self._transport_layer_protocol is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._transport_layer_protocol = "tcp"
+            elif hasattr(self.networkpacket_frame, 'udp'):
+                self._transport_layer_protocol = "udp"
+            else:
+                self._transport_layer_protocol = None
+        return self._transport_layer_protocol
 
     def source_port(self) -> int:
         """
@@ -69,7 +102,6 @@ class Networkpacket2021(Networkpacket):
                 self._source_port = int(self.networkpacket_frame.udp.port)
             else:
                 self._source_port = None
-
         return self._source_port
 
     def destination_port(self) -> int:
@@ -84,35 +116,7 @@ class Networkpacket2021(Networkpacket):
                 self._destination_port = int(self.networkpacket_frame.udp.dstport)
             else:
                 self._destination_port = None
-
         return self._destination_port
-
-    def transport_layer_protocol(self) -> str:
-        """
-        Returns:
-            str: transport layer protocol
-        """
-        if self._transport_layer_protocol is None:
-            self._transport_layer_protocol = self.networkpacket_frame.transport_layer
-
-        return self._transport_layer_protocol
-
-    def internet_layer_protocol(self) -> str:
-        """
-        Returns:
-            str: internet layer protocol
-        """
-        if self._internet_layer_protocol is None:
-            if hasattr(self.networkpacket_frame, 'ipv6'):
-                self._internet_layer_protocol = 'ipv6'
-            elif hasattr(self.networkpacket_frame, 'ip'):
-                self._internet_layer_protocol = 'ipv4'
-            elif hasattr(self.networkpacket_frame, 'arp'):
-                self._internet_layer_protocol = 'ipv4 (arp)'
-            else:
-                self._internet_layer_protocol = None
-
-        return self._internet_layer_protocol
 
     def timestamp_unix_in_ns(self) -> int:
         """
@@ -121,7 +125,6 @@ class Networkpacket2021(Networkpacket):
         """
         if self._timestamp_unix_in_ns is None:
             self._timestamp_unix_in_ns = int(re.sub('\.', '', self.networkpacket_frame.sniff_timestamp))
-
         return self._timestamp_unix_in_ns
 
     def timestamp_datetime(self) -> datetime:
@@ -132,7 +135,6 @@ class Networkpacket2021(Networkpacket):
         if self._timestamp_datetime is None:
             # self._timestamp_datetime = self.networkpacket_frame.sniff_time
             self._timestamp_datetime = datetime.fromtimestamp(int(self.timestamp_unix_in_ns()) * 10 ** -9)
-
         return self._timestamp_datetime
 
     def length(self) -> int:
@@ -142,7 +144,6 @@ class Networkpacket2021(Networkpacket):
         """
         if self._length is None:
             self._length = int(self.networkpacket_frame.length)
-
         return self._length
 
     def data(self) -> str:
@@ -152,9 +153,60 @@ class Networkpacket2021(Networkpacket):
         """
         if self._data is None:
             if hasattr(self.networkpacket_frame, 'tcp'):
-                self._data = int(self.networkpacket_frame.tcp.payload)
+                if hasattr(self.networkpacket_frame.tcp, 'payload'):
+                    self._data = self.networkpacket_frame.tcp.payload
+            elif hasattr(self.networkpacket_frame, 'udp'):
+                if hasattr(self.networkpacket_frame.udp, 'payload'):
+                    self._data = self.networkpacket_frame.udp.payload
             else:
                 self._data = None
-
         return self._data
+
+    def transport_layer_checksum(self) -> str:
+        """
+        Returns:
+            string: data
+        """
+        if self._transport_layer_checksum is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._transport_layer_checksum = self.networkpacket_frame.tcp.checksum
+            elif hasattr(self.networkpacket_frame, 'udp'):
+                self._transport_layer_checksum = self.networkpacket_frame.udp.checksum
+            else:
+                self._transport_layer_checksum = None
+        return self._transport_layer_checksum
+
+    def transport_layer_checksum_status(self) -> str:
+        """
+        Returns:
+            string: data
+        """
+        if self._transport_layer_checksum_status is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._transport_layer_checksum_status = int(self.networkpacket_frame.tcp.checksum_status)
+            elif hasattr(self.networkpacket_frame, 'udp'):
+                self._transport_layer_checksum_status = int(self.networkpacket_frame.udp.checksum_status)
+            else:
+                self._transport_layer_checksum_status = None
+        return self._transport_layer_checksum_status
+
+    def transport_layer_flags(self) -> str:
+        """
+        Returns:
+            string: data
+        """
+        if self._transport_layer_flags is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                flags = []
+                flags.append(int(self.networkpacket_frame.tcp.flags_urg))
+                flags.append(int(self.networkpacket_frame.tcp.flags_ack))
+                flags.append(int(self.networkpacket_frame.tcp.flags_push))
+                flags.append(int(self.networkpacket_frame.tcp.flags_reset))
+                flags.append(int(self.networkpacket_frame.tcp.flags_syn))
+                flags.append(int(self.networkpacket_frame.tcp.flags_fin))
+                self._transport_layer_flags = flags
+            else:
+                self._transport_layer_flags = None
+        return self._transport_layer_flags
+
 

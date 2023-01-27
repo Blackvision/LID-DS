@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=paula
-#SBATCH --time=10:00:00
+#SBATCH --time=20:00:00
 #SBATCH --mem=64G
 
 module load PyTorch/1.10.0-foss-2021a-CUDA-11.3.1

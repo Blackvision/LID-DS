@@ -11,7 +11,11 @@ class DestinationPort(BuildingBlock):
         """
         calculate destination port of networkpacket
         """
-        return networkpacket.destination_port()
+        if networkpacket.destination_port() is not None:
+            destination_port = str(networkpacket.destination_port())
+        else:
+            destination_port = str(0).zfill(4)
+        return destination_port
 
     def depends_on(self):
         return []
