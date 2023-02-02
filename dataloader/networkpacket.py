@@ -9,17 +9,31 @@ class Networkpacket(Datapacket):
     def __init__(self):
         self.recording_path = None
 
-    def source_ip_address(self) -> int:
+    def internet_layer_protocol(self) -> str:
         """
         Returns:
-            int: source ip address
+            str: internet layer protocol
         """
         raise NotImplemented
 
-    def destination_ip_address(self) -> int:
+    def source_ip_address(self) -> str:
         """
         Returns:
-            int: destination ip address
+            str: source ip address
+        """
+        raise NotImplemented
+
+    def destination_ip_address(self) -> str:
+        """
+        Returns:
+            str: destination ip address
+        """
+        raise NotImplemented
+
+    def transport_layer_protocol(self) -> str:
+        """
+        Returns:
+            str: transport layer protocol
         """
         raise NotImplemented
 
@@ -37,17 +51,24 @@ class Networkpacket(Datapacket):
         """
         raise NotImplemented
 
-    def transport_layer_protocol(self) -> str:
+    def highest_layer_protocol(self) -> str:
         """
         Returns:
-            int: destination port
+            str: highest layer protocol
         """
         raise NotImplemented
 
-    def internet_layer_protocol(self) -> str:
+    def land(self) -> int:
         """
         Returns:
-            str: internet layer protocol
+            int: if source and destination IP addresses and port numbers are equal then, this variable takes value 1 else 0
+        """
+        raise NotImplemented
+
+    def layer_count(self) -> int:
+        """
+        Returns:
+            int: Number of layers in a network packet
         """
         raise NotImplemented
 
@@ -61,7 +82,7 @@ class Networkpacket(Datapacket):
     def length(self) -> int:
         """
         Returns:
-            int: timestamp
+            int: network packet length
         """
         raise NotImplemented
 
@@ -75,20 +96,20 @@ class Networkpacket(Datapacket):
     def transport_layer_checksum(self) -> str:
         """
         Returns:
-            string: data
+            string: transport layer checksum
         """
         raise NotImplemented
 
     def transport_layer_checksum_status(self) -> str:
         """
         Returns:
-            string: data
+            string: transport layer checksum status
         """
         raise NotImplemented
 
     def transport_layer_flags(self) -> str:
         """
         Returns:
-            string: data
+            string: transport layer flags
         """
         raise NotImplemented

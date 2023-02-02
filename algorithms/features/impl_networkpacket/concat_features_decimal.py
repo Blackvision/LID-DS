@@ -94,7 +94,7 @@ class ConcatFeaturesDecimal(BuildingBlock):
         else:
             x = ""
             for y in transport_layer_flags:
-                x + str(y)
+                x = x + str(y)
             x = int(x) / 1000000
         return float(x)
 

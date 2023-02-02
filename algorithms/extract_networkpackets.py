@@ -3,12 +3,15 @@ import os
 import time
 from pprint import pprint
 
+from algorithms.data_preprocessor import DataPreprocessor
 from algorithms.decision_engines.ae import AE
 from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
 from algorithms.features.impl_networkpacket.concat_features_binary import ConcatFeaturesBinary
 from algorithms.features.impl_networkpacket.concat_features_decimal import ConcatFeaturesDecimal
+from algorithms.features.impl_networkpacket.extract_features import ExtractFeatures
+from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
@@ -24,10 +27,8 @@ def main():
     lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
     # lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
     result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
-    # result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     datapacket_mode = DatapacketMode.NETWORKPACKET
     direction = Direction.OPEN
-    draw_plot = False
 
     # Syscall:
     ngram_length_sys = 5   # 7
@@ -38,10 +39,6 @@ def main():
     w2v_vector_size_net = 10            # 5 * 7 = 35     5
     w2v_window_size_net = 10            # 3, 5, 10       10
     thread_aware_net = False
-
-    # Both:
-    time_window = 5000000000
-    time_window_steps = 1000000000
 
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [
@@ -94,63 +91,35 @@ def main():
                                   thread_aware=thread_aware_sys,
                                   ngram_length=ngram_length_sys
                                   )
-                ae_sys = AE(input_vector=ngram_sys)
-                resulting_building_block_sys = ae_sys
+                resulting_building_block_sys = ngram_sys
             else:
                 resulting_building_block_sys = None
 
             # features networkpackets
             if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-                concatFeatures = ConcatFeaturesDecimal()
-                ngram_net = Ngram(feature_list=[concatFeatures],
-                                  thread_aware=thread_aware_net,
-                                  ngram_length=ngram_length_net
-                                  )
-                ae_net = AE(input_vector=ngram_net)
-                resulting_building_block_net = ae_net
+                #concatFeatures = ConcatFeatures()
+                flowFeatures = FlowFeatures()
+                # ngram_net = Ngram(feature_list=[concatFeatures],
+                #                   thread_aware=thread_aware_net,
+                #                   ngram_length=ngram_length_net
+                #                   )
+                # extractFeatures = ExtractFeatures(concatFeatures, scenario_range[scenario_number], result_path)
+                resulting_building_block_net = flowFeatures
             else:
                 resulting_building_block_net = None
 
-            ids = IDS(data_loader=dataloader,
-                      resulting_building_block_sys=resulting_building_block_sys,
-                      resulting_building_block_net=resulting_building_block_net,
-                      create_alarms=False,
-                      plot_switch=draw_plot,
-                      datapacket_mode=datapacket_mode,
-                      time_window=time_window,
-                      time_window_steps=time_window_steps)
+            data_preprocessor = DataPreprocessor(dataloader, resulting_building_block_sys, resulting_building_block_net, datapacket_mode)
 
-            # threshold
-            print("Determine threshold:")
-            ids.determine_threshold()
+            print("testing")
+            for recording in dataloader.test_data():
+                for datapacket in recording.packets():
+                    resulting_building_block_net.get_result(datapacket)
+                data_preprocessor.new_recording(datapacket_mode)
 
-            # detection
-            print("Detection:")
-            start = time.time()
-            ids.detect()
-            end = time.time()
-            detection_time = (end - start) / 60  # in min
-            print("Detection time: " + str(detection_time))
+            # resulting_building_block_net.print_result()
 
-            # write results
-            date_today = str(datetime.date.today())
-            if not os.path.exists(result_path + date_today):
-                os.makedirs(result_path + date_today)
-            filename = scenario_range[scenario_number] + "_" + date_today + ".txt"
-            f = open(result_path + date_today + "/" + filename, "a")
-            f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
-            results = ids.performance.get_results()
-            for k in sorted(results.keys()):
-                f.write("'%s':'%s', \n" % (k, results[k]))
-            f.write("\n\n")
-            f.close()
+            print("ready")
 
-            # print results
-            print(f"Results for scenario: {scenario_range[scenario_number]}")
-            pprint(results)
-
-            if draw_plot:
-                ids.draw_plot()
 
 if __name__ == '__main__':
     main()
