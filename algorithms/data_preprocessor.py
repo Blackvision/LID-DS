@@ -4,6 +4,7 @@ from tqdm import tqdm
 
 from algorithms.building_block import BuildingBlock
 from algorithms.building_block_manager import BuildingBlockManager
+from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from dataloader.base_data_loader import BaseDataLoader
 from dataloader.datapacket_mode import DatapacketMode
 
@@ -105,14 +106,25 @@ class DataPreprocessor:
                         datapackets = recording.syscalls()
                     elif datapacket_mode == DatapacketMode.NETWORKPACKET:
                         datapackets = recording.packets()
+                        for building_block in building_block_manager.building_block_generations:
+                            if isinstance(building_block[0], FlowFeatures):
+                                for entry in recording.metadata()["container"]:
+                                    if entry["role"] == "victim":
+                                        building_block[0].set_host_ip(entry["ip"])
                     for datapacket in datapackets:
                         # calculate already fitted bbs
                         for previous_generation in range(0, current_generation):
                             for previous_bb in building_block_manager.building_block_generations[previous_generation]:
-                                previous_bb.get_result(datapacket)
+                                if datapacket_mode == DatapacketMode.SYSCALL:
+                                    previous_bb.get_result(datapacket)
+                                elif datapacket_mode == DatapacketMode.NETWORKPACKET:
+                                    previous_bb.get_result(datapacket)
                         # call train_on for current iteration bbs
                         for current_bb in building_block_manager.building_block_generations[current_generation]:
-                            current_bb.train_on(datapacket)
+                            if datapacket_mode == DatapacketMode.SYSCALL:
+                                current_bb.train_on(datapacket)
+                            elif datapacket_mode == DatapacketMode.NETWORKPACKET:
+                                current_bb.train_on(datapacket)
                     if datapacket_mode == DatapacketMode.SYSCALL:
                         self.new_recording(DatapacketMode.SYSCALL)
                     elif datapacket_mode == DatapacketMode.NETWORKPACKET:
@@ -129,11 +141,19 @@ class DataPreprocessor:
                         datapackets = recording.syscalls()
                     elif datapacket_mode == DatapacketMode.NETWORKPACKET:
                         datapackets = recording.packets()
+                        for building_block in building_block_manager.building_block_generations:
+                            if isinstance(building_block[0], FlowFeatures):
+                                for entry in recording.metadata()["container"]:
+                                    if entry["role"] == "victim":
+                                        building_block[0].set_host_ip(entry["ip"])
                     for datapacket in datapackets:
                         # calculate already fitted bbs
                         for previous_generation in range(0, current_generation):
                             for previous_bb in building_block_manager.building_block_generations[previous_generation]:
-                                previous_bb.get_result(datapacket)
+                                if datapacket_mode == DatapacketMode.SYSCALL:
+                                    previous_bb.get_result(datapacket)
+                                elif datapacket_mode == DatapacketMode.NETWORKPACKET:
+                                    previous_bb.get_result(datapacket)
                         # call val_on for current iteration bbs
                         for current_bb in building_block_manager.building_block_generations[current_generation]:
                             current_bb.val_on(datapacket)

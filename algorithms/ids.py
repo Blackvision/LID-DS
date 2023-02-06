@@ -7,6 +7,7 @@ from tqdm.contrib.concurrent import process_map
 
 from algorithms.building_block import BuildingBlock
 from algorithms.data_preprocessor import DataPreprocessor
+from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from algorithms.performance_measurement import Performance
 from algorithms.performance_measurement_both import PerformanceBoth
 from algorithms.score_plot import ScorePlot
@@ -79,6 +80,7 @@ class IDS:
                 datapackets = recording.syscalls()
             elif self._datapacket_mode == DatapacketMode.NETWORKPACKET:
                 datapackets = recording.packets()
+                self._set_host_ip(recording,final_bb)
             for datapacket in datapackets:
                 anomaly_score = final_bb.get_result(datapacket)
                 if anomaly_score != None:                
@@ -98,6 +100,7 @@ class IDS:
         for recording in tqdm(data, description, unit=" recording"):
             list_sys_anomaly_scores = []
             list_net_anomaly_scores = []
+            self._set_host_ip(recording, self._final_bb_net)
             for syscall in recording.syscalls():
                 anomaly_score = self._final_bb_sys.get_result(syscall)
                 if anomaly_score != None:
@@ -119,6 +122,16 @@ class IDS:
         self.threshold_sys_and_net = max_score
         self.performance.set_threshold(max_score)
         print(f"threshold both (sys and net)={max_score:.3f}".rjust(27))
+
+    def _set_host_ip(self, recording, bb_net):
+        for bb in bb_net.depends_on():
+            if isinstance(bb, FlowFeatures):
+                for entry in recording.metadata()["container"]:
+                    if entry["role"] == "victim":
+                        bb.set_host_ip(entry["ip"])
+                        return
+            elif bb.depends_on():
+                self._set_host_ip(recording, bb)
 
     def _merge_anomaly_score_lists(self, list_sys, list_net):
         merged_list = list_sys
@@ -177,6 +190,7 @@ class IDS:
                 datapackets = recording.syscalls()
             elif self._datapacket_mode == DatapacketMode.NETWORKPACKET:
                 datapackets = recording.packets()
+                self._set_host_ip(recording, final_bb)
             for datapacket in datapackets:
                 anomaly_score = final_bb.get_result(datapacket)
                 if anomaly_score != None:
@@ -198,6 +212,7 @@ class IDS:
                 self.plot.new_recording(recording)
             list_sys_anomaly_scores = []
             list_net_anomaly_scores = []
+            self._set_host_ip(recording, self._final_bb_net)
             for syscall in recording.syscalls():
                 anomaly_score = self._final_bb_sys.get_result(syscall)
                 if anomaly_score != None:
@@ -218,7 +233,6 @@ class IDS:
                     # TODO
                     # if self.plot is not None:
                         # self.plot.add_to_plot_data(anomaly_score[1], anomaly_score[0], self.performance.get_cfp_indices())
-
             if self.performance.alarms is not None:
                 self.performance.alarms.end_alarm()
         return self.performance

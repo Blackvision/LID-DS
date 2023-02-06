@@ -25,9 +25,16 @@ class Networkpacket2021(Networkpacket):
         self._timestamp_datetime = None
         self._length = None
         self._data = None
+        self._data_length = None
         self._transport_layer_checksum = None
         self._transport_layer_checksum_status = None
         self._transport_layer_flags = None
+        self._fin_flag = None
+        self._syn_flag = None
+        self._rst_flag = None
+        self._psh_flag = None
+        self._ack_flag = None
+        self._urg_flag = None
 
     def internet_layer_protocol(self) -> str:
         """
@@ -82,7 +89,7 @@ class Networkpacket2021(Networkpacket):
             elif hasattr(self.networkpacket_frame, 'udp'):
                 self._transport_layer_protocol = "udp"
             else:
-                self._transport_layer_protocol = None
+                self._transport_layer_protocol = "0"
         return self._transport_layer_protocol
 
     def source_port(self) -> int:
@@ -122,19 +129,6 @@ class Networkpacket2021(Networkpacket):
             self._highest_layer_protocol = self.networkpacket_frame.highest_layer
         return self._highest_layer_protocol
 
-    def land(self) -> int:
-        """
-        Returns:
-            int: if source and destination IP addresses and port numbers are equal then, this variable takes value 1 else 0
-        """
-        if self._land is None:
-            if self._source_ip_address == self._destination_ip_address:
-                if self._source_port == self._destination_port:
-                    self._land = 1
-            else:
-                self._land = 0
-        return self._land
-
     def layer_count(self) -> int:
         """
         Returns:
@@ -159,7 +153,6 @@ class Networkpacket2021(Networkpacket):
             int: timestamp in ns
         """
         if self._timestamp_datetime is None:
-            # self._timestamp_datetime = self.networkpacket_frame.sniff_time
             self._timestamp_datetime = datetime.fromtimestamp(int(self.timestamp_unix_in_ns()) * 10 ** -9)
         return self._timestamp_datetime
 
@@ -187,6 +180,22 @@ class Networkpacket2021(Networkpacket):
             else:
                 self._data = None
         return self._data
+
+    def data_length(self) -> int:
+        """
+        Returns:
+            int: data length
+        """
+        if self._data_length is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                if hasattr(self.networkpacket_frame.tcp, 'payload'):
+                    self._data_length = self.networkpacket_frame.tcp.len
+            elif hasattr(self.networkpacket_frame, 'udp'):
+                if hasattr(self.networkpacket_frame.udp, 'payload'):
+                    self._data_length = self.networkpacket_frame.udp.length
+            else:
+                self._data_length = None
+        return self._data_length
 
     def transport_layer_checksum(self) -> str:
         """
@@ -235,4 +244,75 @@ class Networkpacket2021(Networkpacket):
                 self._transport_layer_flags = None
         return self._transport_layer_flags
 
+    def tcp_fin_flag(self) -> int:
+        """
+        Returns:
+            int: fin flag
+        """
+        if self._fin_flag is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._fin_flag = int(self.networkpacket_frame.tcp.flags_fin)
+            else:
+                self._fin_flag = None
+        return self._fin_flag
+
+    def tcp_syn_flag(self) -> int:
+        """
+        Returns:
+            int: syn flag
+        """
+        if self._syn_flag is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._syn_flag = int(self.networkpacket_frame.tcp.flags_syn)
+            else:
+                self._syn_flag = None
+        return self._syn_flag
+
+    def tcp_rst_flag(self) -> int:
+        """
+        Returns:
+            int: rst flag
+        """
+        if self._rst_flag is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._rst_flag = int(self.networkpacket_frame.tcp.flags_reset)
+            else:
+                self._rst_flag = None
+        return self._rst_flag
+
+    def tcp_psh_flag(self) -> int:
+        """
+        Returns:
+            int: psh flag
+        """
+        if self._psh_flag is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._psh_flag = int(self.networkpacket_frame.tcp.flags_push)
+            else:
+                self._psh_flag = None
+        return self._psh_flag
+
+    def tcp_ack_flag(self) -> int:
+        """
+        Returns:
+            int: ack flag
+        """
+        if self._ack_flag is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._ack_flag = int(self.networkpacket_frame.tcp.flags_ack)
+            else:
+                self._ack_flag = None
+        return self._ack_flag
+
+    def tcp_urg_flag(self) -> int:
+        """
+        Returns:
+            int: urg flag
+        """
+        if self._urg_flag is None:
+            if hasattr(self.networkpacket_frame, 'tcp'):
+                self._urg_flag = int(self.networkpacket_frame.tcp.flags_urg)
+            else:
+                self._urg_flag = None
+        return self._urg_flag
 

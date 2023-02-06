@@ -58,13 +58,6 @@ class Networkpacket(Datapacket):
         """
         raise NotImplemented
 
-    def land(self) -> int:
-        """
-        Returns:
-            int: if source and destination IP addresses and port numbers are equal then, this variable takes value 1 else 0
-        """
-        raise NotImplemented
-
     def layer_count(self) -> int:
         """
         Returns:
@@ -93,6 +86,13 @@ class Networkpacket(Datapacket):
         """
         raise NotImplemented
 
+    def data_length(self) -> int:
+        """
+        Returns:
+            int: data length
+        """
+        raise NotImplemented
+
     def transport_layer_checksum(self) -> str:
         """
         Returns:
@@ -111,5 +111,47 @@ class Networkpacket(Datapacket):
         """
         Returns:
             string: transport layer flags
+        """
+        raise NotImplemented
+
+    def tcp_fin_flag(self) -> int:
+        """
+        Returns:
+            int: fin flag
+        """
+        raise NotImplemented
+
+    def tcp_syn_flag(self) -> int:
+        """
+        Returns:
+            int: syn flag
+        """
+        raise NotImplemented
+
+    def tcp_rst_flag(self) -> int:
+        """
+        Returns:
+            int: rst flag
+        """
+        raise NotImplemented
+
+    def tcp_psh_flag(self) -> int:
+        """
+        Returns:
+            int: psh flag
+        """
+        raise NotImplemented
+
+    def tcp_ack_flag(self) -> int:
+        """
+        Returns:
+            int: ack flag
+        """
+        raise NotImplemented
+
+    def tcp_urg_flag(self) -> int:
+        """
+        Returns:
+            int: urg flag
         """
         raise NotImplemented

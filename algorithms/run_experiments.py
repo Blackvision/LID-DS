@@ -5,9 +5,9 @@ import os
 import time
 
 scenario_2021 = [
-    "Bruteforce_CWE-307",
-    "CVE-2012-2122",
-    "CVE-2014-0160",
+    # "Bruteforce_CWE-307",
+    # "CVE-2012-2122",
+    # "CVE-2014-0160",
     "CVE-2017-12635_6",
     "CVE-2017-7529",
     "CVE-2018-3760",

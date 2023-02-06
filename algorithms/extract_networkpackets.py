@@ -1,20 +1,9 @@
-import datetime
 import os
-import time
 from pprint import pprint
 
-from algorithms.data_preprocessor import DataPreprocessor
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_both.ngram import Ngram
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
-from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
-from algorithms.features.impl_networkpacket.concat_features_binary import ConcatFeaturesBinary
-from algorithms.features.impl_networkpacket.concat_features_decimal import ConcatFeaturesDecimal
-from algorithms.features.impl_networkpacket.extract_features import ExtractFeatures
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
-from algorithms.features.impl_syscall.int_embedding import IntEmbedding
-from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
-from algorithms.features.impl_syscall.syscall_name import SyscallName
+from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
@@ -24,15 +13,14 @@ from dataloader.direction import Direction
 def main():
     ### feature config:
     #general
-    lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
-    # lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
-    result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
+    # lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
+    lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
+    # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
+    result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     datapacket_mode = DatapacketMode.NETWORKPACKET
     direction = Direction.OPEN
-
-    # Syscall:
-    ngram_length_sys = 5   # 7
-    thread_aware_sys = True
+    time_window = 5000000000
+    time_window_steps = 1000000000
 
     # Networkpacket:
     ngram_length_net = 1
@@ -73,52 +61,41 @@ def main():
                                      lid_ds_version[lid_ds_version_number],
                                      scenario_range[scenario_number])
 
-        datapacket_modes = []
-        if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.NETWORKPACKET:
-            datapacket_modes = [datapacket_mode]
-        elif datapacket_mode == DatapacketMode.BOTH:
-            datapacket_modes = [datapacket_mode, DatapacketMode.SYSCALL, DatapacketMode.NETWORKPACKET]
+        dataloader = dataloader_factory(scenario_path, direction=direction)
+        resulting_building_block_sys = None
 
-        for datapacket_mode in datapacket_modes:
-            dataloader = dataloader_factory(scenario_path, direction=direction)
+        # features networkpackets
+        if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
+            #concatFeatures = ConcatFeatures()
+            flowFeatures = FlowFeatures()
+            minMaxScalingNet = MinMaxScalingNet(flowFeatures)
+            ae_net = AE(input_vector=minMaxScalingNet)
+            resulting_building_block_net = ae_net
+        else:
+            resulting_building_block_net = None
 
-            # features syscalls
-            if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
-                syscallname = SyscallName()
-                int_encoding_sys = IntEmbedding(syscallname)
-                ohe_sys = OneHotEncoding(int_encoding_sys)
-                ngram_sys = Ngram(feature_list=[ohe_sys],
-                                  thread_aware=thread_aware_sys,
-                                  ngram_length=ngram_length_sys
-                                  )
-                resulting_building_block_sys = ngram_sys
-            else:
-                resulting_building_block_sys = None
+        ids = IDS(data_loader=dataloader,
+                  resulting_building_block_sys=resulting_building_block_sys,
+                  resulting_building_block_net=resulting_building_block_net,
+                  create_alarms=False,
+                  plot_switch=False,
+                  datapacket_mode=datapacket_mode,
+                  time_window=time_window,
+                  time_window_steps=time_window_steps)
 
-            # features networkpackets
-            if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-                #concatFeatures = ConcatFeatures()
-                flowFeatures = FlowFeatures()
-                # ngram_net = Ngram(feature_list=[concatFeatures],
-                #                   thread_aware=thread_aware_net,
-                #                   ngram_length=ngram_length_net
-                #                   )
-                # extractFeatures = ExtractFeatures(concatFeatures, scenario_range[scenario_number], result_path)
-                resulting_building_block_net = flowFeatures
-            else:
-                resulting_building_block_net = None
+        # threshold
+        print("Determine threshold:")
+        ids.determine_threshold()
 
-            data_preprocessor = DataPreprocessor(dataloader, resulting_building_block_sys, resulting_building_block_net, datapacket_mode)
+        # detection
+        print("Detection:")
+        ids.detect()
+        print("Ready")
 
-            print("testing")
-            for recording in dataloader.test_data():
-                for datapacket in recording.packets():
-                    resulting_building_block_net.get_result(datapacket)
-                data_preprocessor.new_recording(datapacket_mode)
-
-            # resulting_building_block_net.print_result()
-
-            print("ready")
+        # print results
+        print(f"Results for scenario: {scenario_range[scenario_number]}")
+        results = ids.performance.get_results()
+        pprint(results)
 
 
 if __name__ == '__main__':
