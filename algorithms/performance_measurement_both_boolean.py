@@ -4,10 +4,10 @@ from algorithms.alarms import Alarms
 from dataloader.base_recording import BaseRecording
 
 
-class PerformanceBoth:
+class PerformanceBothBoolean:
 
     def __init__(self, create_alarms: bool = False):
-        self._threshold = 0.0
+        self._threshold = True
         self._current_exploit_time = None
         self._exploit_count = 0
         self._alarm = False
@@ -39,10 +39,10 @@ class PerformanceBoth:
         else:
             self.alarms = None
 
-    def set_threshold(self, threshold: float):
-        self._threshold = threshold
+    def set_threshold(self):
+        self._threshold = True
 
-    def analyze_datapacket(self, time_window_start, time_window_end, anomaly_score: float):
+    def analyze_datapacket(self, time_window_start, time_window_end, anomaly_score: bool):
         """
         counts performance values with syscall and anomaly score as input,
         differentiates between normal and exploit files
@@ -50,7 +50,7 @@ class PerformanceBoth:
         # files with exploit
         if self._current_exploit_time is not None:
             self._exploit_anomaly_score_count += 1
-            if anomaly_score > self._threshold:
+            if anomaly_score:
                 if self._current_exploit_time > time_window_end:
                     self._fp += 1
                     self._current_cfp_stream_exploits += 1
@@ -69,7 +69,7 @@ class PerformanceBoth:
                     elif self._alarm is True:
                         self._tp += 1
 
-            elif anomaly_score <= self._threshold:
+            elif not anomaly_score:
                 if self.create_alarms:
                     self.alarms.end_alarm()
                 self._cfp_end_exploits()
@@ -81,13 +81,13 @@ class PerformanceBoth:
         # files without exploit
         elif self._current_exploit_time is None:
             self._normal_score_count += 1
-            if anomaly_score > self._threshold:
+            if anomaly_score:
                 self._fp += 1
                 self._current_cfp_stream_normal += 1
                 self._cfp_start_normal()
                 #if self.create_alarms:
                 #    self.alarms.add_or_update_alarm(datapacket, False)
-            if anomaly_score <= self._threshold:
+            if not anomaly_score:
                 if self.create_alarms:
                     self.alarms.end_alarm()
                 self._cfp_end_normal()

@@ -178,9 +178,9 @@ class Performance:
         except ZeroDivisionError:
             precision_cfa = 0
         try:
-            precision_sys = self._alarm_count / (self._alarm_count + self._fp)
+            precision = self._alarm_count / (self._alarm_count + self._fp)
         except ZeroDivisionError:
-            precision_sys = 0
+            precision = 0
 
         try:
             f1_cfa = 2 * (precision_cfa * detection_rate) / (precision_cfa + detection_rate)
@@ -198,7 +198,7 @@ class Performance:
                               "consecutive_false_positives_exploits": self._cfp_count_exploits,
                               "recall": detection_rate,
                               "precision_with_cfa": precision_cfa,
-                              "precision_with_syscalls": precision_sys,
+                              "precision": precision,
                               "f1_cfa": f1_cfa
                               }
         self.result = performance_values

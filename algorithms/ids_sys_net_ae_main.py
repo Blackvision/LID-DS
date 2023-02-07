@@ -5,9 +5,6 @@ from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
 from algorithms.features.impl_both.ngram import Ngram
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
-from algorithms.features.impl_networkpacket.concat_features import ConcatFeatures
-from algorithms.features.impl_networkpacket.concat_features_binary import ConcatFeaturesBinary
 from algorithms.features.impl_networkpacket.concat_features_decimal import ConcatFeaturesDecimal
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
