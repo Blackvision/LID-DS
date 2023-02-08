@@ -6,39 +6,46 @@ import time
 import traceback
 from pprint import pprint
 
-from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
-from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
+from algorithms.decision_engines.stide import Stide
+from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
+from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
 
-def main(args_scenario, args_base_path, args_result_path):
-
+def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     ### feature config:
     # general
     scenario = args_scenario
     lid_ds_base_path = args_base_path
     result_path = args_result_path
-    datapacket_mode = DatapacketMode.NETWORKPACKET
+    datapacket_mode = DatapacketMode.SYSCALL
     direction = Direction.OPEN
-    time_window = 5000000000
-    time_window_steps = 1000000000
+
+    # Syscall:
+    ngram_length_sys = args_ngram_length
+    thread_aware_sys = True
 
     dataloader = dataloader_factory(lid_ds_base_path + scenario, direction=direction)
-    resulting_building_block_sys = None
+    resulting_building_block_net = None
 
-    # features networkpackets
-    if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-        # concatFeatures = ConcatFeatures()
-        flowFeatures = FlowFeatures()
-        minMaxScalingNet = MinMaxScalingNet(flowFeatures)
-        ae_net = AE(input_vector=minMaxScalingNet)
-        resulting_building_block_net = ae_net
+    # features syscalls
+    if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
+        syscallname = SyscallName()
+        int_encoding_sys = IntEmbedding(syscallname)
+        ohe_sys = OneHotEncoding(int_encoding_sys)
+        ngram_sys = Ngram(feature_list=[ohe_sys],
+                          thread_aware=thread_aware_sys,
+                          ngram_length=ngram_length_sys)
+        stide = Stide(ngram_sys)
+        # ae_sys = AE(input_vector=ngram_sys)
+        resulting_building_block_sys = stide
     else:
-        resulting_building_block_net = None
+        resulting_building_block_sys = None
 
     ids = IDS(data_loader=dataloader,
               resulting_building_block_sys=resulting_building_block_sys,
@@ -46,9 +53,8 @@ def main(args_scenario, args_base_path, args_result_path):
               create_alarms=False,
               plot_switch=False,
               datapacket_mode=datapacket_mode,
-              time_window=time_window,
-              time_window_steps=time_window_steps)
-
+              time_window=None,
+              time_window_steps=None)
     # threshold
     print("Determine threshold:")
     ids.determine_threshold()
@@ -68,6 +74,7 @@ def main(args_scenario, args_base_path, args_result_path):
     filename = scenario + "_" + date_today + ".txt"
     f = open(result_path + date_today + "/" + filename, "a")
     f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
+    f.write("ngram length: " + str(ngram_length_sys) + "\n")
     results = ids.performance.get_results()
     for k in sorted(results.keys()):
         f.write("'%s':'%s', \n" % (k, results[k]))
@@ -89,6 +96,8 @@ if __name__ == '__main__':
                             help='LID-DS base path')
         parser.add_argument('-r', dest='result_path', action='store', type=str, required=True,
                             help='result path')
+        parser.add_argument('-n', dest='ngram_length', action='store', type=str, required=True,
+                            help='ngram length')
 
         args = parser.parse_args()
         print(f"Start with scenario {args.scenario}")

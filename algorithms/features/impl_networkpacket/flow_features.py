@@ -46,9 +46,9 @@ class Flow:
         self.data_bytes = []
         self.data_bytes_s_to_d = []
         self.data_bytes_d_to_s = []
+        self.add_packet(init_packet)
         # self.highest_layer_protocol_pack = ""
         # self.highest_layer_protocol = {}
-        self.add_packet(init_packet)
         # protocol
         # (Features ein- u. ausgehend zu Host betrachten)
 
@@ -59,7 +59,6 @@ class Flow:
         # self.length_calculation(networkpacket)
         # self.packets_bytes_per_s(networkpacket)
         # self.time_between_packets(networkpacket)
-        # self.protocols(networkpacket)
         # self.data_bytes_count(networkpacket)
 
     def flag_count(self, networkpacket: Networkpacket):
@@ -123,9 +122,6 @@ class Flow:
                 self.data_bytes_s_to_d.append(networkpacket.data_length())
             elif networkpacket.source_ip_address() == self.init_destination_ip:
                 self.data_bytes_d_to_s.append(networkpacket.data_length())
-
-    def protocols(self, networkpacket: Networkpacket):
-        self.highest_layer_protocol_pack = networkpacket.highest_layer_protocol()
 
     def belongs_to_flow(self, networkpacket: Networkpacket):
         if (networkpacket.source_ip_address() == self.init_source_ip and
@@ -225,13 +221,13 @@ class FlowFeatures(BuildingBlock):
             self.flows_append(networkpacket)
         self.flow_metrics(networkpacket)
         value = []
+        value.append(self.connection_id)
         value.append(self.host_port)
         value.append(self.other_host_port)
-        value.append(self.connection_id)
         value.append(networkpacket.length())
-        value.append(self.highest_layer_protocol_pack)
-        value.append(self.transport_layer_protocol_pack)
         value.append(self.internet_layer_protocol_pack)
+        value.append(self.transport_layer_protocol_pack)
+        value.append(self.highest_layer_protocol_pack)
         value.append(self.time_window_recording)
         value.append(self.flow_count)
         value.append(self.total_packet_count)
