@@ -6,6 +6,7 @@ import time
 import traceback
 from pprint import pprint
 
+from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
@@ -27,7 +28,7 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     direction = Direction.OPEN
 
     # Syscall:
-    ngram_length_sys = args_ngram_length
+    ngram_length_sys = int(args_ngram_length)
     thread_aware_sys = True
 
     dataloader = dataloader_factory(lid_ds_base_path + scenario, direction=direction)
@@ -41,9 +42,9 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
         ngram_sys = Ngram(feature_list=[ohe_sys],
                           thread_aware=thread_aware_sys,
                           ngram_length=ngram_length_sys)
-        stide = Stide(ngram_sys)
-        # ae_sys = AE(input_vector=ngram_sys)
-        resulting_building_block_sys = stide
+        # stide = Stide(ngram_sys)
+        ae_sys = AE(input_vector=ngram_sys)
+        resulting_building_block_sys = ae_sys
     else:
         resulting_building_block_sys = None
 
@@ -102,7 +103,7 @@ if __name__ == '__main__':
         args = parser.parse_args()
         print(f"Start with scenario {args.scenario}")
 
-        main(args.scenario, args.base_path, args.result_path)
+        main(args.scenario, args.base_path, args.result_path, args.ngram_length)
 
     except KeyError as e:
         print(traceback.format_exc())

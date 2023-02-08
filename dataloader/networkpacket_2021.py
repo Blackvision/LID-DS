@@ -35,6 +35,10 @@ class Networkpacket2021(Networkpacket):
         self._psh_flag = None
         self._ack_flag = None
         self._urg_flag = None
+        self._first_layer_protocol = None
+        self._second_layer_protocol = None
+        self._third_layer_protocol = None
+        self._fourth_layer_protocol = None
 
     def internet_layer_protocol(self) -> str:
         """
@@ -128,6 +132,42 @@ class Networkpacket2021(Networkpacket):
         if self._highest_layer_protocol is None:
             self._highest_layer_protocol = self.networkpacket_frame.highest_layer
         return self._highest_layer_protocol
+
+    def first_layer_protocol(self) -> str:
+        """
+        Returns:
+            first_layer_protocol
+        """
+        if self._first_layer_protocol is None:
+            self._first_layer_protocol = self.networkpacket_frame.layers[1].layer_name
+        return self._first_layer_protocol
+
+    def second_layer_protocol(self) -> str:
+        """
+        Returns:
+            second_layer_protocol
+        """
+        if self._second_layer_protocol is None:
+            self._second_layer_protocol = self.networkpacket_frame.layers[2].layer_name
+        return self._second_layer_protocol
+
+    def third_layer_protocol(self) -> str:
+        """
+        Returns:
+            third_layer_protocol
+        """
+        if self._third_layer_protocol is None:
+            self._third_layer_protocol = self.networkpacket_frame.layers[3].layer_name
+        return self._third_layer_protocol
+
+    def fourth_layer_protocol(self) -> str:
+        """
+        Returns:
+            fourth_layer_protocol
+        """
+        if self._fourth_layer_protocol is None:
+            self._fourth_layer_protocol = self.networkpacket_frame.layers[4].layer_name
+        return self._fourth_layer_protocol
 
     def layer_count(self) -> int:
         """
