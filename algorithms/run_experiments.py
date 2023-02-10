@@ -30,7 +30,7 @@ SCRIPT = 'run_on_sc.sh'
 
 MAX_JOBS_IN_QUEUE = 1000
 NUM_EXPERIMENTS = 0
-NGRAM_LENGTHS = ["5", "7"]
+# NGRAM_LENGTHS = ["5", "7", "10", "13"]
 
 def count_queue():
     """
@@ -56,14 +56,12 @@ def start_job(job_str):
 
 # start jobs for specific configuration
 for scenario in SCENARIOS:
-    for ngram_length in NGRAM_LENGTHS:
-        NUM_EXPERIMENTS += 1
-        command = f"sbatch --job-name=ex_{NUM_EXPERIMENTS:05} " + \
-                  f"{SCRIPT} " + \
-                  f"{scenario} " + \
-                  f"{BASE_PATH} " + \
-                  f"{RESULT_PATH} " + \
-                  f"{ngram_length} "
-        start_job(command)
+    NUM_EXPERIMENTS += 1
+    command = f"sbatch --job-name=ex_{NUM_EXPERIMENTS:05} " + \
+              f"{SCRIPT} " + \
+              f"{scenario} " + \
+              f"{BASE_PATH} " + \
+              f"{RESULT_PATH} "
+    start_job(command)
 
 print(f"NUM_EXPERIMENTS = {NUM_EXPERIMENTS}")

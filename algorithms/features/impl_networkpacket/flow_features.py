@@ -14,54 +14,66 @@ class Flow:
         self.init_destination_port = init_packet.destination_port()
         self.flow = []
         self.connection_id = connection_id
-        self.fin_flag_count = 0
-        self.syn_flag_count = 0
-        self.rst_flag_count = 0
-        self.psh_flag_count = 0
-        self.ack_flag_count = 0
-        self.urg_flag_count = 0
-        self.total_packet_count = 0
-        self.total_fwd_packet_count = 0
-        self.total_bwd_packet_count = 0
-        self.length = []
-        self.length_max = 0
-        self.length_min = 99999
-        self.length_avg = 0
-        self.length_std = 0
-        self.length_fwd = []
-        self.length_max_fwd = 0
-        self.length_min_fwd = 99999
-        self.length_avg_fwd = 0
-        self.length_std_fwd = 0
-        self.length_bwd = []
-        self.length_max_bwd = 0
-        self.length_min_bwd = 99999
-        self.length_avg_bwd = 0
-        self.length_std_bwd = 0
-        self.packets_per_s = 0
-        self.bytes_per_s = 0
-        self.time_between_two_packets = []
-        self.avg_time_between_two_packets = 0
-        self.std_time_between_two_packets = 0
-        self.data_bytes = []
-        self.data_bytes_s_to_d = []
-        self.data_bytes_d_to_s = []
+        # self.fin_flag_count = 0
+        # self.syn_flag_count = 0
+        # self.rst_flag_count = 0
+        # self.psh_flag_count = 0
+        # self.ack_flag_count = 0
+        # self.urg_flag_count = 0
+        # self.total_packet_count = 0
+        # self.total_fwd_packet_count = 0
+        # self.total_bwd_packet_count = 0
+        # self.length = []
+        # self.length_max = 0
+        # self.length_min = 99999
+        # self.length_avg = 0
+        # self.length_std = 0
+        # self.length_fwd = []
+        # self.length_max_fwd = 0
+        # self.length_min_fwd = 99999
+        # self.length_avg_fwd = 0
+        # self.length_std_fwd = 0
+        # self.length_bwd = []
+        # self.length_max_bwd = 0
+        # self.length_min_bwd = 99999
+        # self.length_avg_bwd = 0
+        # self.length_std_bwd = 0
+        # self.packets_per_s = 0
+        # self.bytes_per_s = 0
+        # self.time_between_two_packets = []
+        # self.avg_time_between_two_packets = 0
+        # self.std_time_between_two_packets = 0
+        # self.data_bytes = []
+        # self.data_bytes_s_to_d = []
+        # self.data_bytes_d_to_s = []
         self.add_packet(init_packet)
-        # self.highest_layer_protocol_pack = ""
-        # self.highest_layer_protocol = {}
-        # protocol
-        # (Features ein- u. ausgehend zu Host betrachten)
+        # protocols
+        # features Fwd/Bwd: packets_per_s, bytes_per_s, avg_time_between_two_packets, std_time_between_two_packets
 
     def add_packet(self, networkpacket: Networkpacket):
         self.flow.append(networkpacket)
-        # self.flag_count(networkpacket)
-        # self.packet_count(networkpacket)
-        # self.length_calculation(networkpacket)
-        # self.packets_bytes_per_s(networkpacket)
-        # self.time_between_packets(networkpacket)
-        # self.data_bytes_count(networkpacket)
+        # self._flag_count(networkpacket)
+        # self._packet_count(networkpacket)
+        # self._length_calculation(networkpacket)
+        # self._packets_bytes_per_s(networkpacket)
+        # self._time_between_packets(networkpacket)
+        # self._data_bytes_count(networkpacket)
 
-    def flag_count(self, networkpacket: Networkpacket):
+    def belongs_to_flow(self, networkpacket: Networkpacket):
+        if (networkpacket.source_ip_address() == self.init_source_ip and
+                networkpacket.source_port() == self.init_source_port and
+                networkpacket.destination_ip_address() == self.init_destination_ip and
+                networkpacket.destination_port() == self.init_destination_port):
+            return True
+        elif (networkpacket.source_ip_address() == self.init_destination_ip and
+                networkpacket.source_port() == self.init_destination_port and
+                networkpacket.destination_ip_address() == self.init_source_ip and
+                networkpacket.destination_port() == self.init_source_port):
+            return True
+        else:
+            return False
+
+    def _flag_count(self, networkpacket: Networkpacket):
         if networkpacket.transport_layer_protocol() == "tcp":
             self.fin_flag_count += networkpacket.tcp_fin_flag()
             self.syn_flag_count += networkpacket.tcp_syn_flag()
@@ -70,14 +82,14 @@ class Flow:
             self.ack_flag_count += networkpacket.tcp_ack_flag()
             self.urg_flag_count += networkpacket.tcp_urg_flag()
 
-    def packet_count(self, networkpacket: Networkpacket):
+    def _packet_count(self, networkpacket: Networkpacket):
         self.total_packet_count += 1
         if networkpacket.source_ip_address() == self.init_source_ip:
             self.total_fwd_packet_count += 1
         elif networkpacket.source_ip_address() == self.init_destination_ip:
             self.total_bwd_packet_count += 1
 
-    def length_calculation(self, networkpacket: Networkpacket):
+    def _length_calculation(self, networkpacket: Networkpacket):
         self.length.append(networkpacket.length())
         if networkpacket.length() > self.length_max:
             self.length_max = networkpacket.length()
@@ -102,40 +114,26 @@ class Flow:
             self.length_avg_bwd = round(sum(self.length_bwd) / len(self.length_bwd), 4)
             self.length_std_bwd = round(std(self.length_bwd), 4)
 
-    def packets_bytes_per_s(self, networkpacket: Networkpacket):
+    def _packets_bytes_per_s(self, networkpacket: Networkpacket):
         time_window = networkpacket.timestamp_unix_in_ns() - self.init_time
         if time_window > 0:
             time_window_in_s = float(time_window) * float(0.000000001)
             self.packets_per_s = round(self.total_packet_count / time_window_in_s, 4)
             self.bytes_per_s = round(sum(self.length) / time_window_in_s, 4)
 
-    def time_between_packets(self, networkpacket: Networkpacket):
+    def _time_between_packets(self, networkpacket: Networkpacket):
         if len(self.flow) > 1:
             self.time_between_two_packets.append(networkpacket.timestamp_unix_in_ns() - self.flow[-2].timestamp_unix_in_ns())
             self.avg_time_between_two_packets = round(sum(self.time_between_two_packets) / len(self.time_between_two_packets))
             self.std_time_between_two_packets = round(std(self.time_between_two_packets))
 
-    def data_bytes_count(self, networkpacket: Networkpacket):
+    def _data_bytes_count(self, networkpacket: Networkpacket):
         if networkpacket.data():
             self.data_bytes.append(networkpacket.data_length())
             if networkpacket.source_ip_address() == self.init_source_ip:
                 self.data_bytes_s_to_d.append(networkpacket.data_length())
             elif networkpacket.source_ip_address() == self.init_destination_ip:
                 self.data_bytes_d_to_s.append(networkpacket.data_length())
-
-    def belongs_to_flow(self, networkpacket: Networkpacket):
-        if (networkpacket.source_ip_address() == self.init_source_ip and
-                networkpacket.source_port() == self.init_source_port and
-                networkpacket.destination_ip_address() == self.init_destination_ip and
-                networkpacket.destination_port() == self.init_destination_port):
-            return True
-        elif (networkpacket.source_ip_address() == self.init_destination_ip and
-                networkpacket.source_port() == self.init_destination_port and
-                networkpacket.destination_ip_address() == self.init_source_ip and
-                networkpacket.destination_port() == self.init_source_port):
-            return True
-        else:
-            return False
 
 class FlowFeatures(BuildingBlock):
 
@@ -151,12 +149,26 @@ class FlowFeatures(BuildingBlock):
         self.total_packet_count = 0
         self.total_out_packet_count = 0
         self.total_in_packet_count = 0
+        self.avg_packets_in_flows = 0
+        self.std_packets_in_flows = 0
         self.fin_flag_count = 0
         self.syn_flag_count = 0
         self.rst_flag_count = 0
         self.psh_flag_count = 0
         self.ack_flag_count = 0
         self.urg_flag_count = 0
+        self.fin_flag_count_out = 0
+        self.syn_flag_count_out = 0
+        self.rst_flag_count_out = 0
+        self.psh_flag_count_out = 0
+        self.ack_flag_count_out = 0
+        self.urg_flag_count_out = 0
+        self.fin_flag_count_in = 0
+        self.syn_flag_count_in = 0
+        self.rst_flag_count_in = 0
+        self.psh_flag_count_in = 0
+        self.ack_flag_count_in = 0
+        self.urg_flag_count_in = 0
         self.length = []
         self.length_max = 0
         self.length_min = 99999
@@ -174,11 +186,30 @@ class FlowFeatures(BuildingBlock):
         self.length_std_in = 0
         self.packets_per_s = 0
         self.bytes_per_s = 0
+        self.data_bytes = []
+        self.data_bytes_avg = 0
+        self.data_bytes_std = 0
+        self.data_bytes_out = []
+        self.data_bytes_out_avg = 0
+        self.data_bytes_out_std = 0
+        self.data_bytes_in = []
+        self.data_bytes_in_avg = 0
+        self.data_bytes_in_std = 0
         self.last_packet_time_stamp = None
         self.time_between_two_packets = []
         self.time_window_recording = 0
         self.avg_time_between_two_packets = 0
         self.std_time_between_two_packets = 0
+        self.last_packet_time_stamp_out = None
+        self.time_between_two_packets_out = []
+        self.time_window_recording_out = 0
+        self.avg_time_between_two_packets_out = 0
+        self.std_time_between_two_packets_out = 0
+        self.last_packet_time_stamp_in = None
+        self.time_between_two_packets_in = []
+        self.time_window_recording_in = 0
+        self.avg_time_between_two_packets_in = 0
+        self.std_time_between_two_packets_in = 0
         self.num_of_con_same_host = {}
         self.num_of_con_to_same_host = {}
         self.num_of_con_from_same_host = {}
@@ -191,11 +222,26 @@ class FlowFeatures(BuildingBlock):
         self.perc_of_con_same_host_pack = 0
         self.perc_of_con_to_same_host_pack = 0
         self.perc_of_con_from_same_host_pack = 0
-        self.highest_layer_protocol = {}
-        self.highest_layer_protocol_pack = 0
-        self.transport_layer_protocol_pack = 0
-        self.internet_layer_protocol_pack = 0
-        # Features auf protocole/service bezogen
+        self.protocols = {}
+        self.num_of_pack_same_first_layer_protocol = {}
+        self.num_of_pack_same_second_layer_protocol = {}
+        self.num_of_pack_same_third_layer_protocol = {}
+        self.num_of_pack_same_fourth_layer_protocol = {}
+        self.perc_of_pack_same_first_layer_protocol = {}
+        self.perc_of_pack_same_second_layer_protocol = {}
+        self.perc_of_pack_same_third_layer_protocol = {}
+        self.perc_of_pack_same_fourth_layer_protocol = {}
+        self.num_of_pack_same_first_layer_protocol_pack = 0
+        self.num_of_pack_same_second_layer_protocol_pack = 0
+        self.num_of_pack_same_third_layer_protocol_pack = 0
+        self.num_of_pack_same_fourth_layer_protocol_pack = 0
+        self.perc_of_pack_same_first_layer_protocol_pack = 0
+        self.perc_of_pack_same_second_layer_protocol_pack = 0
+        self.perc_of_pack_same_third_layer_protocol_pack = 0
+        self.perc_of_pack_same_fourth_layer_protocol_pack = 0
+        # (Flows nach timeout löschen (past two seconds))
+        # (Percentage of connections that were to different hosts/ip)
+        # (Percentage/Number of connections having the same/different portnumber/protocol)
 
     def set_host_ip(self, host_ip):
         if not self.host_ip:
@@ -221,24 +267,27 @@ class FlowFeatures(BuildingBlock):
             self.flows_append(networkpacket)
         self.flow_metrics(networkpacket)
         value = []
-        value.append(self.connection_id)
-        value.append(self.host_port)
-        value.append(self.other_host_port)
-        value.append(networkpacket.length())
-        value.append(self.internet_layer_protocol_pack)
-        value.append(self.transport_layer_protocol_pack)
-        value.append(self.highest_layer_protocol_pack)
-        value.append(self.time_window_recording)
-        value.append(self.flow_count)
-        value.append(self.total_packet_count)
-        value.append(self.total_out_packet_count)
-        value.append(self.total_in_packet_count)
         value.append(self.fin_flag_count)
         value.append(self.syn_flag_count)
         value.append(self.rst_flag_count)
         value.append(self.psh_flag_count)
         value.append(self.ack_flag_count)
         value.append(self.urg_flag_count)
+        value.append(self.fin_flag_count_out)
+        value.append(self.syn_flag_count_out)
+        value.append(self.rst_flag_count_out)
+        value.append(self.psh_flag_count_out)
+        value.append(self.ack_flag_count_out)
+        value.append(self.urg_flag_count_out)
+        value.append(self.fin_flag_count_in)
+        value.append(self.syn_flag_count_in)
+        value.append(self.rst_flag_count_in)
+        value.append(self.psh_flag_count_in)
+        value.append(self.ack_flag_count_in)
+        value.append(self.urg_flag_count_in)
+        value.append(self.total_packet_count)
+        value.append(self.total_out_packet_count)
+        value.append(self.total_in_packet_count)
         value.append(self.length_max)
         value.append(self.length_min)
         value.append(self.length_avg)
@@ -251,16 +300,38 @@ class FlowFeatures(BuildingBlock):
         value.append(self.length_min_in)
         value.append(self.length_avg_in)
         value.append(self.length_std_in)
+        value.append(self.data_bytes_avg)
+        value.append(self.data_bytes_std)
+        # value.append(self.data_bytes_out_avg)
+        # value.append(self.data_bytes_out_std)
+        # value.append(self.data_bytes_in_avg)
+        # value.append(self.data_bytes_in_std)
         value.append(self.packets_per_s)
         value.append(self.bytes_per_s)
         value.append(self.avg_time_between_two_packets)
         value.append(self.std_time_between_two_packets)
+        # value.append(self.avg_time_between_two_packets_out)
+        # value.append(self.std_time_between_two_packets_out)
+        # value.append(self.avg_time_between_two_packets_in)
+        # value.append(self.std_time_between_two_packets_in)
+        # value.append(self.flow_count)
         value.append(self.num_of_con_same_host_pack)
-        value.append(self.num_of_con_to_same_host_pack)
-        value.append(self.num_of_con_from_same_host_pack)
+        # value.append(self.num_of_con_to_same_host_pack)
+        # value.append(self.num_of_con_from_same_host_pack)
         value.append(self.perc_of_con_same_host_pack)
-        value.append(self.perc_of_con_to_same_host_pack)
-        value.append(self.perc_of_con_from_same_host_pack)
+        # value.append(self.perc_of_con_to_same_host_pack)
+        # value.append(self.perc_of_con_from_same_host_pack)
+        value.append(self.num_of_pack_same_first_layer_protocol_pack)
+        value.append(self.num_of_pack_same_second_layer_protocol_pack)
+        value.append(self.num_of_pack_same_third_layer_protocol_pack)
+        value.append(self.num_of_pack_same_fourth_layer_protocol_pack)
+        value.append(self.perc_of_pack_same_first_layer_protocol_pack)
+        value.append(self.perc_of_pack_same_second_layer_protocol_pack)
+        value.append(self.perc_of_pack_same_third_layer_protocol_pack)
+        value.append(self.perc_of_pack_same_fourth_layer_protocol_pack)
+        # value.append(self.time_window_recording)
+        # value.append(self.connection_id)
+        # value.append(networkpacket.length())
         return value
 
     def flows_append(self, networkpacket: Networkpacket):
@@ -274,12 +345,21 @@ class FlowFeatures(BuildingBlock):
     def flow_metrics(self, networkpacket: Networkpacket):
         self.flag_count(networkpacket)
         self.length_calculation(networkpacket)
+        self.data_bytes_count(networkpacket)
         self.packet_count(networkpacket)
         self.packets_bytes_per_s(networkpacket)
         self.time_between_packets(networkpacket)
         self.connections_same_host(networkpacket)
-        self.ports(networkpacket)
-        self.protocols(networkpacket)
+        # self.ports(networkpacket)
+        self.same_protocols(networkpacket)
+
+    def average_flow_packets(self):
+        packets_in_flows = []
+        for flow in self._flows:
+            packets_in_flows.append(len(flow.flow))
+        if packets_in_flows:
+            self.avg_packets_in_flows = round(sum(self.packets_in_flows) / len(self.packets_in_flows), 4)
+            self.std_packets_in_flows = round(std(self.packets_in_flows), 4)
 
     def flag_count(self, networkpacket: Networkpacket):
         if networkpacket.transport_layer_protocol() == "tcp":
@@ -289,6 +369,20 @@ class FlowFeatures(BuildingBlock):
             self.psh_flag_count += networkpacket.tcp_psh_flag()
             self.ack_flag_count += networkpacket.tcp_ack_flag()
             self.urg_flag_count += networkpacket.tcp_urg_flag()
+            if networkpacket.source_ip_address() == self.host_ip:
+                self.fin_flag_count_out += networkpacket.tcp_fin_flag()
+                self.syn_flag_count_out += networkpacket.tcp_syn_flag()
+                self.rst_flag_count_out += networkpacket.tcp_rst_flag()
+                self.psh_flag_count_out += networkpacket.tcp_psh_flag()
+                self.ack_flag_count_out += networkpacket.tcp_ack_flag()
+                self.urg_flag_count_out += networkpacket.tcp_urg_flag()
+            elif networkpacket.destination_ip_address() == self.host_ip:
+                self.fin_flag_count_in += networkpacket.tcp_fin_flag()
+                self.syn_flag_count_in += networkpacket.tcp_syn_flag()
+                self.rst_flag_count_in += networkpacket.tcp_rst_flag()
+                self.psh_flag_count_in += networkpacket.tcp_psh_flag()
+                self.ack_flag_count_in += networkpacket.tcp_ack_flag()
+                self.urg_flag_count_in += networkpacket.tcp_urg_flag()
 
     def length_calculation(self, networkpacket: Networkpacket):
         self.length.append(networkpacket.length())
@@ -315,6 +409,20 @@ class FlowFeatures(BuildingBlock):
             self.length_avg_in = round(sum(self.length_in) / len(self.length_in), 4)
             self.length_std_in = round(std(self.length_in), 4)
 
+    def data_bytes_count(self, networkpacket: Networkpacket):
+        if networkpacket.data():
+            self.data_bytes.append(int(networkpacket.data_length()))
+            self.data_bytes_avg = round(sum(self.data_bytes) / len(self.data_bytes), 4)
+            self.data_bytes_std = round(std(self.data_bytes), 4)
+            if networkpacket.source_ip_address() == self.host_ip:
+                self.data_bytes_out.append(int(networkpacket.data_length()))
+                self.data_bytes_out_avg = round(sum(self.data_bytes_out) / len(self.data_bytes_out), 4)
+                self.data_bytes_out_std = round(std(self.data_bytes_out), 4)
+            elif networkpacket.destination_ip_address() == self.host_ip:
+                self.data_bytes_in.append(int(networkpacket.data_length()))
+                self.data_bytes_in_avg = round(sum(self.data_bytes_in) / len(self.data_bytes_in), 4)
+                self.data_bytes_in_std = round(std(self.data_bytes_in), 4)
+
     def packet_count(self, networkpacket: Networkpacket):
         self.total_packet_count += 1
         if networkpacket.source_ip_address() == self.host_ip:
@@ -335,6 +443,20 @@ class FlowFeatures(BuildingBlock):
             self.avg_time_between_two_packets = round(sum(self.time_between_two_packets) / len(self.time_between_two_packets))
             self.std_time_between_two_packets = round(std(self.time_between_two_packets))
         self.last_packet_time_stamp = networkpacket.timestamp_unix_in_ns()
+        if networkpacket.source_ip_address() == self.host_ip:
+            if self.last_packet_time_stamp_out:
+                self.time_between_two_packets_out.append(networkpacket.timestamp_unix_in_ns() - self.last_packet_time_stamp_out)
+                self.avg_time_between_two_packets_out = round(
+                    sum(self.time_between_two_packets_out) / len(self.time_between_two_packets_out))
+                self.std_time_between_two_packets_out = round(std(self.time_between_two_packets_out))
+            self.last_packet_time_stamp_out = networkpacket.timestamp_unix_in_ns()
+        elif networkpacket.destination_ip_address() == self.host_ip:
+            if self.last_packet_time_stamp_in:
+                self.time_between_two_packets_in.append(networkpacket.timestamp_unix_in_ns() - self.last_packet_time_stamp_in)
+                self.avg_time_between_two_packets_in = round(
+                    sum(self.time_between_two_packets_in) / len(self.time_between_two_packets_in))
+                self.std_time_between_two_packets_in = round(std(self.time_between_two_packets_in))
+            self.last_packet_time_stamp_in = networkpacket.timestamp_unix_in_ns()
 
     def connections_same_host(self, networkpacket: Networkpacket):
         self.num_of_con_same_host_pack = 0
@@ -377,26 +499,55 @@ class FlowFeatures(BuildingBlock):
             self.host_port = 0
             self.other_host_port = 0
 
-    def protocols(self, networkpacket: Networkpacket):
-        if networkpacket.transport_layer_protocol() == "tcp":
-            self.transport_layer_protocol_pack = 25
-        elif networkpacket.transport_layer_protocol() == "udp":
-            self.transport_layer_protocol_pack = 75
-        else:
-            self.transport_layer_protocol_pack = 0
+    def same_protocols(self, networkpacket: Networkpacket):
+        self.perc_of_pack_same_first_layer_protocol_pack = 0
+        self.perc_of_pack_same_second_layer_protocol_pack = 0
+        self.perc_of_pack_same_third_layer_protocol_pack = 0
+        self.perc_of_pack_same_fourth_layer_protocol_pack = 0
+        if networkpacket.first_layer_protocol():
+            self.check_protocol(networkpacket.first_layer_protocol())
+            if self.protocols[networkpacket.first_layer_protocol()] not in self.num_of_pack_same_first_layer_protocol:
+                self.num_of_pack_same_first_layer_protocol[self.protocols[networkpacket.first_layer_protocol()]] = 1
+            else:
+                self.num_of_pack_same_first_layer_protocol[self.protocols[networkpacket.first_layer_protocol()]] += 1
+            self.num_of_pack_same_first_layer_protocol_pack = self.num_of_pack_same_first_layer_protocol[self.protocols[networkpacket.first_layer_protocol()]]
+        if networkpacket.second_layer_protocol():
+            self.check_protocol(networkpacket.second_layer_protocol())
+            if self.protocols[networkpacket.second_layer_protocol()] not in self.num_of_pack_same_second_layer_protocol:
+                self.num_of_pack_same_second_layer_protocol[self.protocols[networkpacket.second_layer_protocol()]] = 1
+            else:
+                self.num_of_pack_same_second_layer_protocol[self.protocols[networkpacket.second_layer_protocol()]] += 1
+            self.num_of_pack_same_second_layer_protocol_pack = self.num_of_pack_same_second_layer_protocol[self.protocols[networkpacket.second_layer_protocol()]]
+        if networkpacket.third_layer_protocol():
+            self.check_protocol(networkpacket.third_layer_protocol())
+            if self.protocols[networkpacket.third_layer_protocol()] not in self.num_of_pack_same_third_layer_protocol:
+                self.num_of_pack_same_third_layer_protocol[self.protocols[networkpacket.third_layer_protocol()]] = 1
+            else:
+                self.num_of_pack_same_third_layer_protocol[self.protocols[networkpacket.third_layer_protocol()]] += 1
+            self.num_of_pack_same_third_layer_protocol_pack = self.num_of_pack_same_third_layer_protocol[self.protocols[networkpacket.third_layer_protocol()]]
+        if networkpacket.fourth_layer_protocol():
+            self.check_protocol(networkpacket.fourth_layer_protocol())
+            if self.protocols[networkpacket.fourth_layer_protocol()] not in self.num_of_pack_same_fourth_layer_protocol:
+                self.num_of_pack_same_fourth_layer_protocol[self.protocols[networkpacket.fourth_layer_protocol()]] = 1
+            else:
+                self.num_of_pack_same_fourth_layer_protocol[self.protocols[networkpacket.fourth_layer_protocol()]] += 1
+            self.num_of_pack_same_fourth_layer_protocol_pack = self.num_of_pack_same_fourth_layer_protocol[self.protocols[networkpacket.fourth_layer_protocol()]]
+        for key in self.num_of_pack_same_first_layer_protocol:
+            self.perc_of_pack_same_first_layer_protocol[key] = round(self.num_of_pack_same_first_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_first_layer_protocol_pack = self.perc_of_pack_same_first_layer_protocol[key]
+        for key in self.num_of_pack_same_second_layer_protocol:
+            self.perc_of_pack_same_second_layer_protocol[key] = round(self.num_of_pack_same_second_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_second_layer_protocol_pack = self.perc_of_pack_same_second_layer_protocol[key]
+        for key in self.num_of_pack_same_third_layer_protocol:
+            self.perc_of_pack_same_third_layer_protocol[key] = round(self.num_of_pack_same_third_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_third_layer_protocol_pack = self.perc_of_pack_same_third_layer_protocol[key]
+        for key in self.num_of_pack_same_fourth_layer_protocol:
+            self.perc_of_pack_same_fourth_layer_protocol[key] = round(self.num_of_pack_same_fourth_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_fourth_layer_protocol_pack = self.perc_of_pack_same_fourth_layer_protocol[key]
 
-        if networkpacket.internet_layer_protocol() == "ipv6":
-            self.internet_layer_protocol_pack = 25
-        elif networkpacket.internet_layer_protocol() == "ipv4":
-            self.internet_layer_protocol_pack = 50
-        elif networkpacket.internet_layer_protocol() == "arp":
-            self.internet_layer_protocol_pack = 75
-        else:
-            self.internet_layer_protocol_pack = 0
-
-        if networkpacket.highest_layer_protocol() not in self.highest_layer_protocol:
-            self.highest_layer_protocol[networkpacket.highest_layer_protocol()] = len(self.highest_layer_protocol) + 1
-        self.highest_layer_protocol_pack = self.highest_layer_protocol[networkpacket.highest_layer_protocol()]
+    def check_protocol(self, protocol):
+        if protocol not in self.protocols:
+            self.protocols[protocol] = len(self.protocols) + 1
 
     # Nur wenn flow initialisiert wird
     def num_connections_same_host(self, networkpacket: Networkpacket):
@@ -445,12 +596,26 @@ class FlowFeatures(BuildingBlock):
         self.total_packet_count = 0
         self.total_out_packet_count = 0
         self.total_in_packet_count = 0
+        self.avg_packets_in_flows = 0
+        self.std_packets_in_flows = 0
         self.fin_flag_count = 0
         self.syn_flag_count = 0
         self.rst_flag_count = 0
         self.psh_flag_count = 0
         self.ack_flag_count = 0
         self.urg_flag_count = 0
+        self.fin_flag_count_out = 0
+        self.syn_flag_count_out = 0
+        self.rst_flag_count_out = 0
+        self.psh_flag_count_out = 0
+        self.ack_flag_count_out = 0
+        self.urg_flag_count_out = 0
+        self.fin_flag_count_in = 0
+        self.syn_flag_count_in = 0
+        self.rst_flag_count_in = 0
+        self.psh_flag_count_in = 0
+        self.ack_flag_count_in = 0
+        self.urg_flag_count_in = 0
         self.length = []
         self.length_max = 0
         self.length_min = 99999
@@ -468,11 +633,30 @@ class FlowFeatures(BuildingBlock):
         self.length_std_in = 0
         self.packets_per_s = 0
         self.bytes_per_s = 0
+        self.data_bytes = []
+        self.data_bytes_avg = 0
+        self.data_bytes_std = 0
+        self.data_bytes_out = []
+        self.data_bytes_out_avg = 0
+        self.data_bytes_out_std = 0
+        self.data_bytes_in = []
+        self.data_bytes_in_avg = 0
+        self.data_bytes_in_std = 0
         self.last_packet_time_stamp = None
         self.time_between_two_packets = []
         self.time_window_recording = 0
         self.avg_time_between_two_packets = 0
         self.std_time_between_two_packets = 0
+        self.last_packet_time_stamp_out = None
+        self.time_between_two_packets_out = []
+        self.time_window_recording_out = 0
+        self.avg_time_between_two_packets_out = 0
+        self.std_time_between_two_packets_out = 0
+        self.last_packet_time_stamp_in = None
+        self.time_between_two_packets_in = []
+        self.time_window_recording_in = 0
+        self.avg_time_between_two_packets_in = 0
+        self.std_time_between_two_packets_in = 0
         self.num_of_con_same_host = {}
         self.num_of_con_to_same_host = {}
         self.num_of_con_from_same_host = {}
@@ -485,7 +669,20 @@ class FlowFeatures(BuildingBlock):
         self.perc_of_con_same_host_pack = 0
         self.perc_of_con_to_same_host_pack = 0
         self.perc_of_con_from_same_host_pack = 0
-        self.highest_layer_protocol = {}
-        self.highest_layer_protocol_pack = 0
-        self.transport_layer_protocol_pack = 0
-        self.internet_layer_protocol_pack = 0
+        self.protocols = {}
+        self.num_of_pack_same_first_layer_protocol = {}
+        self.num_of_pack_same_second_layer_protocol = {}
+        self.num_of_pack_same_third_layer_protocol = {}
+        self.num_of_pack_same_fourth_layer_protocol = {}
+        self.perc_of_pack_same_first_layer_protocol = {}
+        self.perc_of_pack_same_second_layer_protocol = {}
+        self.perc_of_pack_same_third_layer_protocol = {}
+        self.perc_of_pack_same_fourth_layer_protocol = {}
+        self.num_of_pack_same_first_layer_protocol_pack = 0
+        self.num_of_pack_same_second_layer_protocol_pack = 0
+        self.num_of_pack_same_third_layer_protocol_pack = 0
+        self.num_of_pack_same_fourth_layer_protocol_pack = 0
+        self.perc_of_pack_same_first_layer_protocol_pack = 0
+        self.perc_of_pack_same_second_layer_protocol_pack = 0
+        self.perc_of_pack_same_third_layer_protocol_pack = 0
+        self.perc_of_pack_same_fourth_layer_protocol_pack = 0

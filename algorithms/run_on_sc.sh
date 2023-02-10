@@ -14,6 +14,9 @@ pip install --user -r ../requirements.txt
 # 2: -b  base_path
 # 3: -r  result_path
 # 4: -n  ngram_length
-python ids_sys_main_cluster.py -s $1 -b $2 -r $3 -n $4
+# python ids_sys_main_cluster.py -s $1 -b $2 -r $3 -n $4
+python ids_net_main_cluster.py -s $1 -b $2 -r $3
+
+
 # python extract_networkpackets_cluster.py -s $1 -b $2 -r $3
 # python ids_ae_cluster.py -s $1 -b $2 -r $3
