@@ -1,6 +1,7 @@
-from dataloader.networkpacket import Networkpacket
-from datetime import datetime
 import re
+from datetime import datetime
+
+from dataloader.networkpacket import Networkpacket
 
 
 class Networkpacket2021(Networkpacket):
@@ -359,4 +360,3 @@ class Networkpacket2021(Networkpacket):
             else:
                 self._urg_flag = None
         return self._urg_flag
-

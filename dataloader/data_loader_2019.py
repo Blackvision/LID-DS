@@ -1,12 +1,13 @@
-import os
 import csv
 import json
+import os
 import random
+
 from tqdm import tqdm
 
+from dataloader.base_data_loader import BaseDataLoader
 from dataloader.direction import Direction
 from dataloader.recording_2019 import Recording2019
-from dataloader.base_data_loader import BaseDataLoader
 
 TRAINING_SIZE = 200
 VALIDATION_SIZE = 50
@@ -21,6 +22,7 @@ class DataLoader2019(BaseDataLoader):
           scenario_path (str): path to LID-DS 2019 scenario
 
     """
+
     def __init__(self, scenario_path: str, direction: Direction = Direction.OPEN):
         super().__init__(scenario_path, direction)
         self.scenario_path = scenario_path

@@ -1,15 +1,13 @@
 import datetime
 import os
 import time
-from dataloader.base_recording import BaseRecording
+from distutils.util import strtobool
+from enum import IntEnum
+from typing import Generator
 
+from dataloader.base_recording import BaseRecording
 from dataloader.direction import Direction
 from dataloader.syscall_2019 import Syscall, Syscall2019
-from distutils.util import strtobool
-
-from enum import IntEnum
-
-from typing import Generator
 
 
 class RecordingDataParts(IntEnum):
@@ -31,6 +29,7 @@ class Recording2019(BaseRecording):
         base_path (str): the base path of the LID-DS 2019 scenario
 
     """
+
     def __init__(self, recording_data_list: list, base_path: str, direction: Direction):
         super().__init__()
         self.name = recording_data_list[RecordingDataParts.RECORDING_NAME]
@@ -74,7 +73,8 @@ class Recording2019(BaseRecording):
             'time': {
                 'exploit': [{
                     'absolute': self._calc_absolute_exploit_time() if is_exploit is True else None,
-                    'relative': int(self.recording_data_list[RecordingDataParts.EXPLOIT_START_TIME]) if is_exploit is True else None
+                    'relative': int(
+                        self.recording_data_list[RecordingDataParts.EXPLOIT_START_TIME]) if is_exploit is True else None
                 }],
                 'warmup_end': {
                     'relative': {

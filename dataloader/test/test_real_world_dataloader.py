@@ -1,12 +1,12 @@
 import os
 import shutil
-import pytest
 
-from dataloader.direction import Direction
 from dataloader.dataloader_real_world import DataLoaderRealWorld
+from dataloader.direction import Direction
+
 
 def test_real_world_dataloader():
-    scenario_path='dataloader/test/real_world_dummy/'
+    scenario_path = 'dataloader/test/real_world_dummy/'
     dataloader = DataLoaderRealWorld(scenario_path=scenario_path,
                                      direction=Direction.BOTH)
     source_training = scenario_path + '/training/20220303_donnerstag_vormittag_99.zip'
@@ -16,9 +16,9 @@ def test_real_world_dataloader():
     shutil.copyfile(source_training, dest_training)
     shutil.copyfile(source_test, dest_test)
     for recording in dataloader.test_data():
-        assert recording.metadata()['exploit']==True
+        assert recording.metadata()['exploit'] == True
     for recording in dataloader.training_data():
-        assert recording.metadata()['exploit']==False
+        assert recording.metadata()['exploit'] == False
     os.remove(source_training)
     os.remove(source_test)
     shutil.copyfile(dest_training, source_training)

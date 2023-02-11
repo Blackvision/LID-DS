@@ -1,12 +1,12 @@
-import os
+import errno
 import glob
 import json
-import errno
+import os
 import zipfile
+from enum import Enum
+
 import nest_asyncio
 from tqdm import tqdm
-
-from enum import Enum
 
 from dataloader.base_data_loader import BaseDataLoader
 from dataloader.direction import Direction
@@ -194,12 +194,12 @@ class DataLoader2021(BaseDataLoader):
             if recording_type:
                 if self._metadata_list[category][file]['recording_type'] == recording_type:
                     recordings.append(Recording2021(name=file,
-                                                path=self._metadata_list[category][file]['path'],
-                                                direction=self._direction))
+                                                    path=self._metadata_list[category][file]['path'],
+                                                    direction=self._direction))
             else:
                 recordings.append(Recording2021(name=file,
-                                            path=self._metadata_list[category][file]['path'],
-                                            direction=self._direction))
+                                                path=self._metadata_list[category][file]['path'],
+                                                direction=self._direction))
         return recordings
 
     def collect_metadata(self) -> dict:

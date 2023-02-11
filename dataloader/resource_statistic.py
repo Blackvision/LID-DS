@@ -1,5 +1,5 @@
-from enum import IntEnum
 from datetime import datetime
+from enum import IntEnum
 
 
 class ParseResource(IntEnum):
@@ -13,7 +13,6 @@ class ParseResource(IntEnum):
 
 
 class ResourceStatistic:
-
     """
 
         Class to organize resource statistics.

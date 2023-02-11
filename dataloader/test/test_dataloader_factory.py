@@ -1,13 +1,12 @@
-import pytest
 import os
+from shutil import rmtree
 
-from dataloader.dataloader_factory import dataloader_factory
+import pytest
 
-from dataloader.dataloader_real_world import DataLoaderRealWorld
 from dataloader.data_loader_2019 import DataLoader2019
 from dataloader.data_loader_2021 import DataLoader2021
-
-from shutil import rmtree
+from dataloader.dataloader_factory import dataloader_factory
+from dataloader.dataloader_real_world import DataLoaderRealWorld
 
 
 def test_dataloader_factory():

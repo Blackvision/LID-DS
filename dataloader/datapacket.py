@@ -2,6 +2,7 @@ class Datapacket:
     """
     represents one datapacket
     """
+
     def __init__(self):
         self.recording_path = None
 

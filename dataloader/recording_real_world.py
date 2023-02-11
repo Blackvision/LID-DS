@@ -1,11 +1,10 @@
-import os
 import json
-
+import os
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from dataloader.base_recording import BaseRecording
 from dataloader.direction import Direction
 from dataloader.syscall_2021 import Syscall2021
-from dataloader.base_recording import BaseRecording
 
 
 class RecordingRealWorld(BaseRecording):
@@ -101,7 +100,7 @@ class RecordingRealWorld(BaseRecording):
                     ]
                 }}
         else:
-            result_dict= {
+            result_dict = {
                 "exploit": False,
                 "recording_time": recording_time
             }

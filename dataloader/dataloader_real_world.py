@@ -1,16 +1,15 @@
-import os
+import errno
 import glob
 import json
-import errno
+import os
 from enum import Enum
-from tqdm import tqdm
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from tqdm import tqdm
 
-from dataloader.direction import Direction
 from dataloader.base_data_loader import BaseDataLoader
+from dataloader.direction import Direction
 from dataloader.recording_real_world import RecordingRealWorld
-
 
 TRAINING = 'training'
 VALIDATION = 'validation'
@@ -66,13 +65,14 @@ def convert_all_scap(path: str) -> bool:
         for file in scap_files:
             # file[:-2] cuts .scap ending to .sc
             sc_file = file[:-2]
-            os.system(f'sysdig -v -b -p "%evt.rawtime %user.uid %proc.pid %proc.name %thread.tid %syscall.type %evt.dir %evt.args" -r {file} "proc.pid != -1" > {sc_file}')
+            os.system(
+                f'sysdig -v -b -p "%evt.rawtime %user.uid %proc.pid %proc.name %thread.tid %syscall.type %evt.dir %evt.args" -r {file} "proc.pid != -1" > {sc_file}')
             ZipFile(f'{file[:-4]}zip',
                     mode='w',
                     compresslevel=8,
                     compression=ZIP_DEFLATED).write(
-                        filename=f'{file[:-2]}',
-                        arcname=os.path.split(sc_file)[1])
+                filename=f'{file[:-2]}',
+                arcname=os.path.split(sc_file)[1])
             # remove scap file
             os.remove(file)
             # remove sc file
@@ -164,9 +164,9 @@ class DataLoaderRealWorld(BaseDataLoader):
         recordings = self.extract_recordings(category=TEST)
         return recordings
 
-    def extract_recordings(self, 
+    def extract_recordings(self,
                            category: str,
-                           recording_type: RecordingType=None) -> list:
+                           recording_type: RecordingType = None) -> list:
         """
 
             Go through list of all files in specified category.

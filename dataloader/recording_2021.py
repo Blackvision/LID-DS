@@ -1,13 +1,12 @@
-import os
 import csv
 import json
-import sys
+import os
 import traceback
+import zipfile
 
 import pcapkit
-import zipfile
-from dataloader.base_recording import BaseRecording
 
+from dataloader.base_recording import BaseRecording
 from dataloader.direction import Direction
 from dataloader.networkpacket_2021 import Networkpacket2021
 from dataloader.resource_statistic import ResourceStatistic
@@ -98,7 +97,7 @@ class Recording2021(BaseRecording):
                     networkpacket_object = Networkpacket2021(self.path, frame)
                     yield networkpacket_object
 
-        except Exception as  e:
+        except Exception as e:
             print(f'Error extracting pcap file {self.name}. Exception stack trace:')
             print(traceback.format_exc())
             return None
