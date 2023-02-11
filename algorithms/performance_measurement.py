@@ -106,7 +106,8 @@ class Performance:
             self._alarm = False
 
         if recording.metadata()["exploit"] is True:
-            self._current_exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 6)) * (10 ** 3)
+            self._current_exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 6)) * (
+                        10 ** 3)
             self._exploit_count += 1
         else:
             self._current_exploit_time = None

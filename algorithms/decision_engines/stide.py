@@ -29,10 +29,10 @@ class Stide(BuildingBlock):
         creates a set for distinct ngrams from training data
         """
         ngram = self._input.get_result(syscall)
-        if ngram != None:            
+        if ngram != None:
             if ngram not in self._normal_database:
                 self._normal_database.add(ngram)
-    
+
     def fit(self):
         print(f"stide.train_set: {len(self._normal_database)}".rjust(27))
 

@@ -23,12 +23,13 @@ if __name__ == '__main__':
 
     lid_ds_version = "LID-DS-2019"
     scenario_name = "CVE-2017-7529"
-    #scenario_name = "CVE-2014-0160"
-    #scenario_name = "Bruteforce_CWE-307"
-    #scenario_name = "CVE-2012-2122"
+    # scenario_name = "CVE-2014-0160"
+    # scenario_name = "Bruteforce_CWE-307"
+    # scenario_name = "CVE-2012-2122"
 
     scenario_path = f"{lid_ds_base_path}/{lid_ds_version}/{scenario_name}"
-    dataloader = dataloader_factory(scenario_path,direction=Direction.CLOSE) # just load < closing system calls for this example
+    dataloader = dataloader_factory(scenario_path,
+                                    direction=Direction.CLOSE)  # just load < closing system calls for this example
 
     ### features (for more information see Paper: "Improving Host-based Intrusion Detection Using Thread Information", International Symposium on Emerging Information Security and Applications (EISA), 2021)
     thread_aware = False
@@ -45,9 +46,9 @@ if __name__ == '__main__':
 
     ### the IDS
     ids = IDS(data_loader=dataloader,
-            resulting_building_block=stide,
-            create_alarms=True,
-            plot_switch=False)
+              resulting_building_block=stide,
+              create_alarms=True,
+              plot_switch=False)
 
     print("at evaluation:")
     # threshold

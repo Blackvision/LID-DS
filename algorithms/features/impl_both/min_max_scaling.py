@@ -26,7 +26,7 @@ class MinMaxScaling(BuildingBlock):
             if current_value < self._min:
                 self._min = current_value
             if current_value > self._max:
-                self._max = current_value                
+                self._max = current_value
 
     def val_on(self, datapacket: Datapacket):
         current_value = self._bb_to_scale.get_result(datapacket)

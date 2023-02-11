@@ -13,7 +13,7 @@ class OneHotEncoding(BuildingBlock):
         self._int_to_ohe_dict = {}
         self._input_id = input.get_id()
         self._input_bb = input
-        self._dependency_list = [input]        
+        self._dependency_list = [input]
 
     def depends_on(self):
         return self._dependency_list
@@ -35,13 +35,13 @@ class OneHotEncoding(BuildingBlock):
         """
         length = len(self._input_to_int_dict)
         ohe_array = [0] * length
-        self._int_to_ohe_dict[0] = tuple(ohe_array) # for unknown inputs
+        self._int_to_ohe_dict[0] = tuple(ohe_array)  # for unknown inputs
         for i in range(1, length + 1):
             ohe_array = [0] * length
-            ohe_array[i-1] = 1
+            ohe_array[i - 1] = 1
             self._int_to_ohe_dict[i] = tuple(ohe_array)
         print(f"OHE.size = {self.get_embedding_size()}".rjust(27))
-        #print(self._int_to_ohe_dict)
+        # print(self._int_to_ohe_dict)
 
     def _calculate(self, syscall: Syscall):
         """
@@ -57,6 +57,6 @@ class OneHotEncoding(BuildingBlock):
             return self._int_to_ohe_dict[input_to_int]
         else:
             return None
-    
+
     def get_embedding_size(self):
         return len(self._input_to_int_dict)

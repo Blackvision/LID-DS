@@ -65,5 +65,3 @@ class Alarm:
         """
         index = path.find(self.scenario)
         self.filepath = path[index:]
-
-

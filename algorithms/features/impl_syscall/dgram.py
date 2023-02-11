@@ -21,7 +21,7 @@ class Dgram(BuildingBlock):
         self._list_of_feature_ids = []
         for feature in feature_list:
             self._list_of_feature_ids.append(feature.get_id())
-        self._thread_aware = thread_aware        
+        self._thread_aware = thread_aware
         self._min_length = min_length
         self._dependency_list = []
         self._dependency_list.extend(feature_list)
@@ -40,7 +40,7 @@ class Dgram(BuildingBlock):
             dependencies[dep.get_id()] = dep.get_result(syscall)
             if dependencies[dep.get_id()] is None:
                 check = False
-        
+
         if check is True:
             thread_id = 0
             if self._thread_aware:
@@ -49,14 +49,15 @@ class Dgram(BuildingBlock):
                 self._dgram_buffer[thread_id] = deque()
                 self._dgram_value_set[thread_id] = set()
             self._dgram_buffer[thread_id].append(dependencies)
-            
+
             # check whether the current value already is in the current dgram
             current_value = ""
             for id in self._list_of_feature_ids:
                 current_value += str(dependencies[id]) + "-"
-            
-            if current_value in self._dgram_value_set[thread_id] and len(self._dgram_buffer[thread_id]) >= self._min_length:
-                dgram_value = self._collect_features(self._dgram_buffer[thread_id])                
+
+            if current_value in self._dgram_value_set[thread_id] and len(
+                    self._dgram_buffer[thread_id]) >= self._min_length:
+                dgram_value = self._collect_features(self._dgram_buffer[thread_id])
                 self._dgram_value_set[thread_id] = set()
                 self._dgram_buffer[thread_id] = deque()
                 return tuple(dgram_value)
@@ -64,7 +65,7 @@ class Dgram(BuildingBlock):
                 self._dgram_value_set[thread_id].add(current_value)
                 return None
         else:
-            return None        
+            return None
 
     def _collect_features(self, deque_of_dicts: deque) -> list:
         """

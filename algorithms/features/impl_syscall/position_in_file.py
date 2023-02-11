@@ -13,7 +13,7 @@ class PositionInFile(BuildingBlock):
     def _calculate(self, syscall: Syscall):
         """
         returns the line_id (line number regarding the file of the system call)
-        """        
+        """
         return syscall.line_id
 
     def depends_on(self):

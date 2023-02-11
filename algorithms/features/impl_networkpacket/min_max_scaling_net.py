@@ -1,6 +1,7 @@
 from algorithms.building_block import BuildingBlock
 from dataloader.datapacket import Datapacket
 
+
 class Normalization():
 
     def __init__(self, value: int):
@@ -24,6 +25,7 @@ class Normalization():
             return (value - self._min) / self._diff
         else:
             return value
+
 
 class MinMaxScalingNet(BuildingBlock):
 

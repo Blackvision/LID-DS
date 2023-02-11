@@ -83,7 +83,7 @@ class FileDescriptor(BuildingBlock):
                     return fd_tuple
         else:
             if mode == FDMode.ID:
-                return (int(fd), )
+                return (int(fd),)
             else:
                 return None
 

@@ -30,6 +30,8 @@ SCRIPT = 'run_on_sc.sh'
 
 MAX_JOBS_IN_QUEUE = 1000
 NUM_EXPERIMENTS = 0
+
+
 # NGRAM_LENGTHS = ["5", "7", "10", "13"]
 
 def count_queue():
@@ -38,6 +40,7 @@ def count_queue():
     """
     user = USER
     return int(os.popen(f"squeue -u {user} | wc -l").read().strip("\n")) - 1
+
 
 def start_job(job_str):
     """
@@ -53,6 +56,7 @@ def start_job(job_str):
             print(job_str)
             os.system(job_str)
             break
+
 
 # start jobs for specific configuration
 for scenario in SCENARIOS:

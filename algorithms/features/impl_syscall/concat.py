@@ -13,7 +13,7 @@ class Concat(BuildingBlock):
         super().__init__()
 
         self._dependency_list = []
-        self._dependency_list.extend(bbs_to_concat)        
+        self._dependency_list.extend(bbs_to_concat)
 
     def depends_on(self):
         return self._dependency_list
@@ -29,7 +29,7 @@ class Concat(BuildingBlock):
         error = False
         for bb in self._dependency_list:
             tmp_input = bb.get_result(syscall)
-            if tmp_input is not None:                
+            if tmp_input is not None:
                 if isinstance(tmp_input, str):
                     result_vector.append(tmp_input)
                 else:

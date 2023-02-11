@@ -9,7 +9,8 @@ from torch.utils.data import Dataset
 from algorithms.building_block import BuildingBlock
 from dataloader.datapacket import Datapacket
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 class MLPDataset(Dataset):
     """
@@ -131,7 +132,7 @@ class MLP(BuildingBlock):
             calculates loss on validation data and stops when no optimization occurs
         """
         print(f"MLP.train_set: {len(self._training_set)}".rjust(27))
-        
+
         self._model = Feedforward(
             input_size=self._input_size,
             hidden_size=self.hidden_size,
@@ -198,17 +199,16 @@ class MLP(BuildingBlock):
                 stop_early = True
 
             # refreshs the fancy printing
-            #bar.set_description(f"fit MLP {epochs_since_last_best}|{best_avg_loss:.5f}".rjust(27), refresh=True)
+            # bar.set_description(f"fit MLP {epochs_since_last_best}|{best_avg_loss:.5f}".rjust(27), refresh=True)
             epochs = e
             if stop_early:
                 break
-        
+
         # print(f"stop at {bar.n} epochs".rjust(27))
         print(f"stop at {epochs} epochs".rjust(27))
         self._result_dict = {}
         self._model.load_state_dict(best_weights)
         self._model.eval()
-
 
     def _calculate(self, datapacket: Datapacket):
         """
@@ -229,11 +229,11 @@ class MLP(BuildingBlock):
                 return self._result_dict[input_vector]
             else:
                 in_tensor = torch.tensor(input_vector, dtype=torch.float32, device=device)
-                
+
                 with torch.no_grad():
                     mlp_out = self._model(in_tensor)
 
-                try: 
+                try:
                     label_index = label.index(1)  # getting the index of the actual next datapoint
                     anomaly_score = 1 - mlp_out[label_index]
                 except:
@@ -265,7 +265,6 @@ class MLP(BuildingBlock):
                     'bias': self._model[i].bias
                 }
         return weight_dict
-
 
 
 class Feedforward:
@@ -308,13 +307,12 @@ class Feedforward:
             hidden_layer_list.append(nn.Dropout(p=0.5))
             hidden_layer_list.append(nn.ReLU())
 
-
         return [
-                   nn.Linear(self.input_size, self.hidden_size),
-                   nn.Dropout(p=0.5),
-                   nn.ReLU()
-               ] + hidden_layer_list + [
-                   nn.Linear(self.hidden_size, self.output_size),
-                   nn.Dropout(p=0.5),
-                   nn.Softmax()
-               ]
+            nn.Linear(self.input_size, self.hidden_size),
+            nn.Dropout(p=0.5),
+            nn.ReLU()
+        ] + hidden_layer_list + [
+            nn.Linear(self.hidden_size, self.output_size),
+            nn.Dropout(p=0.5),
+            nn.Softmax()
+        ]

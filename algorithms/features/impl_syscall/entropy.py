@@ -11,6 +11,7 @@ class Entropy(BuildingBlock):
         Default entropy is shannon entropy (Base 2).
         If BuildingBlock is None 0 is returned.
     """
+
     def __init__(self, feature: BuildingBlock):
         """
         feature: entropy is calculated on feature
@@ -62,9 +63,9 @@ class Entropy(BuildingBlock):
             float: entropy value
         """
         base = {
-             'shannon': 2.,
-             'natural': math.exp(1),
-             'hartley': 10.
+            'shannon': 2.,
+            'natural': math.exp(1),
+            'hartley': 10.
         }
         if len(label) <= 1:
             return 0

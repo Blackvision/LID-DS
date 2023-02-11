@@ -39,13 +39,13 @@ class StreamProduct(BuildingBlock):
             if self._thread_aware:
                 thread_id = syscall.thread_id()
             if thread_id not in self._window_buffer:
-                self._window_buffer[thread_id] = deque(maxlen=self._window_length)            
-            self._window_buffer[thread_id].append(input)            
+                self._window_buffer[thread_id] = deque(maxlen=self._window_length)
+            self._window_buffer[thread_id].append(input)
             if len(self._window_buffer[thread_id]) < self._window_length:
                 return None
-            tmp=1.0
+            tmp = 1.0
             for v in self._window_buffer[thread_id]:
-                tmp *= v            
+                tmp *= v
             return tmp
         else:
             return None

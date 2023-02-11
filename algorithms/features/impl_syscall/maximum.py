@@ -35,4 +35,3 @@ class Maximum(BuildingBlock):
             return result
         else:
             return None
-

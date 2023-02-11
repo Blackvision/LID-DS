@@ -43,14 +43,14 @@ class StreamSum(BuildingBlock):
             if thread_id not in self._window_buffer:
                 self._window_buffer[thread_id] = deque(maxlen=self._window_length)
                 self._sum_values[thread_id] = 0
-            
+
             dropout_value = 0
             if len(self._window_buffer[thread_id]) == self._window_length:
                 dropout_value = self._window_buffer[thread_id][0]
             self._window_buffer[thread_id].append(new_value)
             self._sum_values[thread_id] += new_value - dropout_value
             if len(self._window_buffer[thread_id]) == self._window_length:
-                #print(f"  {thread_id} -> {self._sum_values[thread_id]} -> {self._window_buffer[thread_id]}")
+                # print(f"  {thread_id} -> {self._sum_values[thread_id]} -> {self._window_buffer[thread_id]}")
                 return self._sum_values[thread_id]
             else:
                 return None

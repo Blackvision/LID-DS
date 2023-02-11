@@ -105,14 +105,14 @@ if __name__ == '__main__':
         tcf = ThreadChangeFlag(ngram_minus_one)
         final_features.append(tcf)
     concat = Concat(final_features)
-    model_path = f'Models/{scenario_names[scenario_number]}/LSTM/'\
-        f'hid{hidden_dim}' \
-        f'ta{thread_aware}' \
-        f'ng{ngram_length}' \
-        f'-emb{embedding_size}' \
-        f'-rv{use_return_value}' \
-        f'-td{use_time_delta}' \
-        f'-tcf{use_thread_change_flag}.model'
+    model_path = f'Models/{scenario_names[scenario_number]}/LSTM/' \
+                 f'hid{hidden_dim}' \
+                 f'ta{thread_aware}' \
+                 f'ng{ngram_length}' \
+                 f'-emb{embedding_size}' \
+                 f'-rv{use_return_value}' \
+                 f'-td{use_time_delta}' \
+                 f'-tcf{use_thread_change_flag}.model'
     input_dim = (ngram_length * element_size +
                  use_thread_change_flag)
     # decision engine (DE)
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     # detection
     stats = ids.detect().get_performance()
     end = time.time()
-    detection_time = (end - start)/60  # in min
+    detection_time = (end - start) / 60  # in min
 
     if stats is None:
         stats = {}

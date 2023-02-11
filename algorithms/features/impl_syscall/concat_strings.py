@@ -14,7 +14,7 @@ class ConcatStrings(BuildingBlock):
         super().__init__()
 
         self._bb = bb
-        self._dependency_list = [bb]        
+        self._dependency_list = [bb]
 
     def depends_on(self):
         return self._dependency_list
@@ -27,12 +27,12 @@ class ConcatStrings(BuildingBlock):
             returns None
         """
         result_str = ""
-        error = False        
+        error = False
         tmp_input = self._bb.get_result(syscall)
         if not isinstance(self._bb, Concat):
             print('Please use Concat BB')
-            raise ValueError 
-        if tmp_input is not None: 
+            raise ValueError
+        if tmp_input is not None:
             for element in tmp_input:
                 if isinstance(element, str):
                     result_str += element

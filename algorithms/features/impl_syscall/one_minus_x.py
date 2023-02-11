@@ -11,7 +11,7 @@ class OneMinusX(BuildingBlock):
         super().__init__()
         self._dependency_list = []
         self._dependency_list.append(x)
-        self._x = x        
+        self._x = x
 
     def depends_on(self):
         return self._dependency_list
@@ -24,6 +24,6 @@ class OneMinusX(BuildingBlock):
         """
         x_value = self._x.get_result(syscall)
         if x_value is not None:
-                return 1.0 - x_value
+            return 1.0 - x_value
         else:
             return None

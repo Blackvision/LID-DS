@@ -40,14 +40,14 @@ class StreamMaximum(BuildingBlock):
 
             thread_id = 0
             if self._thread_aware:
-                    thread_id = syscall.thread_id()
+                thread_id = syscall.thread_id()
             if thread_id not in self._window_buffer:
                 self._window_buffer[thread_id] = deque(maxlen=self._window_length)
                 self._maximum_values[thread_id] = -math.inf  # min positive value
 
             check = False
             dropout_value = -math.inf
-            if len(self._window_buffer[thread_id])  >= self._window_length:
+            if len(self._window_buffer[thread_id]) >= self._window_length:
                 dropout_value = self._window_buffer[thread_id][0]
 
             if len(self._window_buffer[thread_id]) == self._window_length:
@@ -62,7 +62,7 @@ class StreamMaximum(BuildingBlock):
                     if item > self._maximum_values[thread_id]:
                         self._maximum_values[thread_id] = item
 
-            return self._maximum_values[thread_id]            
+            return self._maximum_values[thread_id]
         else:
             return None
 

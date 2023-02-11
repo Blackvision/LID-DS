@@ -14,7 +14,7 @@ class StreamVariance(BuildingBlock):
         super().__init__()
         self._dependency_list = []
         self._dependency_list.append(ngram)
-        self._ngram = ngram        
+        self._ngram = ngram
 
     def depends_on(self):
         return self._dependency_list
@@ -27,6 +27,6 @@ class StreamVariance(BuildingBlock):
         """
         ngram_value = self._ngram.get_result(syscall)
         if ngram_value is not None:
-                return np.var(ngram_value)
+            return np.var(ngram_value)
         else:
             return None

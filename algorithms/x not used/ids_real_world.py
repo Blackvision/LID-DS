@@ -17,7 +17,7 @@ if __name__ == '__main__':
     window_length = 100
 
     # path = '/media/tk/SSD/ganzmann_data/'
-    path='../../WHK/Data/real_world/'
+    path = '../../WHK/Data/real_world/'
     # data loader for scenario
     dataloader = dataloader_factory(path, direction=Direction.CLOSE)
 

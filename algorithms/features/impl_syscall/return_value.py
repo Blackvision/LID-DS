@@ -55,7 +55,7 @@ class ReturnValue(BuildingBlock):
                     if self._min_max_scaling:
                         if syscall.name() in self._max:
                             if self._max[syscall.name()] != 0:
-                                return_value = current_bytes/self._max[syscall.name()]
+                                return_value = current_bytes / self._max[syscall.name()]
                             else:
                                 return_value = 0
                         else:

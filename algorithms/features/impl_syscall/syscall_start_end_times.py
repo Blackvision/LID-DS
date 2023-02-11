@@ -7,7 +7,8 @@ from dataloader.syscall import Syscall
 
 class StartEndTimesMode(Enum):
     ABSOLUTE_VALUES = 1
-    DURATION = 2    
+    DURATION = 2
+
 
 class StartEndTimes(BuildingBlock):
     """
@@ -45,7 +46,7 @@ class StartEndTimes(BuildingBlock):
             # if direction == CLOSE: do nothing
         else:
             # name in dict -> return result if current direction is close
-            if syscall.direction() == Direction.CLOSE:                                
+            if syscall.direction() == Direction.CLOSE:
                 result = (self._data_buffer[thread_id][syscall.name()], syscall.timestamp_unix_in_ns())
                 # remove entry from dict
                 del self._data_buffer[thread_id][syscall.name()]

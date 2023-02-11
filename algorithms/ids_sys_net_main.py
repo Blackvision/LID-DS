@@ -18,7 +18,7 @@ from dataloader.direction import Direction
 
 def main():
     ### feature config:
-    #general
+    # general
     # lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
     lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
     # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
@@ -27,8 +27,8 @@ def main():
     datapacket_mode = DatapacketMode.BOTH
     direction = Direction.OPEN
     draw_plot = True
-    time_window = 100000000 # 1000000000, 5000000000
-    time_window_steps = 50000000 # 500000000, 1000000000
+    time_window = 100000000  # 1000000000, 5000000000
+    time_window_steps = 50000000  # 500000000, 1000000000
 
     # Syscall:
     ngram_length_sys = 5  # 5, 7, 10, 13
@@ -135,6 +135,7 @@ def main():
                 os.makedirs(result_path + date_today + plot_path)
             filename = scenario_range[scenario_number] + "_" + date_today + "_sys_net_plot"
             ids.save_plot(result_path + date_today + plot_path + filename)
+
 
 if __name__ == '__main__':
     main()

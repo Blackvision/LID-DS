@@ -30,14 +30,14 @@ class W2VEmbedding(BuildingBlock):
         self._epochs = epochs
         self._distinct = distinct
         self.w2vmodel = None
-        self._sentences = []        
+        self._sentences = []
         self._window_size = window_size
-        
+
         self._input_bb = word
 
         self._ngram_bb = NgramBoth(feature_list=[word],
-                               thread_aware=thread_aware,
-                               ngram_length=window_size)
+                                   thread_aware=thread_aware,
+                                   ngram_length=window_size)
 
         self._unknown_input_value = unknown_input_value
         self._dependency_list = [self._ngram_bb, self._input_bb]
@@ -85,7 +85,7 @@ class W2VEmbedding(BuildingBlock):
             input = self._input_bb.get_result(datapacket)
             if input is not None:
                 return tuple(self.w2vmodel.wv[input].tolist())
-            else: 
+            else:
                 return None
         except KeyError:
             return tuple([self._unknown_input_value] * self._vector_size)

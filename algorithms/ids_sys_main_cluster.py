@@ -85,6 +85,7 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     print(f"Results for scenario: {scenario}")
     pprint(results)
 
+
 if __name__ == '__main__':
     try:
         logging.basicConfig(filename='experiments.log', level=logging.WARNING)

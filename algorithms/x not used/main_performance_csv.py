@@ -121,11 +121,10 @@ if __name__ == '__main__':
                                          "alarm_count": performance_dict["alarm_count"],
                                          "exploit_count": performance_dict["exploit_count"],
                                          "detection_rate": performance_dict["detection_rate"],
-                                         "consecutive_false_positives_normal": performance_dict["consecutive_false_positives_normal"],
-                                         "consecutive_false_positives_exploits": performance_dict["consecutive_false_positives_exploits"],
+                                         "consecutive_false_positives_normal": performance_dict[
+                                             "consecutive_false_positives_normal"],
+                                         "consecutive_false_positives_exploits": performance_dict[
+                                             "consecutive_false_positives_exploits"],
                                          "recall": performance_dict["recall"],
                                          "precision_with_cfa": performance_dict["precision_with_cfa"],
-                                         "precision_with_syscalls":performance_dict["precision_with_syscalls"]})
-
-
-
+                                         "precision_with_syscalls": performance_dict["precision_with_syscalls"]})

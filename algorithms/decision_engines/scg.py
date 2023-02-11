@@ -30,7 +30,7 @@ class SystemCallGraph(BuildingBlock):
         """
         adds the current input to the grpah
         """
-        
+
         new_node = self._input.get_result(syscall)
         if new_node is not None:
             # check for threads
@@ -45,7 +45,7 @@ class SystemCallGraph(BuildingBlock):
             # check for graph
             if gid not in self._graphs:
                 self._graphs[gid] = nx.DiGraph()
-            
+
             # check for last added node
             if tid not in self._last_added_nodes:
                 self._last_added_nodes[tid] = None
@@ -62,7 +62,7 @@ class SystemCallGraph(BuildingBlock):
                 count += 1
                 self._graphs[gid].add_edge(self._last_added_nodes[tid], new_node, f=count)
             self._last_added_nodes[tid] = new_node
-    
+
     def fit(self):
         print(f"got {len(self._graphs)} graphs")
         s_n = 0
@@ -70,16 +70,16 @@ class SystemCallGraph(BuildingBlock):
         for g in self._graphs.values():
             s_n += g.number_of_nodes()
             s_e += g.number_of_edges()
-        print(f"with in sum: {s_n} nodes and {s_e} edges")        
+        print(f"with in sum: {s_n} nodes and {s_e} edges")
         for g in self._graphs.values():
-            for source_node in g.nodes:                
+            for source_node in g.nodes:
                 sum_out = 0
-                for s,t,data in g.out_edges(nbunch=source_node,data=True):
-                    f=data["f"]
+                for s, t, data in g.out_edges(nbunch=source_node, data=True):
+                    f = data["f"]
                     sum_out += f
-                for s,t,data in g.out_edges(nbunch=source_node,data=True):
-                    f=data["f"]
-                    g.add_edge(s,t,f=f,p=f/sum_out)
+                for s, t, data in g.out_edges(nbunch=source_node, data=True):
+                    f = data["f"]
+                    g.add_edge(s, t, f=f, p=f / sum_out)
 
     def _calculate(self, syscall: Syscall):
         """
@@ -97,7 +97,7 @@ class SystemCallGraph(BuildingBlock):
                 # is the result already calculated?
                 s = self._last_added_nodes[tid]
                 t = new_node
-                edge = tuple([s,t])                
+                edge = tuple([s, t])
                 if edge in self._result_dict:
                     self._last_added_nodes[tid] = new_node
                     return self._result_dict[edge]
@@ -107,7 +107,7 @@ class SystemCallGraph(BuildingBlock):
                     for g in self._graphs.values():
                         if g.has_edge(s, t):
                             transition_probability += g[s][t]["p"]
-                    transition_probability /= len(self._graphs)                                        
+                    transition_probability /= len(self._graphs)
                     anomaly_score = 1.0 - transition_probability
                     self._result_dict[edge] = anomaly_score
                     self._last_added_nodes[tid] = new_node
@@ -117,7 +117,6 @@ class SystemCallGraph(BuildingBlock):
                 return None
         else:
             return None
-            
 
     def new_recording(self):
         self._last_added_nodes = {}

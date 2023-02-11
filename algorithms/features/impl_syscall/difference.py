@@ -27,7 +27,7 @@ class Difference(BuildingBlock):
         """
         for bb in self._dependency_list:
             bb_value = bb.get_result(syscall)
-            if bb_value is not None:                
+            if bb_value is not None:
                 if isinstance(bb_value, tuple):
                     new_length = len(bb_value)
                 else:
@@ -37,13 +37,13 @@ class Difference(BuildingBlock):
                     self._result_length = new_length
                 elif self._result_length != new_length:
                     raise ValueError(f"inputs to {self.__str__()} are of different length")
-    
+
     def _calculate(self, syscall: Syscall):
         """
         calculates the diff from the dependecy list
         """
         check = True
-        result = None            
+        result = None
         for bb in self._dependency_list:
             bb_value = bb.get_result(syscall)
             if bb_value is not None:
@@ -72,4 +72,3 @@ class Difference(BuildingBlock):
                 return result
         else:
             return None
-

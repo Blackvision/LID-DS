@@ -16,10 +16,10 @@ class RepetitionRemover(BuildingBlock):
         thread_aware: True or False
         """
         super().__init__()
-        self._last_inputs = {}        
+        self._last_inputs = {}
         self._feature_id = input.get_id()
         self._feature = input
-        self._thread_aware = thread_aware        
+        self._thread_aware = thread_aware
         self._dependency_list = [input]
 
     def depends_on(self):
@@ -38,7 +38,7 @@ class RepetitionRemover(BuildingBlock):
             tid = 0
             if self._thread_aware:
                 tid = syscall.thread_id()
- 
+
             # check if we already saw tid
             if tid not in self._last_inputs:
                 # no so write to output
@@ -56,9 +56,9 @@ class RepetitionRemover(BuildingBlock):
                     return None
         else:
             return None
-                
+
     def new_recording(self):
         """
         emptys buffers
         """
-        self._last_inputs = {}        
+        self._last_inputs = {}

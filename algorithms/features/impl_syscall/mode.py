@@ -16,7 +16,7 @@ class Mode(BuildingBlock):
         if "mode" in params:
             return params["mode"]
         else:
-            return "0"        
+            return "0"
 
     def depends_on(self):
         return []

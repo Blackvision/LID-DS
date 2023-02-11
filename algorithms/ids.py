@@ -45,7 +45,8 @@ class IDS:
                 self.plot = None
         else:
             self.performance = None
-        self._data_preprocessor = DataPreprocessor(self._data_loader, self._final_bb_sys, self._final_bb_net, self._datapacket_mode)
+        self._data_preprocessor = DataPreprocessor(self._data_loader, self._final_bb_sys, self._final_bb_net,
+                                                   self._datapacket_mode)
 
     def get_config_syscall(self) -> str:
         return self._data_preprocessor.get_graph_dot_syscall()
@@ -88,10 +89,10 @@ class IDS:
                 datapackets = recording.syscalls()
             elif self._datapacket_mode == DatapacketMode.NETWORKPACKET:
                 datapackets = recording.packets()
-                self._set_host_ip(recording,final_bb)
+                self._set_host_ip(recording, final_bb)
             for datapacket in datapackets:
                 anomaly_score = final_bb.get_result(datapacket)
-                if anomaly_score != None:                
+                if anomaly_score != None:
                     if anomaly_score > max_score:
                         max_score = anomaly_score
             self._data_preprocessor.new_recording(self._datapacket_mode)
@@ -221,12 +222,14 @@ class IDS:
                 anomaly_scores_both = self._merge_anomaly_score_lists(list_sys_anomaly_scores, list_net_anomaly_scores)
                 list_anomaly_scores = self._calculate_anomaly_scores_both(anomaly_scores_both)
                 for anomaly_score_window in list_anomaly_scores:
-                    self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1], anomaly_score_window[2])
+                    self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1],
+                                                        anomaly_score_window[2])
                     # TODO
-                    #anomaly_score[0], anomaly_score[1], anomaly_score[2]
-                    #time_window_start, time_window_end, anomaly_score
+                    # anomaly_score[0], anomaly_score[1], anomaly_score[2]
+                    # time_window_start, time_window_end, anomaly_score
                     if self.plot is not None:
-                        self.plot.add_to_plot_data(anomaly_score_window[2], anomaly_score_window[0], self.performance.get_cfp_indices())
+                        self.plot.add_to_plot_data(anomaly_score_window[2], anomaly_score_window[0],
+                                                   self.performance.get_cfp_indices())
             if self.performance.alarms is not None:
                 self.performance.alarms.end_alarm()
         return self.performance
@@ -244,20 +247,26 @@ class IDS:
             for syscall in recording.syscalls():
                 anomaly_score = self._final_bb_sys.get_result(syscall)
                 if anomaly_score != None:
-                    sys = (self._check_anomaly_score(anomaly_score, self.threshold_sys), syscall.timestamp_unix_in_ns(), "sys")
+                    sys = (
+                        self._check_anomaly_score(anomaly_score, self.threshold_sys), syscall.timestamp_unix_in_ns(),
+                        "sys")
                     list_sys_anomaly_scores.append(sys)
             self._data_preprocessor.new_recording(DatapacketMode.SYSCALL)
             for networkpacket in recording.packets():
                 anomaly_score = self._final_bb_net.get_result(networkpacket)
                 if anomaly_score != None:
-                    net = (self._check_anomaly_score(anomaly_score, self.threshold_net), networkpacket.timestamp_unix_in_ns(), "net")
+                    net = (
+                        self._check_anomaly_score(anomaly_score, self.threshold_net),
+                        networkpacket.timestamp_unix_in_ns(),
+                        "net")
                     list_net_anomaly_scores.append(net)
             self._data_preprocessor.new_recording(DatapacketMode.NETWORKPACKET)
             if (len(list_sys_anomaly_scores) != 0) or (len(list_net_anomaly_scores) != 0):
                 anomaly_scores_both = self._merge_anomaly_score_lists(list_sys_anomaly_scores, list_net_anomaly_scores)
                 list_anomaly_scores = self._calculate_anomaly_scores_both_and(anomaly_scores_both)
                 for anomaly_score_window in list_anomaly_scores:
-                    self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1], anomaly_score_window[2])
+                    self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1],
+                                                        anomaly_score_window[2])
                     # TODO
                     # anomaly_score[0], anomaly_score[1], anomaly_score[2]
                     # time_window_start, time_window_end, anomaly_score
@@ -266,7 +275,8 @@ class IDS:
                     else:
                         anomaly_score = 0.5
                     if self.plot is not None:
-                        self.plot.add_to_plot_data(anomaly_score, anomaly_score_window[0], self.performance.get_cfp_indices())
+                        self.plot.add_to_plot_data(anomaly_score, anomaly_score_window[0],
+                                                   self.performance.get_cfp_indices())
             if self.performance.alarms is not None:
                 self.performance.alarms.end_alarm()
 
@@ -303,7 +313,7 @@ class IDS:
             i = 0
             while anomaly_scores_both[i][1] <= end_time_window:
                 window.append(anomaly_scores_both[i])
-                i = i+1
+                i = i + 1
             if len(window) > 0:
                 sum_window = sum([anomaly_score[0] for anomaly_score in window])
                 # False and True count
@@ -332,7 +342,7 @@ class IDS:
                     count_true += 1
                 if anomaly_scores_both[i][0] == False:
                     count_false += 1
-                i = i+1
+                i = i + 1
             if len(window) > 0:
                 if count_true > 0:
                     anomaly_score = True
@@ -362,7 +372,7 @@ class IDS:
                     count_true += 1
                 if anomaly_scores_both[i][0] == False:
                     count_false += 1
-                i = i+1
+                i = i + 1
             if len(window) > 0:
                 percent_of_true = count_true / len(window)
                 if percent_of_true >= 0.9999:

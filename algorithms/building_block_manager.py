@@ -9,10 +9,10 @@ class BuildingBlockManager:
         self._dependency_graph = nx.DiGraph()
         self._final_bb = final_bb
 
-        #self._dependency_graph.add_node(final_bb)
-        todo_bb = [final_bb]#.depends_on()
-        todo_temp = []        
-        
+        # self._dependency_graph.add_node(final_bb)
+        todo_bb = [final_bb]  # .depends_on()
+        todo_temp = []
+
         while len(todo_bb) > 0:
             for source_bb_instance in todo_bb:
                 for destination_bb_instance in source_bb_instance.depends_on():

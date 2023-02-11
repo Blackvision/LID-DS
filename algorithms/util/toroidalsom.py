@@ -45,7 +45,6 @@ REQUIREMENTS
 @date: Jul 2018
 """
 
-
 from copy import deepcopy
 
 from numpy import random, ones, exp, zeros, arange, array, eye, pi, dot, nan, sum
@@ -271,6 +270,7 @@ class ToroidalSOM(object):
                 refers to each time we consider Ntrain test examples from the training 
                 data, not each time we consider a single training example.
                 '''
-                bar.set_description(f"Iteration: {i / Ntrain} of {Nit / Ntrain} and training factor: {makeTrainFactor(i0 + i, Ntrain, tfac)}")
+                bar.set_description(
+                    f"Iteration: {i / Ntrain} of {Nit / Ntrain} and training factor: {makeTrainFactor(i0 + i, Ntrain, tfac)}")
             self.iteration(x, i0, i, tfac, alpha0, Nit)
         self.xmap = self.xmap % (2. * pi)

@@ -90,7 +90,7 @@ class ScorePlotBoth:
         # cfp windows for normal subplot
         if len(self._first_window_of_cfp_list_normal) > 1 and len(self._last_window_of_cfp_list_normal) > 1:
             for i, j in zip(self._first_window_of_cfp_list_normal, self._last_window_of_cfp_list_normal):
-                ax1.axvspan(i-1, j-1, color="mediumaquamarine", alpha=0.5)
+                ax1.axvspan(i - 1, j - 1, color="mediumaquamarine", alpha=0.5)
 
         # second subplot for exploits
         ax2.plot(self._anomaly_scores_exploits)
@@ -136,7 +136,7 @@ class ScorePlotBoth:
             if filename is None:
                 plt.show()
             else:
-                plt.savefig(filename,dpi=300)
+                plt.savefig(filename, dpi=300)
         else:
             "There is no plot to show."
 

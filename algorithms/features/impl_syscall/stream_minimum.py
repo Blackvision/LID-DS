@@ -50,7 +50,7 @@ class StreamMinimum(BuildingBlock):
                 dropout_value = self._window_buffer[thread_id][0]
 
             if len(self._window_buffer[thread_id]) == self._window_length:
-                check = True            
+                check = True
             self._window_buffer[thread_id].append(input)
             if input < self._minimum_values[thread_id]:
                 self._minimum_values[thread_id] = input

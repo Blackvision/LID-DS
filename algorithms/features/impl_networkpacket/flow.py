@@ -65,9 +65,9 @@ class Flow:
                 networkpacket.destination_port() == self.init_destination_port):
             return True
         elif (networkpacket.source_ip_address() == self.init_destination_ip and
-                networkpacket.source_port() == self.init_destination_port and
-                networkpacket.destination_ip_address() == self.init_source_ip and
-                networkpacket.destination_port() == self.init_source_port):
+              networkpacket.source_port() == self.init_destination_port and
+              networkpacket.destination_ip_address() == self.init_source_ip and
+              networkpacket.destination_port() == self.init_source_port):
             return True
         else:
             return False
@@ -122,8 +122,10 @@ class Flow:
 
     def _time_between_packets(self, networkpacket: Networkpacket):
         if len(self.flow) > 1:
-            self.time_between_two_packets.append(networkpacket.timestamp_unix_in_ns() - self.flow[-2].timestamp_unix_in_ns())
-            self.avg_time_between_two_packets = round(sum(self.time_between_two_packets) / len(self.time_between_two_packets))
+            self.time_between_two_packets.append(
+                networkpacket.timestamp_unix_in_ns() - self.flow[-2].timestamp_unix_in_ns())
+            self.avg_time_between_two_packets = round(
+                sum(self.time_between_two_packets) / len(self.time_between_two_packets))
             self.std_time_between_two_packets = round(std(self.time_between_two_packets))
 
     def _data_bytes_count(self, networkpacket: Networkpacket):

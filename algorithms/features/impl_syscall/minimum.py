@@ -35,5 +35,3 @@ class Minimum(BuildingBlock):
             return result
         else:
             return None
-
-

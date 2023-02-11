@@ -18,6 +18,7 @@ def dot_to_str(dot):
             result += line + "\n"
     return result
 
+
 class DataPreprocessor:
     """
         Receives DataLoader object, and a list of BuildingBlocks
@@ -67,25 +68,26 @@ class DataPreprocessor:
         print(url)
         print("-------------------------------")
 
-    def _train_on_needed(self, bb_gen: list) -> bool:        
+    def _train_on_needed(self, bb_gen: list) -> bool:
         for bb in bb_gen:
             if bb.train_on.__func__ != self._baseBB.train_on.__func__:
                 return True
         return False
 
-    def _val_on_needed(self, bb_gen: list) -> bool:        
+    def _val_on_needed(self, bb_gen: list) -> bool:
         for bb in bb_gen:
             if bb.val_on.__func__ != self._baseBB.val_on.__func__:
                 return True
         return False
 
-    def _fit_needed(self, bb_gen: list) -> bool:        
+    def _fit_needed(self, bb_gen: list) -> bool:
         for bb in bb_gen:
             if bb.fit.__func__ != self._baseBB.fit.__func__:
                 return True
         return False
 
-    def _prepare_and_fit_building_blocks(self, building_block_manager: BuildingBlockManager, datapacket_mode: DatapacketMode):
+    def _prepare_and_fit_building_blocks(self, building_block_manager: BuildingBlockManager,
+                                         datapacket_mode: DatapacketMode):
         """
         preprocessing for building blocks
         - calls train on, val on and fit for each building block on the training data in the order given by the building block manager
@@ -93,7 +95,8 @@ class DataPreprocessor:
         num_generations = len(building_block_manager.building_block_generations)
         for current_generation in range(0, num_generations):
             # infos
-            print(f"at generation: {current_generation + 1} of {num_generations}: {building_block_manager.building_block_generations[current_generation]}")
+            print(
+                f"at generation: {current_generation + 1} of {num_generations}: {building_block_manager.building_block_generations[current_generation]}")
 
             # training
             if not self._train_on_needed(building_block_manager.building_block_generations[current_generation]):
@@ -133,7 +136,7 @@ class DataPreprocessor:
             # validation
             if not self._val_on_needed(building_block_manager.building_block_generations[current_generation]):
                 pass
-            else:            
+            else:
                 for recording in tqdm(self._data_loader.validation_data(),
                                       f"val bb {current_generation + 1}/{num_generations}".rjust(27),
                                       unit=" recording"):
@@ -165,7 +168,7 @@ class DataPreprocessor:
             # fit current generation bbs
             if not self._fit_needed(building_block_manager.building_block_generations[current_generation]):
                 pass
-            else:            
+            else:
                 for current_bb in tqdm(building_block_manager.building_block_generations[current_generation],
                                        f"fitting bbs {current_generation + 1}/{num_generations}".rjust(27),
                                        unit=" bbs"):

@@ -12,12 +12,13 @@ class DBScan(BuildingBlock):
     -> gives a representative as result
     uses scikit learns implementation of dbscan
     """
+
     def __init__(self, bb_to_cluster: BuildingBlock, eps=0.01):
         """
         """
         super().__init__()
         self._bb_to_cluster = bb_to_cluster
-        self._bb_id = self._bb_to_cluster.get_id()        
+        self._bb_id = self._bb_to_cluster.get_id()
         self._training_data = set()
         self._dbscan = DBSCAN(eps=eps, min_samples=10)
         self._result_buffer = {}
@@ -39,7 +40,7 @@ class DBScan(BuildingBlock):
         """
         print(f"dbscan.#points: {len(self._training_data)}".rjust(27))
         tdata = np.array(list(self._training_data))
-        tdata = np.reshape(tdata, (-1,1))                
+        tdata = np.reshape(tdata, (-1, 1))
         self._dbscan.fit(tdata)
         num_clusters = len(set(self._dbscan.labels_)) - (1 if -1 in self._dbscan.labels_ else 0)
         print(f"dbscan.clusters: {num_clusters}".rjust(27))
@@ -58,10 +59,9 @@ class DBScan(BuildingBlock):
                 return result
         else:
             return None
-                
 
     def _predict(self, db, x):
-        dists = np.sqrt(np.sum((db.components_ - x)**2, axis=1))
+        dists = np.sqrt(np.sum((db.components_ - x) ** 2, axis=1))
         if len(dists) == 0:
             return -1
         i = np.argmin(dists)

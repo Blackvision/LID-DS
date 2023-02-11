@@ -26,12 +26,13 @@ class Flow:
                 networkpacket.destination_port() == self.init_destination_port):
             return True
         elif (networkpacket.source_ip_address() == self.init_destination_ip and
-                networkpacket.source_port() == self.init_destination_port and
-                networkpacket.destination_ip_address() == self.init_source_ip and
-                networkpacket.destination_port() == self.init_source_port):
+              networkpacket.source_port() == self.init_destination_port and
+              networkpacket.destination_ip_address() == self.init_source_ip and
+              networkpacket.destination_port() == self.init_source_port):
             return True
         else:
             return False
+
 
 class FlowFeatures(BuildingBlock):
 
@@ -338,19 +339,22 @@ class FlowFeatures(BuildingBlock):
     def time_between_packets(self, networkpacket: Networkpacket):
         if self.last_packet_time_stamp:
             self.time_between_two_packets.append(networkpacket.timestamp_unix_in_ns() - self.last_packet_time_stamp)
-            self.avg_time_between_two_packets = round(sum(self.time_between_two_packets) / len(self.time_between_two_packets))
+            self.avg_time_between_two_packets = round(
+                sum(self.time_between_two_packets) / len(self.time_between_two_packets))
             self.std_time_between_two_packets = round(std(self.time_between_two_packets))
         self.last_packet_time_stamp = networkpacket.timestamp_unix_in_ns()
         if networkpacket.source_ip_address() == self.host_ip:
             if self.last_packet_time_stamp_out:
-                self.time_between_two_packets_out.append(networkpacket.timestamp_unix_in_ns() - self.last_packet_time_stamp_out)
+                self.time_between_two_packets_out.append(
+                    networkpacket.timestamp_unix_in_ns() - self.last_packet_time_stamp_out)
                 self.avg_time_between_two_packets_out = round(
                     sum(self.time_between_two_packets_out) / len(self.time_between_two_packets_out))
                 self.std_time_between_two_packets_out = round(std(self.time_between_two_packets_out))
             self.last_packet_time_stamp_out = networkpacket.timestamp_unix_in_ns()
         elif networkpacket.destination_ip_address() == self.host_ip:
             if self.last_packet_time_stamp_in:
-                self.time_between_two_packets_in.append(networkpacket.timestamp_unix_in_ns() - self.last_packet_time_stamp_in)
+                self.time_between_two_packets_in.append(
+                    networkpacket.timestamp_unix_in_ns() - self.last_packet_time_stamp_in)
                 self.avg_time_between_two_packets_in = round(
                     sum(self.time_between_two_packets_in) / len(self.time_between_two_packets_in))
                 self.std_time_between_two_packets_in = round(std(self.time_between_two_packets_in))
@@ -369,10 +373,13 @@ class FlowFeatures(BuildingBlock):
                 self.perc_of_con_same_host_pack = self.perc_of_con_same_host[networkpacket.destination_ip_address()]
             if networkpacket.destination_ip_address() in self.num_of_con_to_same_host:
                 self.num_of_con_to_same_host_pack = self.num_of_con_to_same_host[networkpacket.destination_ip_address()]
-                self.perc_of_con_to_same_host_pack = self.perc_of_con_to_same_host[networkpacket.destination_ip_address()]
+                self.perc_of_con_to_same_host_pack = self.perc_of_con_to_same_host[
+                    networkpacket.destination_ip_address()]
             if networkpacket.destination_ip_address() in self.num_of_con_from_same_host:
-                self.num_of_con_from_same_host_pack = self.num_of_con_from_same_host[networkpacket.destination_ip_address()]
-                self.perc_of_con_from_same_host_pack = self.perc_of_con_from_same_host[networkpacket.destination_ip_address()]
+                self.num_of_con_from_same_host_pack = self.num_of_con_from_same_host[
+                    networkpacket.destination_ip_address()]
+                self.perc_of_con_from_same_host_pack = self.perc_of_con_from_same_host[
+                    networkpacket.destination_ip_address()]
         if networkpacket.destination_ip_address() == self.host_ip:
             if networkpacket.source_ip_address() in self.num_of_con_same_host:
                 self.num_of_con_same_host_pack = self.num_of_con_same_host[networkpacket.source_ip_address()]
@@ -382,7 +389,8 @@ class FlowFeatures(BuildingBlock):
                 self.perc_of_con_to_same_host_pack = self.perc_of_con_to_same_host[networkpacket.source_ip_address()]
             if networkpacket.source_ip_address() in self.num_of_con_from_same_host:
                 self.num_of_con_from_same_host_pack = self.num_of_con_from_same_host[networkpacket.source_ip_address()]
-                self.perc_of_con_from_same_host_pack = self.perc_of_con_from_same_host[networkpacket.source_ip_address()]
+                self.perc_of_con_from_same_host_pack = self.perc_of_con_from_same_host[
+                    networkpacket.source_ip_address()]
 
     def ports(self, networkpacket: Networkpacket):
         if (networkpacket.source_ip_address() == self.host_ip and
@@ -390,7 +398,7 @@ class FlowFeatures(BuildingBlock):
             self.host_port = networkpacket.source_port()
             self.other_host_port = networkpacket.destination_port()
         elif (networkpacket.destination_ip_address() == self.host_ip and
-                networkpacket.source_port() and networkpacket.destination_port()):
+              networkpacket.source_port() and networkpacket.destination_port()):
             self.host_port = networkpacket.destination_port()
             self.other_host_port = networkpacket.source_port()
         else:
@@ -408,39 +416,47 @@ class FlowFeatures(BuildingBlock):
                 self.num_of_pack_same_first_layer_protocol[self.protocols[networkpacket.first_layer_protocol()]] = 1
             else:
                 self.num_of_pack_same_first_layer_protocol[self.protocols[networkpacket.first_layer_protocol()]] += 1
-            self.num_of_pack_same_first_layer_protocol_pack = self.num_of_pack_same_first_layer_protocol[self.protocols[networkpacket.first_layer_protocol()]]
+            self.num_of_pack_same_first_layer_protocol_pack = self.num_of_pack_same_first_layer_protocol[
+                self.protocols[networkpacket.first_layer_protocol()]]
         if networkpacket.second_layer_protocol():
             self.check_protocol(networkpacket.second_layer_protocol())
             if self.protocols[networkpacket.second_layer_protocol()] not in self.num_of_pack_same_second_layer_protocol:
                 self.num_of_pack_same_second_layer_protocol[self.protocols[networkpacket.second_layer_protocol()]] = 1
             else:
                 self.num_of_pack_same_second_layer_protocol[self.protocols[networkpacket.second_layer_protocol()]] += 1
-            self.num_of_pack_same_second_layer_protocol_pack = self.num_of_pack_same_second_layer_protocol[self.protocols[networkpacket.second_layer_protocol()]]
+            self.num_of_pack_same_second_layer_protocol_pack = self.num_of_pack_same_second_layer_protocol[
+                self.protocols[networkpacket.second_layer_protocol()]]
         if networkpacket.third_layer_protocol():
             self.check_protocol(networkpacket.third_layer_protocol())
             if self.protocols[networkpacket.third_layer_protocol()] not in self.num_of_pack_same_third_layer_protocol:
                 self.num_of_pack_same_third_layer_protocol[self.protocols[networkpacket.third_layer_protocol()]] = 1
             else:
                 self.num_of_pack_same_third_layer_protocol[self.protocols[networkpacket.third_layer_protocol()]] += 1
-            self.num_of_pack_same_third_layer_protocol_pack = self.num_of_pack_same_third_layer_protocol[self.protocols[networkpacket.third_layer_protocol()]]
+            self.num_of_pack_same_third_layer_protocol_pack = self.num_of_pack_same_third_layer_protocol[
+                self.protocols[networkpacket.third_layer_protocol()]]
         if networkpacket.fourth_layer_protocol():
             self.check_protocol(networkpacket.fourth_layer_protocol())
             if self.protocols[networkpacket.fourth_layer_protocol()] not in self.num_of_pack_same_fourth_layer_protocol:
                 self.num_of_pack_same_fourth_layer_protocol[self.protocols[networkpacket.fourth_layer_protocol()]] = 1
             else:
                 self.num_of_pack_same_fourth_layer_protocol[self.protocols[networkpacket.fourth_layer_protocol()]] += 1
-            self.num_of_pack_same_fourth_layer_protocol_pack = self.num_of_pack_same_fourth_layer_protocol[self.protocols[networkpacket.fourth_layer_protocol()]]
+            self.num_of_pack_same_fourth_layer_protocol_pack = self.num_of_pack_same_fourth_layer_protocol[
+                self.protocols[networkpacket.fourth_layer_protocol()]]
         for key in self.num_of_pack_same_first_layer_protocol:
-            self.perc_of_pack_same_first_layer_protocol[key] = round(self.num_of_pack_same_first_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_first_layer_protocol[key] = round(
+                self.num_of_pack_same_first_layer_protocol[key] / self.total_packet_count, 4)
             self.perc_of_pack_same_first_layer_protocol_pack = self.perc_of_pack_same_first_layer_protocol[key]
         for key in self.num_of_pack_same_second_layer_protocol:
-            self.perc_of_pack_same_second_layer_protocol[key] = round(self.num_of_pack_same_second_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_second_layer_protocol[key] = round(
+                self.num_of_pack_same_second_layer_protocol[key] / self.total_packet_count, 4)
             self.perc_of_pack_same_second_layer_protocol_pack = self.perc_of_pack_same_second_layer_protocol[key]
         for key in self.num_of_pack_same_third_layer_protocol:
-            self.perc_of_pack_same_third_layer_protocol[key] = round(self.num_of_pack_same_third_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_third_layer_protocol[key] = round(
+                self.num_of_pack_same_third_layer_protocol[key] / self.total_packet_count, 4)
             self.perc_of_pack_same_third_layer_protocol_pack = self.perc_of_pack_same_third_layer_protocol[key]
         for key in self.num_of_pack_same_fourth_layer_protocol:
-            self.perc_of_pack_same_fourth_layer_protocol[key] = round(self.num_of_pack_same_fourth_layer_protocol[key] / self.total_packet_count, 4)
+            self.perc_of_pack_same_fourth_layer_protocol[key] = round(
+                self.num_of_pack_same_fourth_layer_protocol[key] / self.total_packet_count, 4)
             self.perc_of_pack_same_fourth_layer_protocol_pack = self.perc_of_pack_same_fourth_layer_protocol[key]
 
     def check_protocol(self, protocol):

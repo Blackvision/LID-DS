@@ -30,8 +30,7 @@ class StreamAverage(BuildingBlock):
         returns the average value over the bb in the window or None if the feature is None
         """
         input = self._sum.get_result(datapacket)
-        if input is not None:        
-            return input / self._window_length            
+        if input is not None:
+            return input / self._window_length
         else:
             return None
-

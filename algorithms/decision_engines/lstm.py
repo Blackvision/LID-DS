@@ -295,7 +295,7 @@ class LSTM(BuildingBlock):
                 hit += 1
             else:
                 miss += 1
-        return hit/(hit+miss)
+        return hit / (hit + miss)
 
     def new_recording(self, val: bool = False):
         """

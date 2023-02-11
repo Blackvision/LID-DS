@@ -46,7 +46,6 @@ if __name__ == '__main__':
     thread_aware = True
     hidden_size = int(math.sqrt(ngram_length * w2v_size))
 
-
     # run config
     scenario_range = scenario_names[0:1]
     ###################
