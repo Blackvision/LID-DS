@@ -1,14 +1,14 @@
 import os
+
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
-
-import numpy as np
 from tqdm import tqdm
 
-from dataloader.syscall import Syscall
 from algorithms.building_block import BuildingBlock
+from dataloader.syscall import Syscall
 
 
 class LSTM(BuildingBlock):

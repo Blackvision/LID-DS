@@ -1,7 +1,7 @@
-from algorithms.features.impl_both.ngram import Ngram
-from algorithms.features.impl_syscall.select import Select
-from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
+from algorithms.features.impl_syscall.select import Select
 from dataloader.syscall_2021 import Syscall2021
 
 

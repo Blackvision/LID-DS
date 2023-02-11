@@ -1,10 +1,9 @@
-from algorithms.features.impl_syscall.flags import Flags
-from algorithms.features.impl_syscall.time_delta import TimeDelta
-from algorithms.features.impl_syscall.return_value import ReturnValue
-from algorithms.features.impl_syscall.path_evilness import PathEvilness
-from algorithms.features.impl_syscall.stream_maximum import StreamMaximum
 from algorithms.features.impl_syscall.collect_syscall import CollectSyscall
-
+from algorithms.features.impl_syscall.flags import Flags
+from algorithms.features.impl_syscall.path_evilness import PathEvilness
+from algorithms.features.impl_syscall.return_value import ReturnValue
+from algorithms.features.impl_syscall.stream_maximum import StreamMaximum
+from algorithms.features.impl_syscall.time_delta import TimeDelta
 from dataloader.syscall_2021 import Syscall2021
 
 

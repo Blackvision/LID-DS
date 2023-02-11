@@ -1,15 +1,15 @@
+import argparse
 import csv
+import os
+
 from algorithms.features.stream_ngram_extractor import StreamNgramExtractor
-from algorithms.features.threadID_extractor import ThreadIDExtractor
 from algorithms.features.syscall_to_int import SyscallToInt
+from algorithms.features.threadID_extractor import ThreadIDExtractor
+from torch.utils.data import DataLoader
+
+from algorithms.data_preprocessor import DataPreprocessor
 from algorithms.decision_engines.stide import Stide
 from algorithms.ids import IDS
-from dataloader.data_loader import DataLoader
-from algorithms.data_preprocessor import DataPreprocessor
-from pprint import pprint
-import os
-import argparse
-
 
 if __name__ == '__main__':
 

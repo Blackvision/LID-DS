@@ -1,6 +1,7 @@
 from gensim.models import Word2Vec
+
 from algorithms.building_block import BuildingBlock
-from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_both.ngram_both import NgramBoth
 from dataloader.datapacket import Datapacket
 
 
@@ -34,7 +35,7 @@ class W2VEmbedding(BuildingBlock):
         
         self._input_bb = word
 
-        self._ngram_bb = Ngram(feature_list=[word],
+        self._ngram_bb = NgramBoth(feature_list=[word],
                                thread_aware=thread_aware,
                                ngram_length=window_size)
 
@@ -46,7 +47,7 @@ class W2VEmbedding(BuildingBlock):
 
     def train_on(self, datapacket: Datapacket):
         """
-            gets training systemcalls one after another
+            gets training datapackets one after another
             builds sentences(ngrams) from them 
             saves them to training corpus
         """

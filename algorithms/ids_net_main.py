@@ -19,8 +19,10 @@ def main():
     lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
     # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
     result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
+    plot_path = "/plots/"
     datapacket_mode = DatapacketMode.NETWORKPACKET
     direction = Direction.OPEN
+    draw_plot = True
 
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [
@@ -71,7 +73,7 @@ def main():
                   resulting_building_block_sys=resulting_building_block_sys,
                   resulting_building_block_net=resulting_building_block_net,
                   create_alarms=False,
-                  plot_switch=False,
+                  plot_switch=draw_plot,
                   datapacket_mode=datapacket_mode,
                   time_window=None,
                   time_window_steps=None)
@@ -104,6 +106,12 @@ def main():
         # print results
         print(f"Results for scenario: {scenario_range[scenario_number]}")
         pprint(results)
+
+        if draw_plot:
+            if not os.path.exists(result_path + date_today + plot_path):
+                os.makedirs(result_path + date_today + plot_path)
+            filename = scenario_range[scenario_number] + "_" + date_today + "_net_plot"
+            ids.save_plot(result_path + date_today + plot_path + filename)
 
 if __name__ == '__main__':
     main()

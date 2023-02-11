@@ -1,5 +1,6 @@
-from dataloader.syscall import Syscall
 from algorithms.building_block import BuildingBlock
+from dataloader.syscall import Syscall
+
 
 class UnknownFlags(BuildingBlock):
     def __init__(self):

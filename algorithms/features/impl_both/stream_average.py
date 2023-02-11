@@ -1,7 +1,6 @@
 from algorithms.building_block import BuildingBlock
 from algorithms.features.impl_both.stream_sum import StreamSum
 from dataloader.datapacket import Datapacket
-from dataloader.syscall import Syscall
 
 
 class StreamAverage(BuildingBlock):

@@ -1,6 +1,3 @@
-import pytest
-
-from algorithms.features.impl_syscall.processID import ProcessID
 from algorithms.features.impl_syscall.stream_product import StreamProduct
 from algorithms.features.impl_syscall.threadID import ThreadID
 from dataloader.syscall_2021 import Syscall2021

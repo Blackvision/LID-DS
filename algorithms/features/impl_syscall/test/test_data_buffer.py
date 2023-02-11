@@ -1,9 +1,8 @@
 import base64
 
-from dataloader.syscall_2021 import Syscall2021
-from dataloader.syscall_2019 import Syscall2019
-
 from algorithms.features.impl_syscall.data_buffer import DataBuffer
+from dataloader.syscall_2019 import Syscall2019
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_data_buffer():

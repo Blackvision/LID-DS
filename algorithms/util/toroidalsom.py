@@ -46,10 +46,11 @@ REQUIREMENTS
 """
 
 
-from tqdm import tqdm
 from copy import deepcopy
-from numpy.random import randint
+
 from numpy import random, ones, exp, zeros, arange, array, eye, pi, dot, nan, sum
+from numpy.random import randint
+from tqdm import tqdm
 
 '''
 Useful functions for training the SOM

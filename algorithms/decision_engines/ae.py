@@ -1,15 +1,15 @@
-from enum import Enum
+import math
 import time
+from enum import Enum
 from functools import lru_cache
 
 import torch
-import torch.utils.data.dataset as td
 import torch.nn as nn
+import torch.utils.data.dataset as td
 from tqdm import tqdm
-import math
 
-from dataloader.datapacket import Datapacket
 from algorithms.building_block import BuildingBlock
+from dataloader.datapacket import Datapacket
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

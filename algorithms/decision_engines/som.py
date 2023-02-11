@@ -1,14 +1,13 @@
 import math
-import sys
 
+import numpy as np
 from matplotlib import pyplot as plt
+from minisom import MiniSom
+from numpy.linalg import norm
+from tqdm import tqdm
 
 from algorithms.building_block import BuildingBlock
 from dataloader.syscall import Syscall
-from minisom import MiniSom
-from tqdm import tqdm
-import numpy as np
-from numpy.linalg import norm
 
 
 class Som(BuildingBlock):

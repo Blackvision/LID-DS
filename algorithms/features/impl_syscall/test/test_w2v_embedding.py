@@ -1,8 +1,8 @@
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_syscall.process_name import ProcessName
 from algorithms.features.impl_syscall.syscall_name import SyscallName
-from dataloader.syscall_2021 import Syscall2021
 from dataloader.syscall_2019 import Syscall2019
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_w2v_embedding():

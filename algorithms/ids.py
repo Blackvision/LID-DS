@@ -4,9 +4,9 @@ from algorithms.building_block import BuildingBlock
 from algorithms.data_preprocessor import DataPreprocessor
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from algorithms.performance_measurement import Performance
-from algorithms.performance_measurement_both import PerformanceBoth
 from algorithms.performance_measurement_both_boolean import PerformanceBothBoolean
 from algorithms.score_plot import ScorePlot
+from algorithms.score_plot_both import ScorePlotBoth
 from dataloader.base_data_loader import BaseDataLoader
 from dataloader.datapacket_mode import DatapacketMode
 
@@ -28,6 +28,10 @@ class IDS:
         self._datapacket_mode = datapacket_mode
         if self._datapacket_mode == DatapacketMode.SYSCALL or self._datapacket_mode == DatapacketMode.NETWORKPACKET:
             self.performance = Performance(create_alarms)
+            if plot_switch is True:
+                self.plot = ScorePlot(data_loader.scenario_path)
+            else:
+                self.plot = None
         elif self._datapacket_mode == DatapacketMode.BOTH:
             # self.performance = PerformanceBoth(create_alarms)
             self.performance = PerformanceBothBoolean()
@@ -35,12 +39,12 @@ class IDS:
             self.threshold_net = 0.0
             self.time_window = time_window
             self.time_window_steps = time_window_steps
+            if plot_switch is True:
+                self.plot = ScorePlotBoth(data_loader.scenario_path)
+            else:
+                self.plot = None
         else:
             self.performance = None
-        if plot_switch is True:
-            self.plot = ScorePlot(data_loader.scenario_path)
-        else:
-            self.plot = None
         self._data_preprocessor = DataPreprocessor(self._data_loader, self._final_bb_sys, self._final_bb_net, self._datapacket_mode)
 
     def get_config_syscall(self) -> str:
@@ -54,6 +58,12 @@ class IDS:
         if self.plot is not None:
             self.plot.feed_figure()
             self.plot.show_plot(filename)
+
+    def save_plot(self, path=None):
+        # save data if wanted
+        if self.plot is not None:
+            self.plot.feed_figure()
+            self.plot.save_plot(path)
 
     def determine_threshold(self):
         """
@@ -117,6 +127,8 @@ class IDS:
                     if anomaly_score[2] > max_score:
                         max_score = anomaly_score[2]
         self.performance.set_threshold(max_score)
+        if self.plot is not None:
+            self.plot.threshold = max_score
         print(f"threshold both (sys and net)={max_score:.3f}".rjust(27))
 
     def _determine_threshold_both_or_and(self):
@@ -140,6 +152,8 @@ class IDS:
             self._data_preprocessor.new_recording(DatapacketMode.NETWORKPACKET)
         self.threshold_sys = max_score_sys
         self.threshold_net = max_score_net
+        if self.plot is not None:
+            self.plot.threshold = 1
         print(f"threshold both sys={max_score_sys:.3f} net={max_score_net:.3f}".rjust(27))
 
     def detect(self):
@@ -206,11 +220,13 @@ class IDS:
             if (len(list_sys_anomaly_scores) != 0) or (len(list_net_anomaly_scores) != 0):
                 anomaly_scores_both = self._merge_anomaly_score_lists(list_sys_anomaly_scores, list_net_anomaly_scores)
                 list_anomaly_scores = self._calculate_anomaly_scores_both(anomaly_scores_both)
-                for anomaly_score in list_anomaly_scores:
-                    self.performance.analyze_datapacket(anomaly_score[0], anomaly_score[1], anomaly_score[2])
+                for anomaly_score_window in list_anomaly_scores:
+                    self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1], anomaly_score_window[2])
                     # TODO
-                    # if self.plot is not None:
-                        # self.plot.add_to_plot_data(anomaly_score[1], anomaly_score[0], self.performance.get_cfp_indices())
+                    #anomaly_score[0], anomaly_score[1], anomaly_score[2]
+                    #time_window_start, time_window_end, anomaly_score
+                    if self.plot is not None:
+                        self.plot.add_to_plot_data(anomaly_score_window[2], anomaly_score_window[0], self.performance.get_cfp_indices())
             if self.performance.alarms is not None:
                 self.performance.alarms.end_alarm()
         return self.performance
@@ -220,6 +236,8 @@ class IDS:
         description = "anomaly detection for syscalls and networkpackets"
         for recording in tqdm(data, description.rjust(27), unit=" recording"):
             self.performance.new_recording(recording)
+            if self.plot is not None:
+                self.plot.new_recording(recording)
             list_sys_anomaly_scores = []
             list_net_anomaly_scores = []
             self._set_host_ip(recording, self._final_bb_net)
@@ -238,11 +256,17 @@ class IDS:
             if (len(list_sys_anomaly_scores) != 0) or (len(list_net_anomaly_scores) != 0):
                 anomaly_scores_both = self._merge_anomaly_score_lists(list_sys_anomaly_scores, list_net_anomaly_scores)
                 list_anomaly_scores = self._calculate_anomaly_scores_both_and(anomaly_scores_both)
-                for anomaly_score in list_anomaly_scores:
-                    self.performance.analyze_datapacket(anomaly_score[0], anomaly_score[1], anomaly_score[2])
+                for anomaly_score_window in list_anomaly_scores:
+                    self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1], anomaly_score_window[2])
                     # TODO
-                    # if self.plot is not None:
-                        # self.plot.add_to_plot_data(anomaly_score[1], anomaly_score[0], self.performance.get_cfp_indices())
+                    # anomaly_score[0], anomaly_score[1], anomaly_score[2]
+                    # time_window_start, time_window_end, anomaly_score
+                    if anomaly_score_window[2]:
+                        anomaly_score = 1.5
+                    else:
+                        anomaly_score = 0.5
+                    if self.plot is not None:
+                        self.plot.add_to_plot_data(anomaly_score, anomaly_score_window[0], self.performance.get_cfp_indices())
             if self.performance.alarms is not None:
                 self.performance.alarms.end_alarm()
 

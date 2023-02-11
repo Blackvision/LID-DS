@@ -6,9 +6,9 @@ from dataloader.datapacket import Datapacket
 from dataloader.syscall import Syscall
 
 
-class Ngram(BuildingBlock):
+class NgramBoth(BuildingBlock):
     """
-    calculate ngram form a stream of system call features
+    calculate ngram form a stream of features
     """
 
     def __init__(self, feature_list: list, thread_aware: bool, ngram_length: int):
@@ -45,7 +45,7 @@ class Ngram(BuildingBlock):
             else:
                 Ngram._concat(result, dependencies)
 
-        # if all dependencies are not none: build the ngram 
+        # if all dependencies are not none: build the ngram
         if all_dependencies_are_not_none:
 
             # get the length of one ngram element
@@ -56,7 +56,7 @@ class Ngram(BuildingBlock):
 
             if self._deque_length is None:
                 self._deque_length = self._ngram_length * len(dependencies)
-            
+
             # group by thread id
             thread_id = 0
             if isinstance(datapacket, Syscall) and self._thread_aware:
@@ -69,14 +69,14 @@ class Ngram(BuildingBlock):
             self._ngram_buffer[thread_id].extend(dependencies)
 
             # return the ngram if its complete
-            if len(self._ngram_buffer[thread_id]) == self._deque_length:                
+            if len(self._ngram_buffer[thread_id]) == self._deque_length:
                 return tuple(self._ngram_buffer[thread_id])
         return None
 
     def _concat(source_value, target_vector):
         """
         the source_value (could be a Iterable, str or other) is concated to target_vector (array)
-        """        
+        """
         if isinstance(source_value, Iterable):
             if isinstance(source_value, str):
                 # source is iterable, but its a string -> call append
@@ -87,7 +87,6 @@ class Ngram(BuildingBlock):
         else:
             # source is not iterable: just call append
             target_vector.append(source_value)
-
 
     def new_recording(self):
         """

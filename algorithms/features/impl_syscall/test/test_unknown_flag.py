@@ -1,5 +1,5 @@
-from dataloader.syscall_2021 import Syscall2021
 from algorithms.features.impl_syscall.unknown_flags import UnknownFlags
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_unknown_flag():

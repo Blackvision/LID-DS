@@ -1,8 +1,6 @@
-import pytest
-
-from algorithms.features.impl_syscall.sum import Sum
 from algorithms.features.impl_syscall.concat import Concat
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
+from algorithms.features.impl_syscall.sum import Sum
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.features.impl_syscall.threadID import ThreadID
 from dataloader.syscall_2021 import Syscall2021

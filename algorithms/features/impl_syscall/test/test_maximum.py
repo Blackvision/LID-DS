@@ -1,10 +1,9 @@
 import pytest
 
-from algorithms.features.impl_syscall.stream_maximum import StreamMaximum
-from algorithms.features.impl_syscall.stream_minimum import StreamMinimum
 from algorithms.features.impl_syscall.processID import ProcessID
-from algorithms.features.impl_syscall.threadID import ThreadID
+from algorithms.features.impl_syscall.stream_maximum import StreamMaximum
 from dataloader.syscall_2021 import Syscall2021
+
 
 def test_maximum():
     # legit

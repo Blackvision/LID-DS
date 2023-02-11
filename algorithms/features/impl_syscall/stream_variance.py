@@ -1,8 +1,7 @@
-
 import numpy as np
 
 from algorithms.building_block import BuildingBlock
-from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_syscall.ngram import Ngram
 from dataloader.syscall import Syscall
 
 

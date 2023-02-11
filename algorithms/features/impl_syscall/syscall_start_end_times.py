@@ -1,14 +1,9 @@
-import sys
-import typing
-from collections import deque
-from collections.abc import Iterable
 from enum import Enum
 
 from algorithms.building_block import BuildingBlock
-from algorithms.features.impl_syscall import threadID
-from algorithms.features.impl_syscall.threadID import ThreadID
 from dataloader.direction import Direction
 from dataloader.syscall import Syscall
+
 
 class StartEndTimesMode(Enum):
     ABSOLUTE_VALUES = 1

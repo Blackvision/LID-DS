@@ -1,6 +1,3 @@
-import math
-import typing
-
 from algorithms.building_block import BuildingBlock
 from dataloader.datapacket import Datapacket
 
@@ -31,8 +28,6 @@ class Normalization():
 class MinMaxScalingNet(BuildingBlock):
 
     def __init__(self, bb_to_scale: BuildingBlock):
-        """
-        """
         super().__init__()
         self._bb_to_scale = bb_to_scale
         self._bb_id = self._bb_to_scale.get_id()
@@ -69,8 +64,6 @@ class MinMaxScalingNet(BuildingBlock):
             self._normalization[i].set_diff()
 
     def _calculate(self, datapacket: Datapacket):
-        """
-        """
         current_value = self._bb_to_scale.get_result(datapacket)
         norm_value = []
         if current_value is not None:

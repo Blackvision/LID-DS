@@ -4,6 +4,7 @@ from algorithms.features.impl_both.stream_average import StreamAverage
 from algorithms.features.impl_syscall.processID import ProcessID
 from dataloader.syscall_2021 import Syscall2021
 
+
 def test_avg():
     # legit
     syscall_1 = Syscall2021('CVE-2017-7529/test/normal_and_attack/acidic_bhaskara_7006.zip',

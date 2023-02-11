@@ -1,10 +1,10 @@
 import pytest
 
-from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.features.impl_syscall.threadID import ThreadID
-from dataloader.syscall_2021 import Syscall2021
 from dataloader.syscall_2019 import Syscall2019
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_ngram():

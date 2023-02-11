@@ -1,9 +1,8 @@
 import base64
 
+from algorithms.building_block import BuildingBlock
 from dataloader.syscall import Syscall
 from dataloader.syscall_2019 import Syscall2019
-
-from algorithms.building_block import BuildingBlock
 
 
 class DataBuffer(BuildingBlock):

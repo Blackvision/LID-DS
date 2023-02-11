@@ -1,10 +1,9 @@
-from dataloader.syscall_2021 import Syscall2021
-from dataloader.syscall_2019 import Syscall2019
-
+from algorithms.features.impl_syscall.data_buffer import DataBuffer
 from algorithms.features.impl_syscall.entropy import Entropy
 from algorithms.features.impl_syscall.processID import ProcessID
-from algorithms.features.impl_syscall.data_buffer import DataBuffer
 from algorithms.features.impl_syscall.syscall_name import SyscallName
+from dataloader.syscall_2019 import Syscall2019
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_entropy():

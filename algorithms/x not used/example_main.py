@@ -1,12 +1,11 @@
-from pprint import pprint
-import sys
 import os
+import sys
+from pprint import pprint
 
-from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl_both.ngram import Ngram
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.ids import IDS
-
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.direction import Direction
 

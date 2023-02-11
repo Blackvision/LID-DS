@@ -1,7 +1,6 @@
-from dataloader.syscall import Syscall
-
 from algorithms.building_block import BuildingBlock
 from algorithms.features.impl_syscall.syscall_name import SyscallName
+from dataloader.syscall import Syscall
 
 
 class IntEmbedding(BuildingBlock):

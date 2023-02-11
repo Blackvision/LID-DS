@@ -1,18 +1,16 @@
 import os
 import sys
-
 from pprint import pprint
 
-from algorithms.ids import IDS
-
-from dataloader.direction import Direction
-
-from algorithms.decision_engines.som import Som
-
-from algorithms.features.impl_both.ngram import Ngram
+from algorithms.decision_engines.mlp import MLP
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
-
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
+from algorithms.features.impl_syscall.ngram_minus_one import NgramMinusOne
+from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
+from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
+from dataloader.direction import Direction
 
 if __name__ == '__main__':
 
@@ -23,7 +21,7 @@ if __name__ == '__main__':
     ]
 
     # scenarios ordered by training data size asc
-    # 0 - 14    
+    # 0 - 14
     scenario_names = [
         "CVE-2017-7529",
         "CVE-2014-0160",
@@ -42,14 +40,14 @@ if __name__ == '__main__':
         "CVE-2017-12635_6"
     ]
 
-    # todo: set config
     ###################
     # feature config:
     ngram_length = 7
     w2v_size = 5
-    som_epochs = 1000
-    som_size = 50
     thread_aware = True
+    hidden_size = 150
+    hidden_layers = 4
+    batch_size = 50
 
     # run config
     scenario_range = scenario_names[0:1]
@@ -77,31 +75,48 @@ if __name__ == '__main__':
                            scenario_path=scenario_path,
                            vector_size=w2v_size,
                            window_size=ngram_length)
-        ngram = Ngram([w2v], thread_aware, ngram_length)
-        som = Som(ngram, epochs=som_epochs, size=som_size)
-        config_name = f"som_n_{ngram_length}_w_{w2v_size}_e_{som_epochs}_t_{thread_aware}"
+        ngram = Ngram(feature_list=[w2v],
+                      thread_aware=thread_aware,
+                      ngram_length=ngram_length
+                      )
+        ngram_minus_one = NgramMinusOne(ngram=ngram,
+                                        element_size=w2v_size)
+        inte = IntEmbedding()
+
+        ohe = OneHotEncoding(inte)
+
+        mlp = MLP(
+            input_vector=ngram_minus_one,
+            output_label=ohe,
+            hidden_size=hidden_size,
+            hidden_layers=hidden_layers,
+            batch_size=batch_size,
+            learning_rate=0.003
+        )
 
         ###################
         # the IDS
         ids = IDS(data_loader=dataloader,
-                  resulting_building_block=som,
+                  resulting_building_block=mlp,
                   create_alarms=False,
                   plot_switch=False)
 
         print("at evaluation:")
         # threshold
         ids.determine_threshold()
-        # detection
+        # detection        
+        # print results
         results = ids.detect().get_performance()
         pprint(results)
 
         # enrich results with configuration and save to disk
-        results['algorithm'] = "SOM"
+        results['algorithm'] = "MLP"
         results['ngram_length'] = ngram_length
         results['w2v_size'] = w2v_size
         results['thread_aware'] = thread_aware
         results['config'] = ids.get_config_syscall()
         results['scenario'] = scenario_range[scenario_number]
-        result_path = 'results/results_som.json'
+        result_path = 'results/results_mlp.json'
 
-        som.show_distance_plot()
+        # ids.draw_plot()
+        print(mlp.get_net_weights())

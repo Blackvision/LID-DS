@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from dataloader.datapacket import Datapacket
-from dataloader.base_recording import BaseRecording
-
 from algorithms.alarms import Alarms
+from dataloader.base_recording import BaseRecording
+from dataloader.datapacket import Datapacket
 
 
 class Performance:

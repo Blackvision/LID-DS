@@ -4,10 +4,10 @@ import time
 from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
@@ -23,13 +23,15 @@ def main():
     lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
     # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
     result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
+    plot_path = "/plots/"
     datapacket_mode = DatapacketMode.BOTH
     direction = Direction.OPEN
+    draw_plot = True
     time_window = 100000000 # 1000000000, 5000000000
     time_window_steps = 50000000 # 500000000, 1000000000
 
     # Syscall:
-    ngram_length_sys = 5  # 5, 7
+    ngram_length_sys = 5  # 5, 7, 10, 13
     thread_aware_sys = True
 
     # LID-DS dataset, choose from 0 - 2:
@@ -94,7 +96,7 @@ def main():
                   resulting_building_block_sys=resulting_building_block_sys,
                   resulting_building_block_net=resulting_building_block_net,
                   create_alarms=False,
-                  plot_switch=False,
+                  plot_switch=draw_plot,
                   datapacket_mode=datapacket_mode,
                   time_window=time_window,
                   time_window_steps=time_window_steps)
@@ -127,6 +129,12 @@ def main():
         # print results
         print(f"Results for scenario: {scenario_range[scenario_number]}")
         pprint(results)
+
+        if draw_plot:
+            if not os.path.exists(result_path + date_today + plot_path):
+                os.makedirs(result_path + date_today + plot_path)
+            filename = scenario_range[scenario_number] + "_" + date_today + "_sys_net_plot"
+            ids.save_plot(result_path + date_today + plot_path + filename)
 
 if __name__ == '__main__':
     main()

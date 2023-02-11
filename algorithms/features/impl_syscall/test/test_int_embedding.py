@@ -1,8 +1,8 @@
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.processID import ProcessID
 from algorithms.features.impl_syscall.threadID import ThreadID
-from dataloader.syscall_2021 import Syscall2021
 from dataloader.syscall_2019 import Syscall2019
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_int_embedding():

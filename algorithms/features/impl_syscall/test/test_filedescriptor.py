@@ -1,10 +1,6 @@
-import os
-from tqdm import tqdm
-
+from algorithms.features.impl_syscall.filedescriptor import FileDescriptor, FDMode
 from dataloader.syscall_2019 import Syscall2019
 from dataloader.syscall_2021 import Syscall2021
-from dataloader.dataloader_factory import dataloader_factory
-from algorithms.features.impl_syscall.filedescriptor import FileDescriptor, FDMode
 
 
 def test_filedescriptor():

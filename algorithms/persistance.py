@@ -1,6 +1,7 @@
-import pandas as pd
-import os.path
 import json
+import os.path
+
+import pandas as pd
 
 
 def save_to_json(result_dict: dict, path: str):
@@ -8,6 +9,7 @@ def save_to_json(result_dict: dict, path: str):
         convert result dict to correct format
         cut known performance and put the rest into config dict
     """
+    # TODO persistance
     performance = {
         "true_positives": int,
         "false_positives": int,

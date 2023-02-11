@@ -1,7 +1,6 @@
-from dataloader.syscall import Syscall
-from dataloader.direction import Direction
-
 from algorithms.building_block import BuildingBlock
+from dataloader.direction import Direction
+from dataloader.syscall import Syscall
 
 
 class CollectSyscall(BuildingBlock):

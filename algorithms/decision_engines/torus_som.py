@@ -1,11 +1,11 @@
-import numpy
-
-from numpy import eye
 from functools import lru_cache
 
-from dataloader.syscall import Syscall
+import numpy
+from numpy import eye
+
 from algorithms.building_block import BuildingBlock
 from algorithms.util.toroidalsom import ToroidalSOM
+from dataloader.syscall import Syscall
 
 
 class TorusSom(BuildingBlock):

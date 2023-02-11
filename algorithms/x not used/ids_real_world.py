@@ -1,15 +1,12 @@
-from algorithms.features.impl_both.ngram import Ngram
-from algorithms.features.impl_syscall.int_embedding import IntEmbedding
-
-from algorithms.ids import IDS
-from algorithms.persistance import save_to_json
-from algorithms.decision_engines.stide import Stide
-
-from dataloader.direction import Direction
-from dataloader.dataloader_factory import dataloader_factory
-
 from pprint import pprint
 
+from algorithms.decision_engines.stide import Stide
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
+from algorithms.ids import IDS
+from algorithms.persistance import save_to_json
+from dataloader.dataloader_factory import dataloader_factory
+from dataloader.direction import Direction
 
 if __name__ == '__main__':
     """

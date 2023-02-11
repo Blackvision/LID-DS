@@ -1,6 +1,7 @@
+from collections.abc import Iterable
+
 from algorithms.building_block_id_manager import BuildingBlockIDManager
 from dataloader.datapacket import Datapacket
-from collections.abc import Iterable
 
 
 class BuildingBlock:

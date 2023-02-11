@@ -1,6 +1,6 @@
 from algorithms.features.impl_syscall.syscall_name import SyscallName
-from dataloader.syscall_2021 import Syscall2021
 from dataloader.syscall_2019 import Syscall2019
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_syscall_name_extract():

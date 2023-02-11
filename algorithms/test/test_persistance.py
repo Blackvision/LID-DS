@@ -1,6 +1,7 @@
+import os
+
 from algorithms.persistance import save_to_json, load_from_json
 
-import os
 
 def test_persistance():
     example_dict_1 = {

@@ -7,9 +7,8 @@ import traceback
 from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
-from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl_both.ngram import Ngram
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS

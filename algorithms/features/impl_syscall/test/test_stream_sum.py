@@ -1,8 +1,9 @@
 import pytest
 
-from algorithms.features.impl_syscall.processID import ProcessID
 from algorithms.features.impl_both.stream_sum import StreamSum
+from algorithms.features.impl_syscall.processID import ProcessID
 from dataloader.syscall_2021 import Syscall2021
+
 
 def test_stream_sum():
     # legit

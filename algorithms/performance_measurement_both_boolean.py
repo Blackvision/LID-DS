@@ -5,6 +5,7 @@ from dataloader.base_recording import BaseRecording
 
 
 class PerformanceBothBoolean:
+    # TODO
 
     def __init__(self, create_alarms: bool = False):
         self._threshold = True
@@ -157,8 +158,11 @@ class PerformanceBothBoolean:
                 self._last_datapacket_of_cfp_list_normal.append(self._normal_score_count)
                 self._cfp_counter_wait_normal = False
 
-    def __repr__(self) -> str:
-        return f"Performance-Instance: Alarm_Count: {self._alarm_count}, Exploit_count: {self._exploit_count}, FPs: {self._fp}, TPs: {self._tp}, FNs: {self._fn}, TNs: {self._tn}"
+    def get_cfp_indices(self):
+        """
+        returns cfp syscall indices in lists for plotting
+        """
+        return self._first_datapacket_of_cfp_list_exploits, self._last_datapacket_of_cfp_list_exploits, self._first_datapacket_of_cfp_list_normal, self._last_datapacket_of_cfp_list_normal
 
     def get_results(self):
         try:
@@ -196,3 +200,6 @@ class PerformanceBothBoolean:
         self.result = performance_values
 
         return performance_values
+
+    def __repr__(self) -> str:
+        return f"Performance-Instance: Alarm_Count: {self._alarm_count}, Exploit_count: {self._exploit_count}, FPs: {self._fp}, TPs: {self._tp}, FNs: {self._fn}, TNs: {self._tn}"

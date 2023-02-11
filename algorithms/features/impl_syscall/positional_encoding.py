@@ -1,4 +1,3 @@
-import typing
 import numpy as np
 
 from algorithms.building_block import BuildingBlock

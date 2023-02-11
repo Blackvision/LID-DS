@@ -1,14 +1,12 @@
-import base64
 import pytest
 
-from dataloader.syscall_2021 import Syscall2021
-from dataloader.syscall_2019 import Syscall2019
-
 from algorithms.features.impl_syscall.concat import Concat
-from algorithms.features.impl_syscall.threadID import ThreadID
+from algorithms.features.impl_syscall.concat_strings import ConcatStrings
 from algorithms.features.impl_syscall.process_name import ProcessName
 from algorithms.features.impl_syscall.syscall_name import SyscallName
-from algorithms.features.impl_syscall.concat_strings import ConcatStrings
+from algorithms.features.impl_syscall.threadID import ThreadID
+from dataloader.syscall_2019 import Syscall2019
+from dataloader.syscall_2021 import Syscall2021
 
 
 def test_concat_strings():

@@ -1,8 +1,8 @@
 import math
 from collections import Counter
 
-from dataloader.syscall import Syscall
 from algorithms.building_block import BuildingBlock
+from dataloader.syscall import Syscall
 
 
 class Entropy(BuildingBlock):

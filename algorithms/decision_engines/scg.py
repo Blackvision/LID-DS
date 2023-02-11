@@ -1,6 +1,8 @@
+import networkx as nx
+
 from algorithms.building_block import BuildingBlock
 from dataloader.syscall import Syscall
-import networkx as nx
+
 
 class SystemCallGraph(BuildingBlock):
 

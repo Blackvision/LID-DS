@@ -1,15 +1,12 @@
-import math
 from collections import deque
 
 from algorithms.building_block import BuildingBlock
-from algorithms.features.impl_syscall.threadID import ThreadID
 from dataloader.datapacket import Datapacket
-from dataloader.syscall import Syscall
 
 
 class StreamSum(BuildingBlock):
     """
-    gives the sum value from a stream of system call features
+    gives the sum value from a stream of features
     """
 
     def __init__(self, feature: BuildingBlock, thread_aware: bool, window_length: int):

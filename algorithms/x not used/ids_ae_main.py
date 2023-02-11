@@ -1,14 +1,14 @@
+import math
 import os
 import sys
-import math
-
 from pprint import pprint
-from algorithms.ids import IDS
-from dataloader.direction import Direction
+
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_both.ngram import Ngram
-from dataloader.dataloader_factory import dataloader_factory
 from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
+from algorithms.ids import IDS
+from dataloader.dataloader_factory import dataloader_factory
+from dataloader.direction import Direction
 
 if __name__ == '__main__':
 
@@ -38,7 +38,6 @@ if __name__ == '__main__':
         "CVE-2017-12635_6"
     ]
 
-    # todo: set config
     ###################
     # feature config:
     ngram_length = 7
