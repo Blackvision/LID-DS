@@ -234,10 +234,10 @@ class Networkpacket2021(Networkpacket):
         if self._data_length is None:
             if hasattr(self.networkpacket_frame, 'tcp'):
                 if hasattr(self.networkpacket_frame.tcp, 'payload'):
-                    self._data_length = self.networkpacket_frame.tcp.len
+                    self._data_length = int(self.networkpacket_frame.tcp.len)
             elif hasattr(self.networkpacket_frame, 'udp'):
                 if hasattr(self.networkpacket_frame.udp, 'payload'):
-                    self._data_length = self.networkpacket_frame.udp.length
+                    self._data_length = int(self.networkpacket_frame.udp.length)
             else:
                 self._data_length = None
         return self._data_length

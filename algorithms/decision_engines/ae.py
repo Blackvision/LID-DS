@@ -111,6 +111,7 @@ class AENetwork(nn.Module):
     def forward(self, x):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
+        self.max_norm()
         return decoded
 
 
@@ -134,8 +135,6 @@ class AE(BuildingBlock):
         self._validation_set = set()
         self._max_training_time = max_training_time  # time in seconds
         self._early_stopping_num_epochs = early_stopping_epochs
-        self._result_dict = {}
-        self._epochs = 100000
 
     def depends_on(self):
         return self._dependency_list
@@ -163,7 +162,7 @@ class AE(BuildingBlock):
             eps=1e-07,
             amsgrad=False
         )
-        # loss preparation for early stop of training        
+        # loss preparation for early stop of training
         best_avg_val_loss = math.inf
         epochs_since_last_best = 0
         best_weights = {}
