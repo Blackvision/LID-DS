@@ -85,9 +85,9 @@ def main():
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            flowFeatures = FlowFeatures()
-            minMaxScalingNet = MinMaxScalingNet(flowFeatures)
-            ae_net = AE(input_vector=minMaxScalingNet)
+            flow_features = FlowFeatures()
+            min_max_scaling_net = MinMaxScalingNet(flow_features)
+            ae_net = AE(input_vector=min_max_scaling_net)
             resulting_building_block_net = ae_net
         else:
             resulting_building_block_net = None

@@ -99,9 +99,7 @@ class Recording2021(BaseRecording):
             print(traceback.format_exc())
             return None
         finally:
-            # os.remove(f'/work/user/ak059mreo/tmp/{self.name}.pcap')
             os.remove(f'tmp/{self.name}.pcap')
-        # return obj
 
     def resource_stats(self) -> list:
         """

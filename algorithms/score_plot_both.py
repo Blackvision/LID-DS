@@ -30,30 +30,30 @@ class ScorePlotBoth:
         """
         called in ids at beginning of each new recording:
             sets exploit time,
-            appends lists of indices of first datapackets of exploit/normal recordings
+            appends lists of indices of first datapacket windows of exploit/normal recordings
         """
         if recording.metadata()["exploit"] is True:
             self._first_window_of_exploit_recording_index_list.append(len(self._anomaly_scores_exploits))
-            self._exploit_time = recording.metadata()["time"]["exploit"][0]["absolute"]
-            self._first_datapacket_after_exploit = False
+            self._exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 9))
+            self._first_window_after_exploit = False
         else:
             self._first_window_of_normal_recording_index_list.append(len(self._anomaly_scores_no_exploits))
             self._exploit_time = None
 
-    def add_to_plot_data(self, score: float, time_window_start, cfa_indices: tuple):
+    def add_to_plot_data(self, score: float, time_window_end, cfa_indices: tuple):
         """
-        called in ids for every datapacket:
+        called in ids for every datapacket window:
             appends lists of anomaly scores,
-            appends datapacket indices of exploit starting points to list,
+            appends datapacket window indices of exploit starting points to list,
             saves cfa indices given in argument in member lists
         """
         # saving scores separately for plotting
         if self._exploit_time is not None:
             self._anomaly_scores_exploits.append(score)
-            datapacket_time = time_window_start
+            window_time = time_window_end
 
             # getting index of first syscall after exploit of each recording for plotting
-            if datapacket_time >= self._exploit_time and self._first_window_after_exploit is False:
+            if window_time >= self._exploit_time and self._first_window_after_exploit is False:
                 self._first_window_after_exploit_index_list.append(len(self._anomaly_scores_exploits))
                 self._first_window_after_exploit = True
 
@@ -120,9 +120,9 @@ class ScorePlotBoth:
 
         # setting labels
         ax1.set_ylabel("anomaly score")
-        ax1.set_xlabel("number of datapacket")
+        ax1.set_xlabel("number of datapacket windows")
         ax2.set_ylabel("anomaly score")
-        ax2.set_xlabel("number of datapacket")
+        ax2.set_xlabel("number of datapacket windows")
 
         ax1.set_title("normal activity")
         ax2.set_title("exploits")

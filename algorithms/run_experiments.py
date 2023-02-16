@@ -5,21 +5,21 @@ import os
 import time
 
 scenario_2021 = [
-    "Bruteforce_CWE-307",
-    "CVE-2012-2122",
+    # "Bruteforce_CWE-307",
+    # "CVE-2012-2122",
     "CVE-2014-0160",
-    "CVE-2017-12635_6",
-    "CVE-2017-7529",
-    "CVE-2018-3760",
-    "CVE-2019-5418",
-    "CVE-2020-13942",
-    "CVE-2020-23839",
-    "CVE-2020-9484",
-    "CWE-89-SQL-injection",
-    "EPS_CWE-434",
-    "Juice-Shop",
-    "PHP_CWE-434",
-    "ZipSlip",
+    # "CVE-2017-12635_6",
+    # "CVE-2017-7529",
+    # "CVE-2018-3760",
+    # "CVE-2019-5418",
+    # "CVE-2020-13942",
+    # "CVE-2020-23839",
+    # "CVE-2020-9484",
+    # "CWE-89-SQL-injection",
+    # "EPS_CWE-434",
+    # "Juice-Shop",
+    # "PHP_CWE-434",
+    # "ZipSlip",
     # "real_world/"
 ]
 SCENARIOS = scenario_2021
@@ -31,7 +31,7 @@ SCRIPT = 'run_on_sc.sh'
 MAX_JOBS_IN_QUEUE = 1000
 NUM_EXPERIMENTS = 0
 
-
+NGRAM_LENGTH = 5
 # NGRAM_LENGTHS = ["5", "7", "10", "13"]
 
 def count_queue():
@@ -65,7 +65,8 @@ for scenario in SCENARIOS:
               f"{SCRIPT} " + \
               f"{scenario} " + \
               f"{BASE_PATH} " + \
-              f"{RESULT_PATH} "
+              f"{RESULT_PATH} " + \
+              f"{NGRAM_LENGTH} "
     start_job(command)
 
 print(f"NUM_EXPERIMENTS = {NUM_EXPERIMENTS}")

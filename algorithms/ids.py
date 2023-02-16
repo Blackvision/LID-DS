@@ -366,7 +366,8 @@ class IDS:
                 i = i + 1
             if len(window) > 0:
                 percent_of_true = count_true / len(window)
-                if percent_of_true >= 0.9999:
+                # if percent_of_true >= 0.9999:
+                if percent_of_true >= 0.9:
                     anomaly_score = True
                 else:
                     anomaly_score = False

@@ -51,20 +51,6 @@ class Networkpacket(Datapacket):
         """
         raise NotImplemented
 
-    def highest_layer_protocol(self) -> str:
-        """
-        Returns:
-            str: highest layer protocol
-        """
-        raise NotImplemented
-
-    def layer_count(self) -> int:
-        """
-        Returns:
-            int: Number of layers in a network packet
-        """
-        raise NotImplemented
-
     def timestamp_datetime(self) -> int:
         """
         Returns:
@@ -90,27 +76,6 @@ class Networkpacket(Datapacket):
         """
         Returns:
             int: data length
-        """
-        raise NotImplemented
-
-    def transport_layer_checksum(self) -> str:
-        """
-        Returns:
-            string: transport layer checksum
-        """
-        raise NotImplemented
-
-    def transport_layer_checksum_status(self) -> str:
-        """
-        Returns:
-            string: transport layer checksum status
-        """
-        raise NotImplemented
-
-    def transport_layer_flags(self) -> str:
-        """
-        Returns:
-            string: transport layer flags
         """
         raise NotImplemented
 
@@ -153,5 +118,12 @@ class Networkpacket(Datapacket):
         """
         Returns:
             int: urg flag
+        """
+        raise NotImplemented
+
+    def protocol_stack(self) -> str:
+        """
+        Returns:
+            str: protocol stack
         """
         raise NotImplemented

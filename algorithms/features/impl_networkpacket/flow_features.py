@@ -43,18 +43,21 @@ class Length:
     def __init__(self):
         self._length = []
         self.length_max = 0
-        self.length_min = 99999
+        self.length_min = 0
         self.length_avg = 0
-        self.length_std = 0
+        # self.length_std = 0
 
     def update(self, networkpacket: Networkpacket):
+        if len(self._length) <= 0:
+            self.length_max = networkpacket.length()
+            self.length_min = networkpacket.length()
         self._length.append(networkpacket.length())
         if networkpacket.length() > self.length_max:
             self.length_max = networkpacket.length()
         if networkpacket.length() < self.length_min:
             self.length_min = networkpacket.length()
         self.length_avg = round(sum(self._length) / len(self._length), 4)
-        self.length_std = round(std(self._length), 4)
+        # self.length_std = round(std(self._length), 4)
 
 
 class DataBytes:
@@ -62,19 +65,22 @@ class DataBytes:
     def __init__(self):
         self._data_bytes = []
         self.data_bytes_max = 0
-        self.data_bytes_min = 99999999
+        self.data_bytes_min = 0
         self.data_bytes_avg = 0
-        self.data_bytes_std = 0
+        # self.data_bytes_std = 0
 
     def update(self, networkpacket: Networkpacket):
-        if networkpacket.data():
+        if networkpacket.data_length():
+            if len(self._data_bytes) <= 0:
+                self.data_bytes_max = networkpacket.data_length()
+                self.data_bytes_min = networkpacket.data_length()
             self._data_bytes.append(int(networkpacket.data_length()))
             if networkpacket.data_length() > self.data_bytes_max:
                 self.data_bytes_max = networkpacket.data_length()
             if networkpacket.data_length() < self.data_bytes_min:
                 self.data_bytes_min = networkpacket.data_length()
             self.data_bytes_avg = round(sum(self._data_bytes) / len(self._data_bytes), 4)
-            self.data_bytes_std = round(std(self._data_bytes), 4)
+            # self.data_bytes_std = round(std(self._data_bytes), 4)
 
 
 class PacketsBytesPerS:
@@ -102,13 +108,13 @@ class TimeBetweenPackets:
         self._last_packet_time_stamp = None
         self._time_between_packets = []
         self.avg_time_between_two_packets = 0
-        self.std_time_between_two_packets = 0
+        # self.std_time_between_two_packets = 0
 
     def update(self, networkpacket: Networkpacket):
         if self._last_packet_time_stamp:
             self._time_between_packets.append(networkpacket.timestamp_unix_in_ns() - self._last_packet_time_stamp)
             self.avg_time_between_two_packets = round(sum(self._time_between_packets) / len(self._time_between_packets))
-            self.std_time_between_two_packets = round(std(self._time_between_packets))
+            # self.std_time_between_two_packets = round(std(self._time_between_packets))
         self._last_packet_time_stamp = networkpacket.timestamp_unix_in_ns()
 
 class PercInternetLayer:
@@ -165,7 +171,7 @@ class ConnectionPackets:
     def __init__(self):
         self.max_num_of_con_same_host = 0
         self.avg_packets_in_con = 0
-        self.std_packets_in_con = 0
+        # self.std_packets_in_con = 0
 
     def update(self, connections):
         packets_in_connection = []
@@ -175,7 +181,7 @@ class ConnectionPackets:
                 self.max_num_of_con_same_host = len(connection.connection_packets)
         if packets_in_connection:
             self.avg_packets_in_con = round(sum(packets_in_connection) / len(packets_in_connection), 4)
-            self.std_packets_in_con = round(std(packets_in_connection), 4)
+            # self.std_packets_in_con = round(std(packets_in_connection), 4)
 
 
 class ConnectionsSameHost:
@@ -186,7 +192,7 @@ class ConnectionsSameHost:
         self.min_num_of_con_same_host = 9999
         self.max_num_of_con_same_host = 0
         self.avg_num_of_con_same_host = 0
-        self.std_num_of_con_same_host = 0
+        # self.std_num_of_con_same_host = 0
 
     def update(self, networkpacket: Networkpacket):
         if networkpacket.source_ip_address() == self._host_ip:
@@ -218,7 +224,7 @@ class ConnectionsSameHost:
             for number in self._num_of_con_same_host.values():
                 numbers.append(number)
             self.avg_num_of_con_same_host = round(sum(numbers) / len(numbers), 4)
-            self.std_num_of_con_same_host = round(std(numbers), 4)
+            # self.std_num_of_con_same_host = round(std(numbers), 4)
 
 
 class Connection:
@@ -310,27 +316,27 @@ class FlowFeatures(BuildingBlock):
         value.append(self.packets_bytes_per_s.bytes_per_s)
         value.append(self.packets_bytes_per_s.packets_per_s)
         value.append(self.time_between_packets.avg_time_between_two_packets)
-        value.append(self.time_between_packets.std_time_between_two_packets)
+        # value.append(self.time_between_packets.std_time_between_two_packets)
         value.append(self.length.length_min)
         value.append(self.length.length_max)
         value.append(self.length.length_avg)
-        value.append(self.length.length_std)
+        # value.append(self.length.length_std)
         value.append(self.length_udp.length_min)
         value.append(self.length_udp.length_max)
         value.append(self.length_udp.length_avg)
-        value.append(self.length_udp.length_std)
+        # value.append(self.length_udp.length_std)
         value.append(self.length_tcp.length_min)
         value.append(self.length_tcp.length_max)
         value.append(self.length_tcp.length_avg)
-        value.append(self.length_tcp.length_std)
+        # value.append(self.length_tcp.length_std)
         value.append(self.length_other.length_min)
         value.append(self.length_other.length_max)
         value.append(self.length_other.length_avg)
-        value.append(self.length_other.length_std)
+        # value.append(self.length_other.length_std)
         value.append(self.data_bytes.data_bytes_min)
         value.append(self.data_bytes.data_bytes_max)
         value.append(self.data_bytes.data_bytes_avg)
-        value.append(self.data_bytes.data_bytes_std)
+        # value.append(self.data_bytes.data_bytes_std)
         value.append(self.tcp_flag_count.fin_flag_perc)
         value.append(self.tcp_flag_count.syn_flag_perc)
         value.append(self.tcp_flag_count.rst_flag_perc)
@@ -345,11 +351,11 @@ class FlowFeatures(BuildingBlock):
         value.append(self.perc_transport_layer.other_packets_perc)
         value.append(self.connection_packets.max_num_of_con_same_host)
         value.append(self.connection_packets.avg_packets_in_con)
-        value.append(self.connection_packets.std_packets_in_con)
+        # value.append(self.connection_packets.std_packets_in_con)
         value.append(self.connections_same_host.min_num_of_con_same_host)
         value.append(self.connections_same_host.max_num_of_con_same_host)
         value.append(self.connections_same_host.avg_num_of_con_same_host)
-        value.append(self.connections_same_host.std_num_of_con_same_host)
+        # value.append(self.connections_same_host.std_num_of_con_same_host)
         value.append(networkpacket.timestamp_unix_in_ns() - self.init_time)
         # self.perc_highest_layer_protocol()
         # (Percentage of connections that were to same/different hosts/ip)

@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from algorithms.alarms import Alarms
 from dataloader.base_recording import BaseRecording
 
 
 class PerformanceBoth:
-    # TODO
 
     def __init__(self, create_alarms: bool = False):
         self._threshold = 0.0
@@ -35,11 +33,6 @@ class PerformanceBoth:
         self._last_datapacket_of_cfp_list_normal = []
         self._cfp_counter_wait_normal = False
 
-        if self.create_alarms:
-            self.alarms = Alarms()
-        else:
-            self.alarms = None
-
     def set_threshold(self, threshold: float):
         self._threshold = threshold
 
@@ -56,13 +49,8 @@ class PerformanceBoth:
                     self._fp += 1
                     self._current_cfp_stream_exploits += 1
                     self._cfp_start_exploits()
-                    # if self.create_alarms:
-                    #    self.alarms.add_or_update_alarm(datapacket, False)
-                # elif self._current_exploit_time < time_window_end:
-                elif self._current_exploit_time <= time_window_start:
+                elif self._current_exploit_time <= time_window_end:
                     self._cfp_end_exploits()
-                    # if self.create_alarms:
-                    #    self.alarms.add_or_update_alarm(datapacket, True)
                     if self._alarm is False:
                         self._tp += 1
                         self._alarm_count += 1
@@ -71,10 +59,8 @@ class PerformanceBoth:
                         self._tp += 1
 
             elif anomaly_score <= self._threshold:
-                if self.create_alarms:
-                    self.alarms.end_alarm()
                 self._cfp_end_exploits()
-                if self._current_exploit_time > time_window_end:
+                if self._current_exploit_time > time_window_start:
                     self._tn += 1
                 elif self._current_exploit_time <= time_window_start:
                     self._fn += 1
@@ -86,11 +72,7 @@ class PerformanceBoth:
                 self._fp += 1
                 self._current_cfp_stream_normal += 1
                 self._cfp_start_normal()
-                # if self.create_alarms:
-                #    self.alarms.add_or_update_alarm(datapacket, False)
             if anomaly_score <= self._threshold:
-                if self.create_alarms:
-                    self.alarms.end_alarm()
                 self._cfp_end_normal()
                 self._tn += 1
 
@@ -103,8 +85,7 @@ class PerformanceBoth:
             self._alarm = False
 
         if recording.metadata()["exploit"] is True:
-            self._current_exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 6)) * (
-                        10 ** 3)
+            self._current_exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 9))
             self._exploit_count += 1
         else:
             self._current_exploit_time = None
@@ -112,10 +93,6 @@ class PerformanceBoth:
         # ending cfa before new recording starts
         self._cfp_end_exploits()
         self._cfp_end_normal()
-
-        # ending alarm
-        if self.create_alarms:
-            self.alarms.end_alarm()
 
     def _cfp_start_exploits(self):
         """

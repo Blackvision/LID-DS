@@ -35,7 +35,7 @@ class ScorePlot:
         """
         if recording.metadata()["exploit"] is True:
             self._first_datapacket_of_exploit_recording_index_list.append(len(self._anomaly_scores_exploits))
-            self._exploit_time = recording.metadata()["time"]["exploit"][0]["absolute"]
+            self._exploit_time = int(recording.metadata()["time"]["exploit"][0]["absolute"] * (10 ** 9))
             self._first_datapacket_after_exploit = False
         else:
             self._first_datapacket_of_normal_recording_index_list.append(len(self._anomaly_scores_no_exploits))
@@ -51,7 +51,7 @@ class ScorePlot:
         # saving scores separately for plotting
         if self._exploit_time is not None:
             self._anomaly_scores_exploits.append(score)
-            datapacket_time = datapacket.timestamp_unix_in_ns() * (10 ** (-9))
+            datapacket_time = datapacket.timestamp_unix_in_ns()
 
             # getting index of first syscall after exploit of each recording for plotting
             if datapacket_time >= self._exploit_time and self._first_datapacket_after_exploit is False:
