@@ -3,6 +3,7 @@ import os
 import time
 from pprint import pprint
 
+from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
@@ -75,9 +76,9 @@ def main():
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys
                               )
-            stide = Stide(ngram_sys)
-            # ae_sys = AE(input_vector=ngram_sys)
-            resulting_building_block_sys = stide
+            # stide = Stide(ngram_sys)
+            ae_sys = AE(input_vector=ngram_sys)
+            resulting_building_block_sys = ae_sys
         else:
             resulting_building_block_sys = None
 

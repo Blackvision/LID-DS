@@ -86,9 +86,6 @@ class Recording2021(BaseRecording):
                 for file in file_list:
                     if file.endswith('.pcap'):
                         zipped.extract(file, 'tmp')
-                        # zipped.extract(file, '/work/user/ak059mreo/tmp')
-
-                # obj = pcapkit.extract(fin=f'/work/user/ak059mreo/tmp/{self.name}.pcap',
                 obj = pcapkit.extract(fin=f'tmp/{self.name}.pcap',
                                       engine='pyshark',
                                       store=True,

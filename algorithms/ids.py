@@ -224,14 +224,9 @@ class IDS:
                 for anomaly_score_window in list_anomaly_scores:
                     self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1],
                                                         anomaly_score_window[2])
-                    # TODO
-                    # anomaly_score[0], anomaly_score[1], anomaly_score[2]
-                    # time_window_start, time_window_end, anomaly_score
                     if self.plot is not None:
                         self.plot.add_to_plot_data(anomaly_score_window[2], anomaly_score_window[0],
                                                    self.performance.get_cfp_indices())
-            if self.performance.alarms is not None:
-                self.performance.alarms.end_alarm()
         return self.performance
 
     def _detect_both_or_and(self):
@@ -267,18 +262,14 @@ class IDS:
                 for anomaly_score_window in list_anomaly_scores:
                     self.performance.analyze_datapacket(anomaly_score_window[0], anomaly_score_window[1],
                                                         anomaly_score_window[2])
-                    # TODO
-                    # anomaly_score[0], anomaly_score[1], anomaly_score[2]
-                    # time_window_start, time_window_end, anomaly_score
                     if anomaly_score_window[2]:
                         anomaly_score = 1.5
                     else:
                         anomaly_score = 0.5
                     if self.plot is not None:
-                        self.plot.add_to_plot_data(anomaly_score, anomaly_score_window[0],
+                        self.plot.add_to_plot_data(anomaly_score, anomaly_score_window[1],
                                                    self.performance.get_cfp_indices())
-            if self.performance.alarms is not None:
-                self.performance.alarms.end_alarm()
+        return self.performance
 
     def _set_host_ip(self, recording, bb_net):
         for bb in bb_net.depends_on():
