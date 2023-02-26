@@ -7,6 +7,7 @@ import traceback
 from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
+from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
@@ -24,7 +25,7 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     lid_ds_base_path = args_base_path
     result_path = args_result_path
     datapacket_mode = DatapacketMode.SYSCALL
-    direction = Direction.OPEN
+    direction = Direction.BOTH
 
     # Syscall:
     ngram_length_sys = int(args_ngram_length)
@@ -41,8 +42,8 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
         ngram_sys = Ngram(feature_list=[ohe_sys],
                           thread_aware=thread_aware_sys,
                           ngram_length=ngram_length_sys)
-        # stide = Stide(ngram_sys)
-        ae_sys = AE(input_vector=ngram_sys)
+        # stide = Stide(input=ngram_sys, window_length=1000)
+        ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
         resulting_building_block_sys = ae_sys
     else:
         resulting_building_block_sys = None

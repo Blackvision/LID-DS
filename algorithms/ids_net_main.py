@@ -21,8 +21,8 @@ def main():
     result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     plot_path = "/plots/"
     datapacket_mode = DatapacketMode.NETWORKPACKET
-    direction = Direction.OPEN
-    draw_plot = True
+    direction = Direction.BOTH
+    draw_plot = False
 
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [
@@ -64,7 +64,7 @@ def main():
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
             flowFeatures = FlowFeatures()
             minMaxScalingNet = MinMaxScalingNet(flowFeatures)
-            ae_net = AE(input_vector=minMaxScalingNet)
+            ae_net = AE(input_vector=minMaxScalingNet, max_training_time=14400)
             resulting_building_block_net = ae_net
         else:
             resulting_building_block_net = None

@@ -24,11 +24,11 @@ def main():
     result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     plot_path = "/plots/"
     datapacket_mode = DatapacketMode.SYSCALL
-    direction = Direction.OPEN
-    draw_plot = True
+    direction = Direction.BOTH
+    draw_plot = False
 
     # Syscall:
-    ngram_length_sys = 7  # 5, 7, 10, 13
+    ngram_length_sys = 5  # 5, 7, 10, 13
     thread_aware_sys = True
 
     # LID-DS dataset, choose from 0 - 2:
@@ -71,14 +71,14 @@ def main():
         if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
             syscallname = SyscallName()
             int_encoding_sys = IntEmbedding(syscallname)
-            ohe_sys = OneHotEncoding(int_encoding_sys)
-            ngram_sys = Ngram(feature_list=[ohe_sys],
+            # ohe_sys = OneHotEncoding(int_encoding_sys)
+            ngram_sys = Ngram(feature_list=[int_encoding_sys],
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys
                               )
-            # stide = Stide(ngram_sys)
-            ae_sys = AE(input_vector=ngram_sys)
-            resulting_building_block_sys = ae_sys
+            stide = Stide(input=ngram_sys, window_length=1000)
+            # ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
+            resulting_building_block_sys = stide
         else:
             resulting_building_block_sys = None
 

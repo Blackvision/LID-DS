@@ -7,6 +7,7 @@ import traceback
 from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
+from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
@@ -26,7 +27,7 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     lid_ds_base_path = args_base_path
     result_path = args_result_path
     datapacket_mode = DatapacketMode.BOTH
-    direction = Direction.OPEN
+    direction = Direction.BOTH
     draw_plot = False
     time_window = 100000000  # 1000000000, 5000000000
     time_window_steps = 50000000  # 500000000, 1000000000
@@ -45,8 +46,8 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
         ngram_sys = Ngram(feature_list=[ohe_sys],
                           thread_aware=thread_aware_sys,
                           ngram_length=ngram_length_sys)
-        # stide = Stide(ngram_sys)
-        ae_sys = AE(input_vector=ngram_sys)
+        # stide = Stide(input=ngram_sys, window_length=1000)
+        ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
         resulting_building_block_sys = ae_sys
     else:
         resulting_building_block_sys = None
@@ -55,7 +56,7 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
         flow_features = FlowFeatures()
         min_max_scaling_net = MinMaxScalingNet(flow_features)
-        ae_net = AE(input_vector=min_max_scaling_net)
+        ae_net = AE(input_vector=min_max_scaling_net, max_training_time=14400)
         resulting_building_block_net = ae_net
     else:
         resulting_building_block_net = None

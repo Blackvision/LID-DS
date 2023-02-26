@@ -25,8 +25,8 @@ def main():
     result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     plot_path = "/plots/"
     datapacket_mode = DatapacketMode.BOTH
-    direction = Direction.OPEN
-    draw_plot = True
+    direction = Direction.BOTH
+    draw_plot = False
     time_window = 100000000  # 1000000000, 5000000000
     time_window_steps = 50000000  # 500000000, 1000000000
 
@@ -78,7 +78,8 @@ def main():
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys
                               )
-            ae_sys = AE(input_vector=ngram_sys)
+            # stide = Stide(input=ngram_sys, window_length=1000)
+            ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
             resulting_building_block_sys = ae_sys
         else:
             resulting_building_block_sys = None
@@ -87,7 +88,7 @@ def main():
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
             flow_features = FlowFeatures()
             min_max_scaling_net = MinMaxScalingNet(flow_features)
-            ae_net = AE(input_vector=min_max_scaling_net)
+            ae_net = AE(input_vector=min_max_scaling_net, max_training_time=14400)
             resulting_building_block_net = ae_net
         else:
             resulting_building_block_net = None
