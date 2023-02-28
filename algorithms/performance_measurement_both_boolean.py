@@ -6,7 +6,7 @@ from dataloader.base_recording import BaseRecording
 class PerformanceBothBoolean:
 
     def __init__(self, create_alarms: bool = False):
-        self._threshold = True
+        self._threshold = 0.5
         self._current_exploit_time = None
         self._exploit_count = 0
         self._alarm = False
@@ -34,7 +34,7 @@ class PerformanceBothBoolean:
         self._cfp_counter_wait_normal = False
 
     def set_threshold(self):
-        self._threshold = True
+        self._threshold = 0.5
 
     def analyze_datapacket(self, time_window_start, time_window_end, anomaly_score: bool):
         """

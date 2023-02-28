@@ -3,6 +3,9 @@ import os
 import time
 from pprint import pprint
 
+from algorithms.combination_units.boolean_operation import BooleanOperation
+from algorithms.combination_units.boolean_operation_datapacket_trigger import BooleanOperationDatapacketTrigger
+from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
@@ -93,14 +96,26 @@ def main():
         else:
             resulting_building_block_net = None
 
+        # config combination unit
+        if datapacket_mode == DatapacketMode.BOTH:
+            combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
+                                                          time_window=time_window,
+                                                          time_window_steps=time_window_steps,
+                                                          scenario_path=dataloader.scenario_path,
+                                                          plot_switch=draw_plot)
+            # combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.OR,
+            #                                                      scenario_path=dataloader.scenario_path,
+            #                                                      plot_switch=draw_plot)
+        else:
+            combination_unit = None
+
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=resulting_building_block_sys,
                   resulting_building_block_net=resulting_building_block_net,
+                  combination_unit=combination_unit,
                   create_alarms=False,
                   plot_switch=draw_plot,
-                  datapacket_mode=datapacket_mode,
-                  time_window=time_window,
-                  time_window_steps=time_window_steps)
+                  datapacket_mode=datapacket_mode)
 
         # threshold
         print("Determine threshold:")
