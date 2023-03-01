@@ -33,9 +33,6 @@ class PerformanceBothBoolean:
         self._last_datapacket_of_cfp_list_normal = []
         self._cfp_counter_wait_normal = False
 
-    def set_threshold(self):
-        self._threshold = 0.5
-
     def analyze_datapacket(self, time_window_start, time_window_end, anomaly_score: bool):
         """
         counts performance values with syscall and anomaly score as input,

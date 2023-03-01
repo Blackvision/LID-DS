@@ -1,10 +1,7 @@
 import argparse
-import datetime
 import logging
-import os
 import time
 import traceback
-from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
@@ -43,19 +40,22 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
                           thread_aware=thread_aware_sys,
                           ngram_length=ngram_length_sys)
         # stide = Stide(input=ngram_sys, window_length=1000)
-        ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
+        ae_sys = AE(input_vector=ngram_sys, max_training_time=172800)
         resulting_building_block_sys = ae_sys
     else:
         resulting_building_block_sys = None
 
+    combination_unit = None
+
     ids = IDS(data_loader=dataloader,
               resulting_building_block_sys=resulting_building_block_sys,
               resulting_building_block_net=resulting_building_block_net,
+              combination_unit=combination_unit,
               create_alarms=False,
               plot_switch=False,
               datapacket_mode=datapacket_mode,
-              time_window=None,
-              time_window_steps=None)
+              scenario=scenario)
+
     # threshold
     print("Determine threshold:")
     ids.determine_threshold()
@@ -68,23 +68,9 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     detection_time = (end - start) / 60  # in min
     print("Detection time: " + str(detection_time))
 
-    # write results
-    date_today = str(datetime.date.today())
-    if not os.path.exists(result_path + date_today):
-        os.makedirs(result_path + date_today)
-    filename = scenario + "_" + date_today + ".txt"
-    f = open(result_path + date_today + "/" + filename, "a")
-    f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
-    f.write("ngram length: " + str(ngram_length_sys) + "\n")
-    results = ids.performance.get_results()
-    for k in sorted(results.keys()):
-        f.write("'%s':'%s', \n" % (k, results[k]))
-    f.write("\n\n")
-    f.close()
-
-    # print results
-    print(f"Results for scenario: {scenario}")
-    pprint(results)
+    # save and print results
+    ids.save_results(result_path)
+    ids.print_results()
 
 
 if __name__ == '__main__':

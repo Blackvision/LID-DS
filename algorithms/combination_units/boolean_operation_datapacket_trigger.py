@@ -13,11 +13,20 @@ class BooleanOperationDatapacketTrigger(CombinationUnit):
         self._performance = PerformanceBothBoolean()
         if plot_switch is True:
             self._plot = ScorePlotBoth(scenario_path)
+            self._plot.threshold = 0.5
         else:
             self._plot = None
 
+    def get_performance(self):
+        return self._performance
+
+    def get_plot(self):
+        return self._plot
+
     def new_recording(self, recording):
         self._performance.new_recording(recording)
+        if self._plot is not None:
+            self._plot.new_recording(recording)
 
     def detect(self, list_anomaly_scores_sys, list_anomaly_scores_net):
         if list_anomaly_scores_sys or list_anomaly_scores_net:
@@ -29,9 +38,9 @@ class BooleanOperationDatapacketTrigger(CombinationUnit):
                                                      anomaly_score_window[2])
                 if self._plot is not None:
                     if anomaly_score_window[2]:
-                        anomaly_score = 1
+                        anomaly_score = 1.0
                     else:
-                        anomaly_score = 0
+                        anomaly_score = 0.0
                     self._plot.add_to_plot_data(anomaly_score,
                                                 anomaly_score_window[1],
                                                 self._performance.get_cfp_indices())

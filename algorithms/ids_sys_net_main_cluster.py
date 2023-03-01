@@ -6,6 +6,8 @@ import time
 import traceback
 from pprint import pprint
 
+from algorithms.combination_units.boolean_operation import BooleanOperation
+from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
@@ -42,13 +44,13 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
         syscallname = SyscallName()
         int_encoding_sys = IntEmbedding(syscallname)
-        ohe_sys = OneHotEncoding(int_encoding_sys)
-        ngram_sys = Ngram(feature_list=[ohe_sys],
+        # ohe_sys = OneHotEncoding(int_encoding_sys)
+        ngram_sys = Ngram(feature_list=[int_encoding_sys],
                           thread_aware=thread_aware_sys,
                           ngram_length=ngram_length_sys)
-        # stide = Stide(input=ngram_sys, window_length=1000)
-        ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
-        resulting_building_block_sys = ae_sys
+        stide = Stide(input=ngram_sys, window_length=1000)
+        # ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
+        resulting_building_block_sys = stide
     else:
         resulting_building_block_sys = None
 
@@ -61,14 +63,27 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     else:
         resulting_building_block_net = None
 
+    # config combination unit
+    if datapacket_mode == DatapacketMode.BOTH:
+        combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
+                                                      time_window=time_window,
+                                                      time_window_steps=time_window_steps,
+                                                      scenario_path=dataloader.scenario_path,
+                                                      plot_switch=draw_plot)
+        # combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.OR,
+        #                                                      scenario_path=dataloader.scenario_path,
+        #                                                      plot_switch=draw_plot)
+    else:
+        combination_unit = None
+
     ids = IDS(data_loader=dataloader,
               resulting_building_block_sys=resulting_building_block_sys,
               resulting_building_block_net=resulting_building_block_net,
+              combination_unit=combination_unit,
               create_alarms=False,
               plot_switch=draw_plot,
               datapacket_mode=datapacket_mode,
-              time_window=time_window,
-              time_window_steps=time_window_steps)
+              scenario=scenario)
 
     # threshold
     print("Determine threshold:")
@@ -82,23 +97,9 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     detection_time = (end - start) / 60  # in min
     print("Detection time: " + str(detection_time))
 
-    # write results
-    date_today = str(datetime.date.today())
-    if not os.path.exists(result_path + date_today):
-        os.makedirs(result_path + date_today)
-    filename = scenario + "_" + date_today + ".txt"
-    f = open(result_path + date_today + "/" + filename, "a")
-    f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
-    f.write("ngram length: " + str(ngram_length_sys) + "\n")
-    results = ids.performance.get_results()
-    for k in sorted(results.keys()):
-        f.write("'%s':'%s', \n" % (k, results[k]))
-    f.write("\n\n")
-    f.close()
-
-    # print results
-    print(f"Results for scenario: {scenario}")
-    pprint(results)
+    # save and print results
+    ids.save_results(result_path)
+    ids.print_results()
 
 
 if __name__ == '__main__':

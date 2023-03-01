@@ -17,11 +17,20 @@ class BooleanOperationTimeWindow(CombinationUnit):
         self._time_window_steps = time_window_steps
         if plot_switch is True:
             self._plot = ScorePlotBoth(scenario_path)
+            self._plot.threshold = 0.5
         else:
             self._plot = None
 
+    def get_performance(self):
+        return self._performance
+
+    def get_plot(self):
+        return self._plot
+
     def new_recording(self, recording):
         self._performance.new_recording(recording)
+        if self._plot is not None:
+            self._plot.new_recording(recording)
 
     def detect(self, list_anomaly_scores_sys, list_anomaly_scores_net):
         if list_anomaly_scores_sys or list_anomaly_scores_net:
@@ -33,9 +42,9 @@ class BooleanOperationTimeWindow(CombinationUnit):
                                                      anomaly_score_window[2])
                 if self._plot is not None:
                     if anomaly_score_window[2]:
-                        anomaly_score = 1
+                        anomaly_score = 1.0
                     else:
-                        anomaly_score = 0
+                        anomaly_score = 0.0
                     self._plot.add_to_plot_data(anomaly_score,
                                                 anomaly_score_window[1],
                                                 self._performance.get_cfp_indices())
@@ -58,9 +67,15 @@ class BooleanOperationTimeWindow(CombinationUnit):
                 window_length += 1
             if window_length > 0:
                 if self._boolean_operation == BooleanOperation.AND:
-                    anomaly_score = self._boolean_and(count_true, window_length)
+                    if count_true == window_length:
+                        anomaly_score = True
+                    else:
+                        anomaly_score = False
                 elif self._boolean_operation == BooleanOperation.OR:
-                    anomaly_score = self._boolean_or(count_true)
+                    if count_true > 0:
+                        anomaly_score = True
+                    else:
+                        anomaly_score = False
                 else:
                     anomaly_score = None
                 list_anomaly_scores.append((start_time_window, end_time_window, anomaly_score))

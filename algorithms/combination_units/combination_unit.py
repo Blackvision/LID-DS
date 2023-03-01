@@ -15,24 +15,24 @@ class CombinationUnit:
         """
         raise NotImplementedError("each combination unit has to implement new_recording")
 
+    def get_performance(self):
+        """
+        return the performance (sys and net)
+        """
+        raise NotImplementedError("each combination unit has to implement get_performance")
+
+    def get_plot(self):
+        """
+        return the plot (sys and net)
+        """
+        raise NotImplementedError("each combination unit has to implement get_plot")
+
     def _merge_anomaly_score_lists(self, list_sys, list_net):
         merged_list = []
         merged_list.extend(list_sys)
         merged_list.extend(list_net)
         merged_list.sort(key=lambda elem: elem[1])
         return merged_list
-
-    def _boolean_and(self, count_true, count_all):
-        if count_true == count_all:
-            return True
-        else:
-            return False
-
-    def _boolean_or(self, count_true):
-        if count_true > 0:
-            return True
-        else:
-            return False
 
     def _boolean_percent(self, count_true, count_all):
         percent_of_true = count_true / count_all

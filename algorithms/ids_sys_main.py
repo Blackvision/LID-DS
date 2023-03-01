@@ -1,7 +1,5 @@
-import datetime
 import os
 import time
-from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
@@ -22,10 +20,9 @@ def main():
     lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
     # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
     result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
-    plot_path = "/plots/"
     datapacket_mode = DatapacketMode.SYSCALL
     direction = Direction.BOTH
-    draw_plot = False
+    draw_plot = True
 
     # Syscall:
     ngram_length_sys = 5  # 5, 7, 10, 13
@@ -82,14 +79,16 @@ def main():
         else:
             resulting_building_block_sys = None
 
+        combination_unit = None
+
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=resulting_building_block_sys,
                   resulting_building_block_net=resulting_building_block_net,
+                  combination_unit=combination_unit,
                   create_alarms=False,
                   plot_switch=draw_plot,
                   datapacket_mode=datapacket_mode,
-                  time_window=None,
-                  time_window_steps=None)
+                  scenario=scenario_range[scenario_number])
 
         # threshold
         print("Determine threshold:")
@@ -103,28 +102,12 @@ def main():
         detection_time = (end - start) / 60  # in min
         print("Detection time: " + str(detection_time))
 
-        # write results
-        date_today = str(datetime.date.today())
-        if not os.path.exists(result_path + date_today):
-            os.makedirs(result_path + date_today)
-        filename = scenario_range[scenario_number] + "_" + date_today + ".txt"
-        f = open(result_path + date_today + "/" + filename, "a")
-        f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
-        results = ids.performance.get_results()
-        for k in sorted(results.keys()):
-            f.write("'%s':'%s', \n" % (k, results[k]))
-        f.write("\n\n")
-        f.close()
+        # save and print results
+        ids.save_results(result_path)
+        ids.print_results()
 
-        # print results
-        print(f"Results for scenario: {scenario_range[scenario_number]}")
-        pprint(results)
-
-        if draw_plot:
-            if not os.path.exists(result_path + date_today + plot_path):
-                os.makedirs(result_path + date_today + plot_path)
-            filename = scenario_range[scenario_number] + "_" + date_today + "_sys_plot"
-            ids.save_plot(result_path + date_today + plot_path + filename)
+        # save plot
+        ids.save_plot(result_path)
 
 
 if __name__ == '__main__':

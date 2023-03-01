@@ -36,14 +36,17 @@ def main(args_scenario, args_base_path, args_result_path):
     else:
         resulting_building_block_net = None
 
+    combination_unit = None
+
     ids = IDS(data_loader=dataloader,
               resulting_building_block_sys=resulting_building_block_sys,
               resulting_building_block_net=resulting_building_block_net,
+              combination_unit=combination_unit,
               create_alarms=False,
               plot_switch=False,
               datapacket_mode=datapacket_mode,
-              time_window=None,
-              time_window_steps=None)
+              scenario=scenario)
+
     # threshold
     print("Determine threshold:")
     ids.determine_threshold()
@@ -56,22 +59,9 @@ def main(args_scenario, args_base_path, args_result_path):
     detection_time = (end - start) / 60  # in min
     print("Detection time: " + str(detection_time))
 
-    # write results
-    date_today = str(datetime.date.today())
-    if not os.path.exists(result_path + date_today):
-        os.makedirs(result_path + date_today)
-    filename = scenario + "_" + date_today + ".txt"
-    f = open(result_path + date_today + "/" + filename, "a")
-    f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
-    results = ids.performance.get_results()
-    for k in sorted(results.keys()):
-        f.write("'%s':'%s', \n" % (k, results[k]))
-    f.write("\n\n")
-    f.close()
-
-    # print results
-    print(f"Results for scenario: {scenario}")
-    pprint(results)
+    # save and print results
+    ids.save_results(result_path)
+    ids.print_results()
 
 
 if __name__ == '__main__':

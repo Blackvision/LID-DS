@@ -1,12 +1,11 @@
-import datetime
 import os
 import time
-from pprint import pprint
 
 from algorithms.combination_units.boolean_operation import BooleanOperation
 from algorithms.combination_units.boolean_operation_datapacket_trigger import BooleanOperationDatapacketTrigger
 from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
+from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
@@ -26,10 +25,9 @@ def main():
     lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
     # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
     result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
-    plot_path = "/plots/"
     datapacket_mode = DatapacketMode.BOTH
     direction = Direction.BOTH
-    draw_plot = False
+    draw_plot = True
     time_window = 100000000  # 1000000000, 5000000000
     time_window_steps = 50000000  # 500000000, 1000000000
 
@@ -76,14 +74,14 @@ def main():
         if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
             syscallname = SyscallName()
             int_encoding_sys = IntEmbedding(syscallname)
-            ohe_sys = OneHotEncoding(int_encoding_sys)
-            ngram_sys = Ngram(feature_list=[ohe_sys],
+            # ohe_sys = OneHotEncoding(int_encoding_sys)
+            ngram_sys = Ngram(feature_list=[int_encoding_sys],
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys
                               )
-            # stide = Stide(input=ngram_sys, window_length=1000)
-            ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
-            resulting_building_block_sys = ae_sys
+            stide = Stide(input=ngram_sys, window_length=1000)
+            # ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
+            resulting_building_block_sys = stide
         else:
             resulting_building_block_sys = None
 
@@ -98,14 +96,14 @@ def main():
 
         # config combination unit
         if datapacket_mode == DatapacketMode.BOTH:
-            combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
-                                                          time_window=time_window,
-                                                          time_window_steps=time_window_steps,
-                                                          scenario_path=dataloader.scenario_path,
-                                                          plot_switch=draw_plot)
-            # combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.OR,
-            #                                                      scenario_path=dataloader.scenario_path,
-            #                                                      plot_switch=draw_plot)
+            # combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
+            #                                               time_window=time_window,
+            #                                               time_window_steps=time_window_steps,
+            #                                               scenario_path=dataloader.scenario_path,
+            #                                               plot_switch=draw_plot)
+            combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.OR,
+                                                                 scenario_path=dataloader.scenario_path,
+                                                                 plot_switch=draw_plot)
         else:
             combination_unit = None
 
@@ -115,7 +113,8 @@ def main():
                   combination_unit=combination_unit,
                   create_alarms=False,
                   plot_switch=draw_plot,
-                  datapacket_mode=datapacket_mode)
+                  datapacket_mode=datapacket_mode,
+                  scenario=scenario_range[scenario_number])
 
         # threshold
         print("Determine threshold:")
@@ -129,28 +128,12 @@ def main():
         detection_time = (end - start) / 60  # in min
         print("Detection time: " + str(detection_time))
 
-        # write results
-        date_today = str(datetime.date.today())
-        if not os.path.exists(result_path + date_today):
-            os.makedirs(result_path + date_today)
-        filename = scenario_range[scenario_number] + "_" + date_today + ".txt"
-        f = open(result_path + date_today + "/" + filename, "a")
-        f.write(str(datetime.datetime.now()) + " - " + str(datapacket_mode.value) + "\n")
-        results = ids.performance.get_results()
-        for k in sorted(results.keys()):
-            f.write("'%s':'%s', \n" % (k, results[k]))
-        f.write("\n\n")
-        f.close()
+        # save and print results
+        ids.save_results(result_path)
+        ids.print_results()
 
-        # print results
-        print(f"Results for scenario: {scenario_range[scenario_number]}")
-        pprint(results)
-
-        if draw_plot:
-            if not os.path.exists(result_path + date_today + plot_path):
-                os.makedirs(result_path + date_today + plot_path)
-            filename = scenario_range[scenario_number] + "_" + date_today + "_sys_net_plot"
-            ids.save_plot(result_path + date_today + plot_path + filename)
+        # save plot
+        ids.save_plot(result_path)
 
 
 if __name__ == '__main__':
