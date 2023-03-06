@@ -21,6 +21,5 @@ pip install --user -r ../requirements.txt
 # python ids_sys_main_cluster.py -s $1 -b $2 -r $3 -n $4
 # python ids_net_main_cluster.py -s $1 -b $2 -r $3
 python ids_net_main_cluster_2.py -s $1 -b $2 -r $3
-# python ids_net_featureset_main_cluster.py -s $1 -b $2 -r $3 -n $4
 # python ids_sys_net_main_cluster.py -s $1 -b $2 -r $3 -n $4
 # python  -m cProfile -o stats_ids_sys_net.prof ids_sys_net_main_cluster.py -s $1 -b $2 -r $3 -n $4
