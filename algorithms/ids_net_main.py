@@ -15,13 +15,13 @@ from dataloader.direction import Direction
 def main():
     ### feature config:
     # general
-    # lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
-    lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
-    # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
-    result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
+    lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
+    # lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
+    result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
+    # result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     datapacket_mode = DatapacketMode.NETWORKPACKET
     direction = Direction.BOTH
-    draw_plot = True
+    draw_plot = False
 
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [

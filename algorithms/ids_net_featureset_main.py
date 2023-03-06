@@ -1,12 +1,14 @@
+import datetime
 import os
 import time
+from pprint import pprint
 
 from algorithms.decision_engines.ae import AE
-from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl_syscall.int_embedding import IntEmbedding
-from algorithms.features.impl_syscall.ngram import Ngram
-from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
-from algorithms.features.impl_syscall.syscall_name import SyscallName
+from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
+from algorithms.features.impl_networkpacket.flow_features_one import FlowFeaturesOne
+from algorithms.features.impl_networkpacket.flow_features_three import FlowFeaturesThree
+from algorithms.features.impl_networkpacket.flow_features_two import FlowFeaturesTwo
+from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
@@ -20,13 +22,10 @@ def main():
     # lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
     result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
     # result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
-    datapacket_mode = DatapacketMode.SYSCALL
+    datapacket_mode = DatapacketMode.NETWORKPACKET
     direction = Direction.BOTH
-    draw_plot = True
-
-    # Syscall:
-    ngram_length_sys = 5  # 5, 7, 10, 13
-    thread_aware_sys = True
+    draw_plot = False
+    feature_set =int("1")
 
     # LID-DS dataset, choose from 0 - 2:
     lid_ds_version = [
@@ -62,22 +61,25 @@ def main():
                                      scenario_range[scenario_number])
 
         dataloader = dataloader_factory(scenario_path, direction=direction)
-        resulting_building_block_net = None
+        resulting_building_block_sys = None
 
-        # features syscalls
-        if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
-            syscallname = SyscallName()
-            int_encoding_sys = IntEmbedding(syscallname)
-            # ohe_sys = OneHotEncoding(int_encoding_sys)
-            ngram_sys = Ngram(feature_list=[int_encoding_sys],
-                              thread_aware=thread_aware_sys,
-                              ngram_length=ngram_length_sys
-                              )
-            stide = Stide(input=ngram_sys, window_length=1000)
-            # ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
-            resulting_building_block_sys = stide
+        # features networkpackets
+        if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
+            if feature_set == 0:
+                flowFeatures = FlowFeatures()
+            elif feature_set == 1:
+                flowFeatures = FlowFeaturesOne()
+            elif feature_set == 2:
+                flowFeatures = FlowFeaturesTwo()
+            elif feature_set == 3:
+                flowFeatures = FlowFeaturesThree()
+            else:
+                flowFeatures = None
+            minMaxScalingNet = MinMaxScalingNet(flowFeatures)
+            ae_net = AE(input_vector=minMaxScalingNet, max_training_time=14400)
+            resulting_building_block_net = ae_net
         else:
-            resulting_building_block_sys = None
+            resulting_building_block_net = None
 
         combination_unit = None
 

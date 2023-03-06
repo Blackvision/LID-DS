@@ -5,6 +5,9 @@ from tqdm import tqdm
 from algorithms.building_block import BuildingBlock
 from algorithms.building_block_manager import BuildingBlockManager
 from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
+from algorithms.features.impl_networkpacket.flow_features_one import FlowFeaturesOne
+from algorithms.features.impl_networkpacket.flow_features_three import FlowFeaturesThree
+from algorithms.features.impl_networkpacket.flow_features_two import FlowFeaturesTwo
 from dataloader.base_data_loader import BaseDataLoader
 from dataloader.datapacket_mode import DatapacketMode
 
@@ -110,7 +113,10 @@ class DataPreprocessor:
                     elif datapacket_mode == DatapacketMode.NETWORKPACKET:
                         datapackets = recording.packets()
                         for building_block in building_block_manager.building_block_generations:
-                            if isinstance(building_block[0], FlowFeatures):
+                            if (isinstance(building_block[0], FlowFeatures) or
+                                    isinstance(building_block[0], FlowFeaturesOne) or
+                                    isinstance(building_block[0], FlowFeaturesTwo) or
+                                    isinstance(building_block[0], FlowFeaturesThree)):
                                 for entry in recording.metadata()["container"]:
                                     if entry["role"] == "victim":
                                         building_block[0].set_host_ip(entry["ip"])
@@ -145,7 +151,10 @@ class DataPreprocessor:
                     elif datapacket_mode == DatapacketMode.NETWORKPACKET:
                         datapackets = recording.packets()
                         for building_block in building_block_manager.building_block_generations:
-                            if isinstance(building_block[0], FlowFeatures):
+                            if (isinstance(building_block[0], FlowFeatures) or
+                                    isinstance(building_block[0], FlowFeaturesOne) or
+                                    isinstance(building_block[0], FlowFeaturesTwo) or
+                                    isinstance(building_block[0], FlowFeaturesThree)):
                                 for entry in recording.metadata()["container"]:
                                     if entry["role"] == "victim":
                                         building_block[0].set_host_ip(entry["ip"])
