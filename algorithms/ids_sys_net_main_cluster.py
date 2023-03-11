@@ -1,20 +1,18 @@
 import argparse
-import datetime
 import logging
-import os
 import time
 import traceback
-from pprint import pprint
+
+import torch
 
 from algorithms.combination_units.boolean_operation import BooleanOperation
 from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
+from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
-from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -22,7 +20,7 @@ from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
 
-def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
+def main(args_scenario, args_base_path, args_result_path):
     ### feature config:
     # general
     scenario = args_scenario
@@ -35,7 +33,7 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     time_window_steps = 50000000  # 500000000, 1000000000
 
     # Syscall:
-    ngram_length_sys = int(args_ngram_length)
+    ngram_length_sys = 5
     thread_aware_sys = True
 
     dataloader = dataloader_factory(lid_ds_base_path + scenario, direction=direction)
@@ -49,14 +47,14 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
                           thread_aware=thread_aware_sys,
                           ngram_length=ngram_length_sys)
         stide = Stide(input=ngram_sys, window_length=1000)
-        # ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
+        # ae_sys = AE(input_vector=ngram_sys, max_training_time=172800)
         resulting_building_block_sys = stide
     else:
         resulting_building_block_sys = None
 
     # features networkpackets
     if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-        flow_features = FlowFeatures()
+        flow_features = FeatureSetOne()
         min_max_scaling_net = MinMaxScalingNet(flow_features)
         ae_net = AE(input_vector=min_max_scaling_net, max_training_time=14400)
         resulting_building_block_net = ae_net
@@ -75,6 +73,9 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
         #                                                      plot_switch=draw_plot)
     else:
         combination_unit = None
+
+    # Seeding
+    torch.manual_seed(0)
 
     ids = IDS(data_loader=dataloader,
               resulting_building_block_sys=resulting_building_block_sys,
@@ -113,13 +114,11 @@ if __name__ == '__main__':
                             help='LID-DS base path')
         parser.add_argument('-r', dest='result_path', action='store', type=str, required=True,
                             help='result path')
-        parser.add_argument('-n', dest='ngram_length', action='store', type=int, required=True,
-                            help='ngram length')
 
         args = parser.parse_args()
         print(f"Start with scenario {args.scenario}")
 
-        main(args.scenario, args.base_path, args.result_path, args.ngram_length)
+        main(args.scenario, args.base_path, args.result_path)
 
     except KeyError as e:
         print(traceback.format_exc())

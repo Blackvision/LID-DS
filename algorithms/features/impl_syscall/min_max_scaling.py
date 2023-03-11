@@ -5,6 +5,10 @@ from dataloader.syscall import Syscall
 
 
 class MinMaxScaling(BuildingBlock):
+    """
+    calculate min-max scaling for a buildingblock
+    """
+
     def __init__(self, bb_to_scale: BuildingBlock):
         """
         """

@@ -5,21 +5,21 @@ import os
 import time
 
 scenario_2021 = [
-    # "Bruteforce_CWE-307",
-    # "CVE-2012-2122",
-    # "CVE-2014-0160",
+    "Bruteforce_CWE-307",
+    "CVE-2012-2122",
+    "CVE-2014-0160",
     # "CVE-2017-12635_6",
-    # "CVE-2017-7529",
-    # "CVE-2018-3760",
-    # "CVE-2019-5418",
-    # "CVE-2020-13942",
-    # "CVE-2020-23839",
+    "CVE-2017-7529",
+    "CVE-2018-3760",
+    "CVE-2019-5418",
+    "CVE-2020-13942",
+    "CVE-2020-23839",
     "CVE-2020-9484",
     "CWE-89-SQL-injection",
-    # "EPS_CWE-434",
-    # "Juice-Shop",
-    # "PHP_CWE-434",
-    # "ZipSlip",
+    "EPS_CWE-434",
+    "Juice-Shop",
+    "PHP_CWE-434",
+    "ZipSlip",
     # "real_world/"
 ]
 SCENARIOS = scenario_2021
@@ -31,9 +31,6 @@ SCRIPT = 'run_on_sc.sh'
 MAX_JOBS_IN_QUEUE = 1000
 NUM_EXPERIMENTS = 0
 
-# NGRAM_LENGTH = 5
-# NGRAM_LENGTHS = ["5", "7", "10", "13"]
-# FEATURE_SETS = ["0", "1", "2", "3"]
 
 def count_queue():
     """
@@ -60,7 +57,6 @@ def start_job(job_str):
 
 
 # start jobs for specific configuration
-# f"{NGRAM_LENGTH} " + \
 for scenario in SCENARIOS:
     NUM_EXPERIMENTS += 1
     command = f"sbatch --job-name=ex_{NUM_EXPERIMENTS:05} " + \

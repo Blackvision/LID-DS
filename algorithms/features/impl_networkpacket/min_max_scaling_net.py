@@ -2,7 +2,7 @@ from algorithms.building_block import BuildingBlock
 from dataloader.datapacket import Datapacket
 
 
-class Normalization():
+class Normalization:
 
     def __init__(self, value: int):
         self._min = value

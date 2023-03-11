@@ -3,7 +3,7 @@ import sys
 from pprint import pprint
 
 from algorithms.decision_engines.torus_som import TorusSom
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_syscall.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS

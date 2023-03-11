@@ -1,5 +1,6 @@
 import os
 import time
+import torch
 
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
@@ -16,13 +17,13 @@ from dataloader.direction import Direction
 def main():
     ### feature config:
     # general
-    lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
-    # lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
-    result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
-    # result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
+    # lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
+    lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
+    # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
+    result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     datapacket_mode = DatapacketMode.SYSCALL
     direction = Direction.BOTH
-    draw_plot = True
+    draw_plot = False
 
     # Syscall:
     ngram_length_sys = 5  # 5, 7, 10, 13
@@ -63,23 +64,25 @@ def main():
 
         dataloader = dataloader_factory(scenario_path, direction=direction)
         resulting_building_block_net = None
+        combination_unit = None
 
         # features syscalls
         if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
             syscallname = SyscallName()
             int_encoding_sys = IntEmbedding(syscallname)
-            # ohe_sys = OneHotEncoding(int_encoding_sys)
-            ngram_sys = Ngram(feature_list=[int_encoding_sys],
+            ohe_sys = OneHotEncoding(int_encoding_sys)
+            ngram_sys = Ngram(feature_list=[ohe_sys],
                               thread_aware=thread_aware_sys,
                               ngram_length=ngram_length_sys
                               )
-            stide = Stide(input=ngram_sys, window_length=1000)
-            # ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
-            resulting_building_block_sys = stide
+            # stide = Stide(input=ngram_sys, window_length=1000)
+            ae_sys = AE(input_vector=ngram_sys, max_training_time=172800)
+            resulting_building_block_sys = ae_sys
         else:
             resulting_building_block_sys = None
 
-        combination_unit = None
+        # Seeding
+        torch.manual_seed(0)
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=resulting_building_block_sys,

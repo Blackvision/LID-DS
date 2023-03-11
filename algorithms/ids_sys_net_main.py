@@ -1,16 +1,16 @@
 import os
 import time
 
+import torch
+
 from algorithms.combination_units.boolean_operation import BooleanOperation
 from algorithms.combination_units.boolean_operation_datapacket_trigger import BooleanOperationDatapacketTrigger
-from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
+from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
-from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -80,14 +80,14 @@ def main():
                               ngram_length=ngram_length_sys
                               )
             stide = Stide(input=ngram_sys, window_length=1000)
-            # ae_sys = AE(input_vector=ngram_sys, max_training_time=14400)
+            # ae_sys = AE(input_vector=ngram_sys, max_training_time=172800)
             resulting_building_block_sys = stide
         else:
             resulting_building_block_sys = None
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            flow_features = FlowFeatures()
+            flow_features = FeatureSetOne()
             min_max_scaling_net = MinMaxScalingNet(flow_features)
             ae_net = AE(input_vector=min_max_scaling_net, max_training_time=14400)
             resulting_building_block_net = ae_net
@@ -101,11 +101,14 @@ def main():
             #                                               time_window_steps=time_window_steps,
             #                                               scenario_path=dataloader.scenario_path,
             #                                               plot_switch=draw_plot)
-            combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.OR,
+            combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.AND,
                                                                  scenario_path=dataloader.scenario_path,
                                                                  plot_switch=draw_plot)
         else:
             combination_unit = None
+
+        # Seeding
+        torch.manual_seed(0)
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=resulting_building_block_sys,

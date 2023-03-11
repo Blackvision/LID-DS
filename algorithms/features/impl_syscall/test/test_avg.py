@@ -1,6 +1,6 @@
 import pytest
 
-from algorithms.features.impl_both.stream_average import StreamAverage
+from algorithms.features.impl_syscall.stream_average import StreamAverage
 from algorithms.features.impl_syscall.processID import ProcessID
 from dataloader.syscall_2021 import Syscall2021
 

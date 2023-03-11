@@ -1,7 +1,7 @@
 from collections import deque
 
 from algorithms.building_block import BuildingBlock
-from dataloader.datapacket import Datapacket
+from dataloader.syscall import Syscall
 
 
 class StreamSum(BuildingBlock):
@@ -29,17 +29,17 @@ class StreamSum(BuildingBlock):
     def depends_on(self):
         return self._dependency_list
 
-    def _calculate(self, datapacket: Datapacket):
+    def _calculate(self, syscall: Syscall):
         """
         if window is full: returns the sum over feature in the window 
         if window is not full: None
         if current feature is None: None
         """
-        new_value = self._feature.get_result(datapacket)
+        new_value = self._feature.get_result(syscall)
         if new_value is not None:
             thread_id = 0
             if self._thread_aware:
-                thread_id = datapacket.thread_id()
+                thread_id = syscall.thread_id()
             if thread_id not in self._window_buffer:
                 self._window_buffer[thread_id] = deque(maxlen=self._window_length)
                 self._sum_values[thread_id] = 0

@@ -4,7 +4,7 @@ import sys
 from pprint import pprint
 
 from algorithms.decision_engines.som import Som
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_syscall.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.ids import IDS
 from algorithms.persistance import save_to_json

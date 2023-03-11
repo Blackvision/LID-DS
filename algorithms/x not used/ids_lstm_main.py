@@ -3,7 +3,7 @@ import sys
 import time
 
 from algorithms.decision_engines.lstm import LSTM
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_syscall.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_syscall.concat import Concat
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram

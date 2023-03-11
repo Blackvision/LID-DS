@@ -3,7 +3,7 @@ import sys
 from pprint import pprint
 
 from algorithms.decision_engines.mlp import MLP
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_syscall.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.features.impl_syscall.ngram_minus_one import NgramMinusOne

@@ -1,4 +1,4 @@
-from algorithms.features.impl_both.w2v_embedding import W2VEmbedding
+from algorithms.features.impl_syscall.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_syscall.process_name import ProcessName
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from dataloader.syscall_2019 import Syscall2019

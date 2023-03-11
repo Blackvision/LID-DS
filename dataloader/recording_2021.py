@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 import os
 import traceback
@@ -80,13 +81,16 @@ class Recording2021(BaseRecording):
                 Networkpacket2021
 
         """
+        time = str(int(datetime.datetime.timestamp(datetime.datetime.now())*1000000))
         try:
             with zipfile.ZipFile(self.path, 'r') as zipped:
                 file_list = zipped.namelist()
                 for file in file_list:
                     if file.endswith('.pcap'):
-                        zipped.extract(file, 'tmp')
-                obj = pcapkit.extract(fin=f'tmp/{self.name}.pcap',
+                        path = os.path.join('tmp/', time)
+                        os.mkdir(path)
+                        zipped.extract(file, path)
+                obj = pcapkit.extract(fin=f'tmp/{time}/{self.name}.pcap',
                                       engine='pyshark',
                                       store=True,
                                       nofile=True)
@@ -99,7 +103,8 @@ class Recording2021(BaseRecording):
             print(traceback.format_exc())
             return None
         finally:
-            os.remove(f'tmp/{self.name}.pcap')
+            os.remove(f'tmp/{time}/{self.name}.pcap')
+            os.rmdir(f'tmp/{time}')
 
     def resource_stats(self) -> list:
         """

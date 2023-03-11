@@ -7,10 +7,7 @@ from tqdm import tqdm
 from algorithms.building_block import BuildingBlock
 from algorithms.combination_units.combination_unit import CombinationUnit
 from algorithms.data_preprocessor import DataPreprocessor
-from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
-from algorithms.features.impl_networkpacket.flow_features_one import FlowFeaturesOne
-from algorithms.features.impl_networkpacket.flow_features_three import FlowFeaturesThree
-from algorithms.features.impl_networkpacket.flow_features_two import FlowFeaturesTwo
+from algorithms.features.impl_networkpacket.feature_set import FeatureSet
 from algorithms.performance_measurement import Performance
 from algorithms.score_plot import ScorePlot
 from dataloader.base_data_loader import BaseDataLoader
@@ -220,10 +217,7 @@ class IDS:
 
     def _set_host_ip(self, recording, bb_net):
         for bb in bb_net.depends_on():
-            if (isinstance(bb, FlowFeatures) or
-                    isinstance(bb, FlowFeaturesOne) or
-                    isinstance(bb, FlowFeaturesTwo) or
-                    isinstance(bb, FlowFeaturesThree)):
+            if isinstance(bb, FeatureSet):
                 for entry in recording.metadata()["container"]:
                     if entry["role"] == "victim":
                         bb.set_host_ip(entry["ip"])

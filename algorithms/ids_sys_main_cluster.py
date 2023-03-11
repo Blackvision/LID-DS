@@ -2,6 +2,7 @@ import argparse
 import logging
 import time
 import traceback
+import torch
 
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
@@ -15,7 +16,7 @@ from dataloader.datapacket_mode import DatapacketMode
 from dataloader.direction import Direction
 
 
-def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
+def main(args_scenario, args_base_path, args_result_path):
     ### feature config:
     # general
     scenario = args_scenario
@@ -25,11 +26,12 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     direction = Direction.BOTH
 
     # Syscall:
-    ngram_length_sys = int(args_ngram_length)
+    ngram_length_sys = 5
     thread_aware_sys = True
 
     dataloader = dataloader_factory(lid_ds_base_path + scenario, direction=direction)
     resulting_building_block_net = None
+    combination_unit = None
 
     # features syscalls
     if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
@@ -45,7 +47,8 @@ def main(args_scenario, args_base_path, args_result_path, args_ngram_length):
     else:
         resulting_building_block_sys = None
 
-    combination_unit = None
+    # Seeding
+    torch.manual_seed(0)
 
     ids = IDS(data_loader=dataloader,
               resulting_building_block_sys=resulting_building_block_sys,
@@ -84,13 +87,11 @@ if __name__ == '__main__':
                             help='LID-DS base path')
         parser.add_argument('-r', dest='result_path', action='store', type=str, required=True,
                             help='result path')
-        parser.add_argument('-n', dest='ngram_length', action='store', type=str, required=True,
-                            help='ngram length')
 
         args = parser.parse_args()
         print(f"Start with scenario {args.scenario}")
 
-        main(args.scenario, args.base_path, args.result_path, args.ngram_length)
+        main(args.scenario, args.base_path, args.result_path)
 
     except KeyError as e:
         print(traceback.format_exc())

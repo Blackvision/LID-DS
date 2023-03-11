@@ -1,13 +1,13 @@
 import argparse
-import datetime
 import logging
-import os
 import time
 import traceback
-from pprint import pprint
+
+import torch
 
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
+from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
+from algorithms.features.impl_networkpacket.feature_set_5 import FeatureSetFive
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -26,17 +26,19 @@ def main(args_scenario, args_base_path, args_result_path):
 
     dataloader = dataloader_factory(lid_ds_base_path + scenario, direction=direction)
     resulting_building_block_sys = None
+    combination_unit = None
 
     # features networkpackets
     if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-        flowFeatures = FlowFeatures()
+        flowFeatures = FeatureSetFive()
         minMaxScalingNet = MinMaxScalingNet(flowFeatures)
         ae_net = AE(input_vector=minMaxScalingNet, max_training_time=14400)
         resulting_building_block_net = ae_net
     else:
         resulting_building_block_net = None
 
-    combination_unit = None
+    # Seeding
+    torch.manual_seed(0)
 
     ids = IDS(data_loader=dataloader,
               resulting_building_block_sys=resulting_building_block_sys,

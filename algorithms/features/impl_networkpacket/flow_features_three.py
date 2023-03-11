@@ -1,6 +1,4 @@
-from numpy import std
-
-from algorithms.building_block import BuildingBlock
+from algorithms.features.impl_networkpacket.feature_set import FeatureSet
 from dataloader.networkpacket import Networkpacket
 
 
@@ -116,6 +114,7 @@ class TimeBetweenPackets:
             self.avg_time_between_two_packets = round(sum(self._time_between_packets) / len(self._time_between_packets))
             # self.std_time_between_two_packets = round(std(self._time_between_packets))
         self._last_packet_time_stamp = networkpacket.timestamp_unix_in_ns()
+
 
 class PercInternetLayer:
 
@@ -256,7 +255,7 @@ class Connection:
             return False
 
 
-class FlowFeaturesThree(BuildingBlock):
+class FlowFeaturesThree(FeatureSet):
 
     def __init__(self):
         super().__init__()

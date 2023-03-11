@@ -1,10 +1,14 @@
-import datetime
 import os
 import time
-from pprint import pprint
+import torch
 
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_networkpacket.flow_features import FlowFeatures
+from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
+from algorithms.features.impl_networkpacket.feature_set_2 import FeatureSetTwo
+from algorithms.features.impl_networkpacket.feature_set_3 import FeatureSetThree
+from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
+from algorithms.features.impl_networkpacket.feature_set_5 import FeatureSetFive
+from algorithms.features.impl_networkpacket.flow_features_three import FlowFeaturesThree
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -15,10 +19,10 @@ from dataloader.direction import Direction
 def main():
     ### feature config:
     # general
-    lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
-    # lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
-    result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
-    # result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
+    # lid_ds_base_path = "/home/aohlhaeuser/Projekte/Masterarbeit"
+    lid_ds_base_path = "/media/sf_VM_ubuntu-20-04-3-LTS"
+    # result_path = "/home/aohlhaeuser/Projekte/Masterarbeit/Results/"
+    result_path = "/media/sf_VM_ubuntu-20-04-3-LTS/Results/lokal/"
     datapacket_mode = DatapacketMode.NETWORKPACKET
     direction = Direction.BOTH
     draw_plot = False
@@ -58,17 +62,24 @@ def main():
 
         dataloader = dataloader_factory(scenario_path, direction=direction)
         resulting_building_block_sys = None
+        combination_unit = None
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            flowFeatures = FlowFeatures()
+            # flowFeatures = FeatureSetOne()
+            # flowFeatures = FeatureSetTwo()
+            # flowFeatures = FeatureSetThree()
+            # flowFeatures = FeatureSetFour()
+            # flowFeatures = FeatureSetFive()
+            flowFeatures = FlowFeaturesThree()
             minMaxScalingNet = MinMaxScalingNet(flowFeatures)
             ae_net = AE(input_vector=minMaxScalingNet, max_training_time=14400)
             resulting_building_block_net = ae_net
         else:
             resulting_building_block_net = None
 
-        combination_unit = None
+        # Seeding
+        torch.manual_seed(0)
 
         ids = IDS(data_loader=dataloader,
                   resulting_building_block_sys=resulting_building_block_sys,
