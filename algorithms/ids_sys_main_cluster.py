@@ -2,10 +2,10 @@ import argparse
 import logging
 import time
 import traceback
+
 import torch
 
 from algorithms.decision_engines.ae import AE
-from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
 from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding

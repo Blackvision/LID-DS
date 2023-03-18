@@ -1,14 +1,10 @@
 import os
 import time
+
 import torch
 
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
-from algorithms.features.impl_networkpacket.feature_set_2 import FeatureSetTwo
-from algorithms.features.impl_networkpacket.feature_set_3 import FeatureSetThree
 from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
-from algorithms.features.impl_networkpacket.feature_set_5 import FeatureSetFive
-from algorithms.features.impl_networkpacket.flow_features_three import FlowFeaturesThree
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -66,12 +62,7 @@ def main():
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            # flowFeatures = FeatureSetOne()
-            # flowFeatures = FeatureSetTwo()
-            # flowFeatures = FeatureSetThree()
-            # flowFeatures = FeatureSetFour()
-            # flowFeatures = FeatureSetFive()
-            flowFeatures = FlowFeaturesThree()
+            flowFeatures = FeatureSetFour()
             minMaxScalingNet = MinMaxScalingNet(flowFeatures)
             ae_net = AE(input_vector=minMaxScalingNet, max_training_time=14400)
             resulting_building_block_net = ae_net

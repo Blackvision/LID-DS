@@ -3,7 +3,6 @@ import sys
 import time
 
 from algorithms.decision_engines.lstm import LSTM
-from algorithms.features.impl_syscall.w2v_embedding import W2VEmbedding
 from algorithms.features.impl_syscall.concat import Concat
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
@@ -11,6 +10,7 @@ from algorithms.features.impl_syscall.ngram_minus_one import NgramMinusOne
 from algorithms.features.impl_syscall.return_value import ReturnValue
 from algorithms.features.impl_syscall.thread_change_flag import ThreadChangeFlag
 from algorithms.features.impl_syscall.time_delta import TimeDelta
+from algorithms.features.impl_syscall.w2v_embedding import W2VEmbedding
 from algorithms.ids import IDS
 from algorithms.persistance import save_to_json, print_as_table
 from dataloader.dataloader_factory import dataloader_factory

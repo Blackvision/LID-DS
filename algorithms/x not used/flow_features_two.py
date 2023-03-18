@@ -117,6 +117,7 @@ class TimeBetweenPackets:
             self.std_time_between_two_packets = round(std(self._time_between_packets))
         self._last_packet_time_stamp = networkpacket.timestamp_unix_in_ns()
 
+
 class PercInternetLayer:
 
     def __init__(self):

@@ -6,7 +6,7 @@ import traceback
 import torch
 
 from algorithms.combination_units.boolean_operation import BooleanOperation
-from algorithms.combination_units.boolean_operation_datapacket_trigger import BooleanOperationDatapacketTrigger
+from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
@@ -29,8 +29,8 @@ def main(args_scenario, args_base_path, args_result_path):
     datapacket_mode = DatapacketMode.BOTH
     direction = Direction.BOTH
     draw_plot = False
-    time_window = 100000000  # 1000000000, 5000000000
-    time_window_steps = 50000000  # 500000000, 1000000000
+    time_window = 500000000
+    time_window_steps = 500000000
 
     # Syscall:
     ngram_length_sys = 5
@@ -63,14 +63,14 @@ def main(args_scenario, args_base_path, args_result_path):
 
     # config combination unit
     if datapacket_mode == DatapacketMode.BOTH:
-        # combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
-        #                                               time_window=time_window,
-        #                                               time_window_steps=time_window_steps,
-        #                                               scenario_path=dataloader.scenario_path,
-        #                                               plot_switch=draw_plot)
-        combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.OR,
-                                                             scenario_path=dataloader.scenario_path,
-                                                             plot_switch=draw_plot)
+        combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
+                                                      time_window=time_window,
+                                                      time_window_steps=time_window_steps,
+                                                      scenario_path=dataloader.scenario_path,
+                                                      plot_switch=draw_plot)
+        # combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.AND,
+        #                                                      scenario_path=dataloader.scenario_path,
+        #                                                      plot_switch=draw_plot)
     else:
         combination_unit = None
 

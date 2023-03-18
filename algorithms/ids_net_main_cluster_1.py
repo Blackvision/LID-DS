@@ -7,7 +7,6 @@ import torch
 
 from algorithms.decision_engines.ae import AE
 from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
-from algorithms.features.impl_networkpacket.feature_set_5 import FeatureSetFive
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory

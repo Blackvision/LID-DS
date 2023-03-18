@@ -6,8 +6,7 @@ import traceback
 import torch
 
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
-from algorithms.features.impl_networkpacket.feature_set_5 import FeatureSetFive
+from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -30,7 +29,7 @@ def main(args_scenario, args_base_path, args_result_path):
 
     # features networkpackets
     if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-        flowFeatures = FeatureSetFive()
+        flowFeatures = FeatureSetFour()
         minMaxScalingNet = MinMaxScalingNet(flowFeatures)
         ae_net = AE(input_vector=minMaxScalingNet, max_training_time=14400)
         resulting_building_block_net = ae_net

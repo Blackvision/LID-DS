@@ -9,7 +9,7 @@ from algorithms.combination_units.boolean_operation import BooleanOperation
 from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
+from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
@@ -54,7 +54,7 @@ def main(args_scenario, args_base_path, args_result_path):
 
     # features networkpackets
     if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-        flow_features = FeatureSetOne()
+        flow_features = FeatureSetFour()
         min_max_scaling_net = MinMaxScalingNet(flow_features)
         ae_net = AE(input_vector=min_max_scaling_net, max_training_time=14400)
         resulting_building_block_net = ae_net

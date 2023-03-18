@@ -12,7 +12,6 @@ from algorithms.features.impl_networkpacket.time_between_packets_std import Time
 from dataloader.networkpacket import Networkpacket
 
 
-
 class FeatureSetThree(FeatureSet):
 
     def __init__(self):

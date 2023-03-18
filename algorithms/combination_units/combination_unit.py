@@ -33,10 +33,3 @@ class CombinationUnit:
         merged_list.extend(list_net)
         merged_list.sort(key=lambda elem: elem[1])
         return merged_list
-
-    def _boolean_percent(self, count_true, count_all):
-        percent_of_true = count_true / count_all
-        if percent_of_true >= 0.5:
-            return True
-        else:
-            return False

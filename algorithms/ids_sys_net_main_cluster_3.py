@@ -6,13 +6,13 @@ import traceback
 import torch
 
 from algorithms.combination_units.boolean_operation import BooleanOperation
-from algorithms.combination_units.boolean_operation_datapacket_trigger import BooleanOperationDatapacketTrigger
+from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
-from algorithms.decision_engines.stide import Stide
 from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
+from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
 from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
@@ -29,8 +29,8 @@ def main(args_scenario, args_base_path, args_result_path):
     datapacket_mode = DatapacketMode.BOTH
     direction = Direction.BOTH
     draw_plot = False
-    time_window = 100000000  # 1000000000, 5000000000
-    time_window_steps = 50000000  # 500000000, 1000000000
+    time_window = 500000000
+    time_window_steps = 500000000
 
     # Syscall:
     ngram_length_sys = 5
@@ -42,13 +42,13 @@ def main(args_scenario, args_base_path, args_result_path):
     if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
         syscallname = SyscallName()
         int_encoding_sys = IntEmbedding(syscallname)
-        # ohe_sys = OneHotEncoding(int_encoding_sys)
-        ngram_sys = Ngram(feature_list=[int_encoding_sys],
+        ohe_sys = OneHotEncoding(int_encoding_sys)
+        ngram_sys = Ngram(feature_list=[ohe_sys],
                           thread_aware=thread_aware_sys,
                           ngram_length=ngram_length_sys)
-        stide = Stide(input=ngram_sys, window_length=1000)
-        # ae_sys = AE(input_vector=ngram_sys, max_training_time=172800)
-        resulting_building_block_sys = stide
+        # stide = Stide(input=ngram_sys, window_length=1000)
+        ae_sys = AE(input_vector=ngram_sys, max_training_time=172800)
+        resulting_building_block_sys = ae_sys
     else:
         resulting_building_block_sys = None
 
@@ -63,14 +63,14 @@ def main(args_scenario, args_base_path, args_result_path):
 
     # config combination unit
     if datapacket_mode == DatapacketMode.BOTH:
-        # combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
-        #                                               time_window=time_window,
-        #                                               time_window_steps=time_window_steps,
-        #                                               scenario_path=dataloader.scenario_path,
-        #                                               plot_switch=draw_plot)
-        combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.OR,
-                                                             scenario_path=dataloader.scenario_path,
-                                                             plot_switch=draw_plot)
+        combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
+                                                      time_window=time_window,
+                                                      time_window_steps=time_window_steps,
+                                                      scenario_path=dataloader.scenario_path,
+                                                      plot_switch=draw_plot)
+        # combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.AND,
+        #                                                      scenario_path=dataloader.scenario_path,
+        #                                                      plot_switch=draw_plot)
     else:
         combination_unit = None
 

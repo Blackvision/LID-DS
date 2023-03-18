@@ -5,11 +5,15 @@ import traceback
 
 import torch
 
+from algorithms.combination_units.boolean_operation import BooleanOperation
+from algorithms.combination_units.boolean_operation_time_window import BooleanOperationTimeWindow
 from algorithms.decision_engines.ae import AE
-from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
-from algorithms.features.impl_networkpacket.feature_set_3 import FeatureSetThree
-from algorithms.features.impl_networkpacket.feature_set_5 import FeatureSetFive
+from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
+from algorithms.features.impl_syscall.int_embedding import IntEmbedding
+from algorithms.features.impl_syscall.ngram import Ngram
+from algorithms.features.impl_syscall.one_hot_encoding import OneHotEncoding
+from algorithms.features.impl_syscall.syscall_name import SyscallName
 from algorithms.ids import IDS
 from dataloader.dataloader_factory import dataloader_factory
 from dataloader.datapacket_mode import DatapacketMode
@@ -22,21 +26,53 @@ def main(args_scenario, args_base_path, args_result_path):
     scenario = args_scenario
     lid_ds_base_path = args_base_path
     result_path = args_result_path
-    datapacket_mode = DatapacketMode.NETWORKPACKET
+    datapacket_mode = DatapacketMode.BOTH
     direction = Direction.BOTH
+    draw_plot = False
+    time_window = 2000000000
+    time_window_steps = 2000000000
+
+    # Syscall:
+    ngram_length_sys = 5
+    thread_aware_sys = True
 
     dataloader = dataloader_factory(lid_ds_base_path + scenario, direction=direction)
-    resulting_building_block_sys = None
-    combination_unit = None
+
+    # features syscalls
+    if datapacket_mode == DatapacketMode.SYSCALL or datapacket_mode == DatapacketMode.BOTH:
+        syscallname = SyscallName()
+        int_encoding_sys = IntEmbedding(syscallname)
+        ohe_sys = OneHotEncoding(int_encoding_sys)
+        ngram_sys = Ngram(feature_list=[ohe_sys],
+                          thread_aware=thread_aware_sys,
+                          ngram_length=ngram_length_sys)
+        # stide = Stide(input=ngram_sys, window_length=1000)
+        ae_sys = AE(input_vector=ngram_sys, max_training_time=172800)
+        resulting_building_block_sys = ae_sys
+    else:
+        resulting_building_block_sys = None
 
     # features networkpackets
     if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-        flowFeatures = FeatureSetThree()
-        minMaxScalingNet = MinMaxScalingNet(flowFeatures)
-        ae_net = AE(input_vector=minMaxScalingNet, max_training_time=14400)
+        flow_features = FeatureSetFour()
+        min_max_scaling_net = MinMaxScalingNet(flow_features)
+        ae_net = AE(input_vector=min_max_scaling_net, max_training_time=14400)
         resulting_building_block_net = ae_net
     else:
         resulting_building_block_net = None
+
+    # config combination unit
+    if datapacket_mode == DatapacketMode.BOTH:
+        combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
+                                                      time_window=time_window,
+                                                      time_window_steps=time_window_steps,
+                                                      scenario_path=dataloader.scenario_path,
+                                                      plot_switch=draw_plot)
+        # combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.AND,
+        #                                                      scenario_path=dataloader.scenario_path,
+        #                                                      plot_switch=draw_plot)
+    else:
+        combination_unit = None
 
     # Seeding
     torch.manual_seed(0)
@@ -46,7 +82,7 @@ def main(args_scenario, args_base_path, args_result_path):
               resulting_building_block_net=resulting_building_block_net,
               combination_unit=combination_unit,
               create_alarms=False,
-              plot_switch=False,
+              plot_switch=draw_plot,
               datapacket_mode=datapacket_mode,
               scenario=scenario)
 

@@ -3,11 +3,10 @@ import time
 
 import torch
 
-from algorithms.combination_units.boolean_operation import BooleanOperation
-from algorithms.combination_units.boolean_operation_datapacket_trigger import BooleanOperationDatapacketTrigger
+from algorithms.combination_units.boolean_percent_time_window import BooleanPercentTimeWindow
 from algorithms.decision_engines.ae import AE
 from algorithms.decision_engines.stide import Stide
-from algorithms.features.impl_networkpacket.feature_set_1 import FeatureSetOne
+from algorithms.features.impl_networkpacket.feature_set_4 import FeatureSetFour
 from algorithms.features.impl_networkpacket.min_max_scaling_net import MinMaxScalingNet
 from algorithms.features.impl_syscall.int_embedding import IntEmbedding
 from algorithms.features.impl_syscall.ngram import Ngram
@@ -87,7 +86,7 @@ def main():
 
         # features networkpackets
         if datapacket_mode == DatapacketMode.NETWORKPACKET or datapacket_mode == DatapacketMode.BOTH:
-            flow_features = FeatureSetOne()
+            flow_features = FeatureSetFour()
             min_max_scaling_net = MinMaxScalingNet(flow_features)
             ae_net = AE(input_vector=min_max_scaling_net, max_training_time=14400)
             resulting_building_block_net = ae_net
@@ -96,14 +95,18 @@ def main():
 
         # config combination unit
         if datapacket_mode == DatapacketMode.BOTH:
+            combination_unit = BooleanPercentTimeWindow(time_window=time_window,
+                                                        time_window_steps=time_window_steps,
+                                                        scenario_path=dataloader.scenario_path,
+                                                        plot_switch=draw_plot)
             # combination_unit = BooleanOperationTimeWindow(boolean_operation=BooleanOperation.AND,
             #                                               time_window=time_window,
             #                                               time_window_steps=time_window_steps,
             #                                               scenario_path=dataloader.scenario_path,
             #                                               plot_switch=draw_plot)
-            combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.AND,
-                                                                 scenario_path=dataloader.scenario_path,
-                                                                 plot_switch=draw_plot)
+            # combination_unit = BooleanOperationDatapacketTrigger(boolean_operation=BooleanOperation.AND,
+            #                                                      scenario_path=dataloader.scenario_path,
+            #                                                      plot_switch=draw_plot)
         else:
             combination_unit = None
 
